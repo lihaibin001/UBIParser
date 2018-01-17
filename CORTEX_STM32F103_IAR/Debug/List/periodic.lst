@@ -1,0 +1,814 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:25
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\periodic.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\periodic.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\periodic.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\periodic.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\common\periodic.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          
+     16          /**********************************************************************
+     17             Title                    : PERIODIC.C
+     18          
+     19             Module Description       : This is the standard code file for PERIODIC.
+     20          
+     21             Author                   : 
+     22          
+     23             Created                  : 
+     24          
+     25             Configuration ID         : 
+     26          
+     27           *********************************************************************/
+     28          
+     29          /**********************************************************************
+     30           * Installation Instructions (periodic tasks, etc.)
+     31           *
+     32           *********************************************************************/
+     33          
+     34          
+     35          /**********************************************************************
+     36           * Include header files
+     37           *********************************************************************/
+     38          #include "stm32f10x_gpio.h"
+     39          #include "standard.h"
+     40          #include "periodic.h"
+     41          #include "gps.h"
+     42          #include "ATProtocol.h"
+     43          #include "TelmApp.h"
+     44          
+     45          #define USE_DEBUG
+     46          #include "Debug.h"
+     47          
+     48          /**********************************************************************
+     49           * File level pragmas
+     50           *********************************************************************/
+     51          
+     52          /**********************************************************************
+     53           * Constant and Macro Definitions using #define
+     54           *********************************************************************/
+     55          #define  OS_PERIODIC_TICKS   5
+     56          #define  Periodic_Stay_Awake()   true
+     57          /**********************************************************************
+     58           * Enumerations and Structures and Typedefs
+     59           *********************************************************************/
+     60          
+     61          /**********************************************************************
+     62           * Global and Const Variable Defining Definitions / Initializations
+     63           *********************************************************************/
+     64          
+     65          /**********************************************************************
+     66           * Static Variables and Const Variables With File Level Scope
+     67           *********************************************************************/
+     68          static uint8_t pending_ticks;
+     69          static uint32_t eng_on_low_volt_cnt = 0;
+     70          static uint32_t gps_first_fixed_cnt=0;
+     71          static uint32_t gps_first_fixed_sec=0;
+     72          static uint8_t gps_first_fixed_flag=1;
+     73          /**********************************************************************
+     74           * ROM Const Variables With File Level Scope
+     75           *********************************************************************/
+     76          
+     77          
+     78          
+     79          /**********************************************************************
+     80           * Function Prototypes for Private Functions with File Level Scope
+     81           *********************************************************************/
+     82          
+     83          static void periodic_initialization(void);   // Initialize periodic tasks
+     84          static void periodic_1x(void);               /* Called every  4      /   5 ms        */
+     85          static void periodic_2x(void);               /* Called every  8      /  10 ms        */
+     86          static void periodic_4x(void);               /* Called every  16     /  20 ms        */
+     87          static void periodic_8x(void);               /* Called every  32     /  40 ms        */
+     88          static void periodic_16x(void);              /* Called every  64     /  80 ms        */
+     89          static void periodic_32x(void);              /* Called every  128    / 160 ms        */
+     90          static void periodic_64x(void);              /* Called every  256    / 320 ms        */
+     91          static void periodic_128x(void);             /* Called every  512    / 640 ms        */
+     92          static void periodic_256x(void);             /* Called every  1.024  /  1.28 Second  */
+     93          static void periodic_512x(void);             /* Called every  2.049  /  2.56 Seconds */
+     94          static void periodic_1024x(void);            /* Called every  4.096  /  5.12 Seconds */
+     95          static void periodic_2048x(void);            /* Called every  8.192  / 10.24 Seconds */
+     96          static void periodic_4096x(void);            /* Called every 16.384  / 20.48 Seconds */
+     97          static void periodic_8192x(void);            /* Called every 32.768  / 40.96 Seconds */
+     98          
+     99          static void Periodic_Set_GPS_Fixed(uint32_t count);
+    100          
+    101          /**********************************************************************
+    102           * Function Definitions
+    103           *********************************************************************/
+    104          
+    105          /**********************************************************************
+    106           *   Function: Task_Periodic
+    107           *
+    108           *  Parameters: None
+    109           *
+    110           *    Returns: None
+    111           *
+    112           * Description:  This tasks runs periodically (OS_Periodic_Ticks * RTI period).
+    113           *               It then runs slower loops at 2^n multiples of the base rate. 
+    114           *
+    115           *********************************************************************/
+    116          void Periodic_Task(void *pvParameters)
+    117          {
+    118              uint_fast16_t slice = 0;
+    119              uint_fast16_t mask;
+    120              #ifdef USE_DEBUG
+    121              DEBUG_PRINT0( DEBUG_MEDIUM, "[Periodic]:Periodic TASK Started!\r\n");
+    122              #endif
+    123              periodic_initialization();                   // initialize all periodic tasks
+    124           
+    125              ACC_initialize();
+    126              
+    127              while (E_OK == OS_Get_Resource(RES_PERIODIC)) {};
+    128                                                          // eat all pending ticks at start up
+    129              while (PS_Running() || Periodic_Stay_Awake())      // run the exec as long as system is 'awake'
+    130              {
+    131                  OS_Wait_Resource(RES_PERIODIC, 50);
+    132                                                          // wait for next periodic tick
+    133                  periodic_1x();                            // call base rate task
+    134                  slice++;                                  // increment time slice counter
+    135                  if (0 != slice)                           // don't search for bit if slice == 0
+    136                  {
+    137                      mask = 1;
+    138                      while (0 == (slice & mask))            // lowest set bit in slice
+    139                      {                                      // bit number indicates current time period
+    140                          mask <<= 1;
+    141                      }
+    142          
+    143                      switch (mask)
+    144                      {
+    145                          case   0x0001:                   
+    146                              periodic_2x();
+    147                              break;
+    148                          case   0x0002:                   
+    149                              periodic_4x();
+    150                              break;
+    151                          case   0x0004:                   
+    152                              periodic_8x();
+    153                              break;
+    154                          case   0x0008:                   
+    155                              periodic_16x();
+    156                              break;
+    157                          case   0x0010:                   
+    158                              periodic_32x();
+    159                              break;
+    160                          case   0x0020:                   
+    161                              periodic_64x();
+    162                              break;
+    163                          case   0x0040:                   
+    164                              periodic_128x();
+    165                              break;
+    166                          case   0x0080:                   
+    167                              periodic_256x();
+    168                              break;
+    169                          case   0x0100:                   
+    170                              periodic_512x();
+    171                              break;
+    172                          case   0x0200:                   
+    173                              periodic_1024x();
+    174                              break;
+    175                          case   0x0400:                   
+    176                              periodic_2048x();
+    177                              break;
+    178                          case   0x0800:                   
+    179                              periodic_4096x();
+    180                              break;
+    181                          case   0x1000:                   
+    182                              periodic_8192x();
+    183                              break;
+    184                          default : ;                         // unused time slice
+    185                      }
+    186                  }
+    187              }
+    188              OS_Terminate_Task();                         // End task
+    189          }
+    190          
+    191          /**********************************************************************
+    192           *   Function: Periodic_Tick
+    193           *  Parameters: None
+    194           *    Returns: None
+    195           * Description: This routine is call from the periodic RTI interrupt.
+    196           *              It schedules the periodic task to run every OS_PERIODIC_TICKS
+    197           *********************************************************************/
+    198          void Periodic_Tick(void)
+    199          {
+    200              pending_ticks++;
+    201              if (pending_ticks >= OS_PERIODIC_TICKS)
+    202              {  
+    203                  pending_ticks = 0;
+    204                  OS_Release_Resource_From_ISR(RES_PERIODIC, false);           // trigger periodic task
+    205              }
+    206          }
+    207          
+    208          /***********************************************************************
+    209           * Description: Initializes periodic tasks
+    210           *  Parameters: None
+    211           *     Returns: None
+    212           ***********************************************************************/
+    213          void periodic_initialization(void)   // Initialize periodic tasks
+    214          {
+    215          	LED_Set_Toggle_Period(0, LED_OFF);
+    216          	LED_Set_Toggle_Period(1, LED_OFF);
+    217          }
+    218          
+    219          /*************************************************************************
+    220           * Description: User configurable routine to execute every periodic cycle
+    221           *              NOTE: MUST NOT BLOCK (i.e. do not execute any wait or
+    222           *                   schedule a routine).
+    223           *  Parameters: None
+    224           *     Returns: None
+    225           *************************************************************************/
+    226          void periodic_1x(void)               /* Called every  4      /   5 ms        */
+    227          {
+    228              Pwr_Fail_Monitor();
+    229              TMR_Check_Timers();
+    230          }
+    231          
+    232          /***********************************************************************
+    233           * Description: User configurable routine to execute every 7.8125 mS
+    234           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    235           *  Parameters: None
+    236           *     Returns: None
+    237           ***********************************************************************/
+    238          void periodic_2x(void)               /* Called every  8      /  10 ms        */
+    239          {
+    240          
+    241          }
+    242          
+    243          /***********************************************************************
+    244           * Description: User configurable routine to execute every 7.8125 mS
+    245           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    246           *  Parameters: None
+    247           *     Returns: None
+    248           ***********************************************************************/
+    249          void periodic_4x(void)               /* Called every  16     /  20 ms        */
+    250          {
+    251            ACC_Voltage_Change_Monitor();
+    252            
+    253          //  
+    254          //  static uint16_t     batt_volt_max = 0;
+    255          //    static uint16_t     batt_volt_min = 0;
+    256          //    static uint32_t     period_slice = 0;
+    257          //    static uint8_t      event_debounce=2;
+    258          //    static uint16_t     batt_volt = 0;
+    259          //    static uint16_t     batt_volt_latch = 0;
+    260          //    static uint16_t     batt_volt_last = 0;
+    261          //    
+    262          //    batt_volt = Pwr_Fail_Get_Voltage();
+    263          //#if 0
+    264          //    DEBUG_PRINT1 (DEBUG_MEDIUM,"\r\n[SYSTEM]:Batt=%d V \r\n", batt_volt);
+    265          //#endif
+    266          //    
+    267          //    if (0 == batt_volt_last)
+    268          //    {
+    269          //      batt_volt_last = batt_volt ;
+    270          //    }
+    271          //    else if(((batt_volt_last - batt_volt) > 100) && (batt_volt_latch ==0))
+    272          //    {
+    273          //      batt_volt_latch = batt_volt_last ;
+    274          //
+    275          //    }
+    276          //    else
+    277          //    {
+    278          //      
+    279          //    }
+    280          // 
+    281          //          period_slice ++;
+    282          //    
+    283          //    batt_volt_last = batt_volt ;
+    284          //    
+    285          ////    if(batt_volt > batt_volt_max)
+    286          ////    {
+    287          ////        batt_volt_max = batt_volt;
+    288          ////    }
+    289          ////    else if((batt_volt < batt_volt_min) ||(batt_volt_min == 0))
+    290          ////    {
+    291          ////        batt_volt_min = batt_volt;
+    292          ////    }
+    293          //    // lower than 2.45V
+    294          ////    if (batt_volt<245)
+    295          ////    {
+    296          ////        // switch to long time wakeup mode;
+    297          ////    }
+    298          //
+    299          //#if 0   //
+    300          //    if(period_slice%150 == 0)//3s
+    301          //    {
+    302          ////        /*check if battery voltage > 13.25V, indicate that engine is running*/
+    303          ////        if(((batt_volt_max + batt_volt_min)>>1) >= 1325)
+    304          ////        {
+    305          ////            if(event_debounce > 0)
+    306          ////                event_debounce --;
+    307          ////
+    308          ////            if(event_debounce == 0)
+    309          ////            {
+    310          ////                event_debounce = 2;
+    311          ////            }
+    312          ////        }
+    313          ////        else
+    314          ////        {
+    315          ////            if(((batt_volt_max + batt_volt_min)>>1) < 10)
+    316          ////            {
+    317          ////                eng_on_low_volt_cnt ++;
+    318          ////            }
+    319          ////			else
+    320          ////			{
+    321          ////				eng_on_low_volt_cnt  = 0;
+    322          ////			}
+    323          ////			event_debounce = 2;
+    324          ////		}
+    325          //
+    326          //		/*check if battery voltage delta>1V, indicate that engine is starting up*/
+    327          //		if((batt_volt_max - batt_volt_min) >=150)
+    328          //		{
+    329          //          rl_set_acc_status(ON);    //ywf
+    330          //		}
+    331          //        
+    332          //        batt_volt_max = batt_volt;
+    333          //        batt_volt_min = batt_volt;
+    334          //	}
+    335          //#endif
+    336          // 	period_slice ++;
+    337          }
+    338          
+    339          /***********************************************************************
+    340           * Description: User configurable routine to execute every 7.8125 mS
+    341           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    342           *  Parameters: None
+    343           *     Returns: None
+    344           ***********************************************************************/
+    345          void periodic_8x(void)               /* Called every  32     /  40 ms        */
+    346          {
+    347          
+    348          }
+    349          
+    350          /***********************************************************************
+    351           * Description: User configurable routine to execute every 7.8125 mS
+    352           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    353           *  Parameters: None
+    354           *     Returns: None
+    355           ***********************************************************************/
+    356          void periodic_16x(void)              /* Called every  64     /  80 ms        */
+    357          {
+    358          
+    359          }
+    360          
+    361          /***********************************************************************
+    362           * Description: User configurable routine to execute every 7.8125 mS
+    363           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    364           *  Parameters: None
+    365           *     Returns: None
+    366           ***********************************************************************/
+    367          void periodic_32x(void)              /* Called every  128    / 160 ms        */
+    368          {
+    369          	static uint32_t led_period_slice = 0;
+    370          	LED_Toggle_Period_T led_on_period1 = LED_OFF;
+    371          	LED_Toggle_Period_T led_on_period2 = LED_OFF;
+    372          	uint8_t led_off_period1 = 0x04;
+    373          	uint8_t led_off_period2 = 0x04;
+    374          
+    375              if(PS_Running())
+    376              {
+    377                  uint8_t gps_gsm_status=0;
+    378          		if(false == vGps_Get_Gps_Status())
+    379          		{
+    380          			//GPS position is not available
+    381          			gps_gsm_status &= ~(0x01);
+    382          		}
+    383                  else
+    384                  {
+    385                      gps_gsm_status |= 0x01;
+    386                  }
+    387                  
+    388                  
+    389          		if(vATProt_Get_TCP_State() < NET_DATA_TRANS)
+    390          		{
+    391          			//2G is not connected
+    392          			gps_gsm_status &= ~(0x02);
+    393          		}
+    394                  else
+    395                  {
+    396                      gps_gsm_status |= 0x02;
+    397                  }
+    398                      
+    399          #if 0
+    400                  if (0==device_unmount_status())
+    401                  {
+    402                      gps_gsm_status = 0x3;
+    403                  }
+    404                  else
+    405                  {
+    406                      gps_gsm_status = 0x0;
+    407                  }
+    408          #endif
+    409                  switch(gps_gsm_status)
+    410                  {
+    411                      case 0:
+    412                          LED_Set_Toggle_Period(0,LED_OFF);
+    413                          LED_Set_Toggle_Period(1,LED_TOGGLE_FAST_BLINK_1);
+    414                          break;
+    415                      case 1:
+    416                          LED_Set_Toggle_Period(0,LED_TOGGLE_FAST_BLINK_1);
+    417                          LED_Set_Toggle_Period(1,LED_TOGGLE_FAST_BLINK_1);
+    418                          break;
+    419                      case 2:
+    420                          LED_Set_Toggle_Period(0,LED_OFF);
+    421                          LED_Set_Toggle_Period(1,LED_TOGGLE_SLOW_BLINK_1);
+    422                          break;
+    423                      case 3:
+    424                          LED_Set_Toggle_Period(0,LED_OFF);
+    425                          LED_Set_Toggle_Period(1,LED_ON);
+    426                          break;
+    427                      default:
+    428                          break;
+    429                  }
+    430              }
+    431          
+    432          //    if((Sys_Is_RTC_Wakeup())
+    433          //        ||(Sys_Is_RTC_Deep_Wakeup())
+    434          //        ||(!PS_Running()))
+    435          //    {
+    436          //        //system is not full function,entering sleep
+    437          //        LED_Set_Toggle_Period(0, LED_OFF);
+    438          //        LED_Set_Toggle_Period(1, LED_OFF);
+    439          //    }
+    440          
+    441          	led_on_period1 = LED_Get_Toggle_Period(0);
+    442          	led_on_period2 = LED_Get_Toggle_Period(1);
+    443          
+    444              if ((LED_OFF==led_on_period1) && (LED_OFF==led_on_period2))
+    445              {
+    446                  IO_MCU_LED1_CTL_OUT(Bit_SET);
+    447                  IO_MCU_LED2_CTL_OUT(Bit_SET);
+    448              }
+    449          #if 0
+    450              else if (LED_OFF==led_on_period2)
+    451              {
+    452                  IO_MCU_LED1_CTL_OUT(Bit_RESET);
+    453                  IO_MCU_LED2_CTL_OUT(Bit_SET);
+    454              }
+    455          #endif
+    456              else if ((LED_OFF == led_on_period1) && (LED_ON == led_on_period2))
+    457              {
+    458                  IO_MCU_LED1_CTL_OUT(Bit_SET);
+    459                  IO_MCU_LED2_CTL_OUT(Bit_RESET);
+    460              }
+    461              else
+    462              {
+    463                  if(led_period_slice>(led_on_period1+led_on_period2+led_off_period1+led_off_period2))
+    464                  {
+    465                      led_period_slice=0;
+    466                  }
+    467                  else if ((led_period_slice>0)&& (led_period_slice<=led_on_period1))
+    468                  {
+    469                      IO_MCU_LED1_CTL_OUT(Bit_RESET);
+    470                      IO_MCU_LED2_CTL_OUT(Bit_SET);
+    471                  }
+    472                  else if ((led_period_slice>led_on_period1)&& (led_period_slice<=led_on_period1+led_off_period1))
+    473                  {
+    474                      IO_MCU_LED1_CTL_OUT(Bit_SET);
+    475                      IO_MCU_LED2_CTL_OUT(Bit_SET);
+    476                  }
+    477                  else if ((led_period_slice>led_on_period1+led_off_period1) && (led_period_slice<=led_on_period1+led_off_period1+led_on_period2))
+    478                  {
+    479                      IO_MCU_LED1_CTL_OUT(Bit_SET);
+    480                      if (led_on_period2>0)
+    481                      {
+    482                          IO_MCU_LED2_CTL_OUT(Bit_RESET);
+    483                      }
+    484                      else
+    485                      {
+    486                          IO_MCU_LED2_CTL_OUT(Bit_SET);
+    487                      }
+    488                  }
+    489                  else
+    490                  {
+    491                      IO_MCU_LED1_CTL_OUT(Bit_SET);
+    492                      IO_MCU_LED2_CTL_OUT(Bit_SET);
+    493                  }
+    494              }
+    495          
+    496          	led_period_slice ++;
+    497          }
+    498          
+    499          /***********************************************************************
+    500           * Description: User configurable routine to execute every 7.8125 mS
+    501           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    502           *  Parameters: None
+    503           *     Returns: None
+    504           ***********************************************************************/
+    505          void periodic_64x(void)              /* Called every  256    / 320 ms        */
+    506          {
+    507              // First time gps fix message
+    508              if (vGps_Get_Gps_Status())
+    509              {
+    510                  gps_first_fixed_cnt++;
+    511                  Periodic_Set_GPS_Fixed(gps_first_fixed_cnt);
+    512                  if (gps_first_fixed_flag > 0)
+    513                  {
+    514                      OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_GPS_FIRST, 1));
+    515                      OS_Send_Message(OS_RECORD_TASK,Build_Message(RECORD_EVT_GPS_FIXED, 1));
+    516                  }
+    517                  gps_first_fixed_flag=0;
+    518              }
+    519              else
+    520              {
+    521                  gps_first_fixed_cnt++;
+    522              }
+    523              
+    524              Pwr_Charge_Monitor();
+    525              ACC_Signal_Monitor();
+    526              
+    527          }
+    528          
+    529          /***********************************************************************
+    530           * Description: User configurable routine to execute every 7.8125 mS
+    531           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    532           *  Parameters: None
+    533           *     Returns: None
+    534           ***********************************************************************/
+    535          void periodic_128x(void)             /* Called every  512    / 640 ms        */
+    536          {
+    537          }
+    538          
+    539          /***********************************************************************
+    540           * Description: User configurable routine to execute every 7.8125 mS
+    541           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    542           *  Parameters: None
+    543           *     Returns: None
+    544           ***********************************************************************/
+    545          void periodic_256x(void)             /* Called every  1.024  /  1.28 Second  */
+    546          {
+    547          }
+    548          
+    549          /***********************************************************************
+    550           * Description: User configurable routine to execute every 7.8125 mS
+    551           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    552           *  Parameters: None
+    553           *     Returns: None
+    554           ***********************************************************************/
+    555          void periodic_512x(void)             /* Called every  2.049  /  2.56 Seconds */
+    556          {
+    557          }
+    558          
+    559          /***********************************************************************
+    560           * Description: User configurable routine to execute every 7.8125 mS
+    561           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    562           *  Parameters: None
+    563           *     Returns: None
+    564           ***********************************************************************/
+    565          void periodic_1024x(void)            /* Called every  4.096  /  5.12 Seconds */
+    566          {
+    567          
+    568          }
+    569          
+    570          /***********************************************************************
+    571           * Description: User configurable routine to execute every 7.8125 mS
+    572           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    573           *  Parameters: None
+    574           *     Returns: None
+    575           ***********************************************************************/
+    576          void periodic_2048x(void)            /* Called every  8.192  / 10.24 Seconds */
+    577          {
+    578          
+    579          }
+    580          
+    581          /***********************************************************************
+    582           * Description: User configurable routine to execute every 7.8125 mS
+    583           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    584           *  Parameters: None
+    585           *     Returns: None
+    586           ***********************************************************************/
+    587          void periodic_4096x(void)            /* Called every 16.384  / 20.48 Seconds */
+    588          {
+    589          }
+    590          
+    591          /***********************************************************************
+    592           * Description: User configurable routine to execute every 7.8125 mS
+    593           *               NOTE: Must not Block (i.e. execute any wait or schedule routine)
+    594           *  Parameters: None
+    595           *     Returns: None
+    596           ***********************************************************************/
+    597          void periodic_8192x(void)            /* Called every 32.768  / 40.96 Seconds */
+    598          {
+    599          }
+    600          
+    601          /***********************************************************************
+    602           * Description: 
+    603           *  Parameters: None
+    604           *     Returns: None
+    605           ***********************************************************************/
+    606          uint32_t Periodic_Get_Low_Volt_Cnt(void)           
+    607          {
+    608          	return eng_on_low_volt_cnt;
+    609          }
+    610          /***********************************************************************
+    611           * Description: 
+    612           *  Parameters: None
+    613           *     Returns: None
+    614           ***********************************************************************/
+    615          void Periodic_Clear_Low_Volt_Cnt(void)           
+    616          {
+    617          	eng_on_low_volt_cnt = 0;
+    618          }
+    619          
+    620          static void Periodic_Set_GPS_Fixed(uint32_t count)
+    621          {
+    622              gps_first_fixed_sec=(count*32)/100;
+    623          }
+    624          
+    625          uint32_t Periodic_Get_GPS_Fixed(void)
+    626          {
+    627              return gps_first_fixed_sec;
+    628          }
+    629          /**********************************************************************
+    630           *
+    631           * REVISION RECORDS
+    632           *
+    633           *********************************************************************/
+    634          /*********************************************************************/
+    635          /* 
+    636           * 
+    637           *********************************************************************/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   Periodic_Clear_Low_Volt_Cnt
+       0   Periodic_Get_GPS_Fixed
+       0   Periodic_Get_Low_Volt_Cnt
+       0   Periodic_Set_GPS_Fixed
+       8   Periodic_Task
+         8   -> ACC_initialize
+         8   -> OS_Get_Resource
+         8   -> OS_Wait_Resource
+         8   -> PS_Running
+         8   -> periodic_1024x
+         8   -> periodic_128x
+         8   -> periodic_16x
+         8   -> periodic_1x
+         8   -> periodic_2048x
+         8   -> periodic_256x
+         8   -> periodic_2x
+         8   -> periodic_32x
+         8   -> periodic_4096x
+         8   -> periodic_4x
+         8   -> periodic_512x
+         8   -> periodic_64x
+         8   -> periodic_8192x
+         8   -> periodic_8x
+         8   -> periodic_initialization
+         8   -> printf
+       8   Periodic_Tick
+         8   -> OS_Release_Resource_From_ISR
+       0   periodic_1024x
+       0   periodic_128x
+       0   periodic_16x
+       8   periodic_1x
+         8   -> Pwr_Fail_Monitor
+         8   -> TMR_Check_Timers
+       0   periodic_2048x
+       0   periodic_256x
+       0   periodic_2x
+      24   periodic_32x
+        24   -> GPIO_WriteBit
+        24   -> LED_Get_Toggle_Period
+        24   -> LED_Set_Toggle_Period
+        24   -> PS_Running
+        24   -> vATProt_Get_TCP_State
+        24   -> vGps_Get_Gps_Status
+       0   periodic_4096x
+       8   periodic_4x
+         8   -> ACC_Voltage_Change_Monitor
+       0   periodic_512x
+       8   periodic_64x
+         8   -> ACC_Signal_Monitor
+         8   -> Build_Message
+         8   -> OS_Send_Message
+         8   -> Periodic_Set_GPS_Fixed
+         8   -> Pwr_Charge_Monitor
+         8   -> vGps_Get_Gps_Status
+       0   periodic_8192x
+       0   periodic_8x
+       8   periodic_initialization
+         8   -> LED_Set_Toggle_Period
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable7
+       4  ??DataTable7_1
+       4  ??DataTable7_2
+       4  ??DataTable7_3
+       4  ??DataTable7_4
+       4  ??DataTable7_5
+       4  ??DataTable7_6
+       4  ??DataTable7_7
+      36  ?_0
+       8  Periodic_Clear_Low_Volt_Cnt
+       6  Periodic_Get_GPS_Fixed
+       6  Periodic_Get_Low_Volt_Cnt
+      14  Periodic_Set_GPS_Fixed
+     204  Periodic_Task
+      36  Periodic_Tick
+       4  eng_on_low_volt_cnt
+       4  gps_first_fixed_cnt
+       1  gps_first_fixed_flag
+       4  gps_first_fixed_sec
+       4  led_period_slice
+       1  pending_ticks
+       2  periodic_1024x
+       2  periodic_128x
+       2  periodic_16x
+      12  periodic_1x
+       2  periodic_2048x
+       2  periodic_256x
+       2  periodic_2x
+     450  periodic_32x
+       2  periodic_4096x
+       8  periodic_4x
+       2  periodic_512x
+      96  periodic_64x
+       2  periodic_8192x
+       2  periodic_8x
+      20  periodic_initialization
+
+ 
+  17 bytes in section .bss
+   1 byte  in section .data
+  36 bytes in section .rodata
+ 912 bytes in section .text
+ 
+ 912 bytes of CODE  memory
+  36 bytes of CONST memory
+  18 bytes of DATA  memory
+
+Errors: none
+Warnings: none

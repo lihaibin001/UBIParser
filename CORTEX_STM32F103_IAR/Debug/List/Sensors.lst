@@ -1,0 +1,844 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:27
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Sensors\Sensors.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Sensors\Sensors.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\Sensors.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\Sensors.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\Sensors\Sensors.c
+      1          /**********************************************************************
+      2             Title                      : Sensors.c         
+      3                                                                                   
+      4             Module Description         : Sensors Module.
+      5          
+      6             Author                     : 
+      7             
+      8           *********************************************************************/
+      9          
+     10          /**********************************************************************
+     11           * Include files                                                       
+     12           *********************************************************************/
+     13          #include "standard.h"
+     14          #include <stdio.h>
+     15          #include <stdlib.h>
+     16          #include <string.h>
+     17          
+     18          #define USE_DEBUG
+     19          #include "Debug.h"
+     20          #include "Sensors.h"
+     21          
+     22          /**********************************************************************
+     23           * Constant and Macro Definitions using #define
+     24           *********************************************************************/
+     25          
+     26          
+     27          /*********************************************************************/
+     28          /* Enumerations and Structures and Typedefs                          */
+     29          /*********************************************************************/
+     30          
+     31          /**********************************************************************
+     32           * Function Prototypes for Private Functions with File Level Scope
+     33           *********************************************************************/
+     34          static void Sensors_LowLevel_Init(uint8_t sensor_type);
+     35          static void Sensors_Threshold_Config(uint8_t sensor_type, uint8_t threshold);
+     36          static void Sensors_ODR_Config(uint8_t sensor_type, uint8_t odr);
+     37          static void Sensors_Range_Config(uint8_t sensor_type, uint8_t range);
+     38          static void Sensors_Data_Read(uint8_t sensor_type);
+     39          
+     40          static void prvSensor_evt_nop(int16_t data);
+     41          static void prvSensor_evt_bma253_crash(int16_t data);
+     42          
+     43          static bool Sensors_set_high_g_intr_enable(Sensor_Type_T type, bool state);
+     44          static bool Sensors_set_fifo_mode(Sensor_Type_T type, Sensor_fifo_mode_type mode);
+     45          static bool Sensors_fifo_full_intr_enable(Sensor_Type_T type, bool state);
+     46          static bool Sensors_reset_intr(Sensor_Type_T type, bool state);
+     47          
+     48          
+     49          /**********************************************************************
+     50           * Global and Const Variable Defining Definitions / Initializations
+     51           *********************************************************************/
+     52          
+     53          /*********************************************************************/
+     54          /* Static Variables and Const Variables With File Level Scope        */
+     55          /*********************************************************************/
+     56          
+     57          //#define GSENS_BUF_NUM 30
+     58          bool car_move_detected;
+     59          
+     60          static int16_t DBE_x_Accel;
+     61          static int16_t DBE_y_Accel;
+     62          static int16_t DBE_z_Accel;
+     63          
+     64          static int16_t DBE_x_Gyro;
+     65          static int16_t DBE_y_Gyro;
+     66          static int16_t DBE_z_Gyro;
+     67          
+     68          static int16_t Crash_x_Accel;
+     69          static int16_t Crash_y_Accel;
+     70          static int16_t Crash_z_Accel;
+     71          
+     72          static  int32_t dbe_accel_data[SENSOR_DATA_FIFO_LEN];
+     73          static  int16_t dbe_gyro_data[SENSOR_DATA_FIFO_LEN];
+     74          static  int16_t crash_accel_data[SENSOR_DATA_FIFO_LEN];
+     75          
+     76          static  Sensor_crash_data_type  crash_data;
+     77          
+     78          //static  uint8_t crash_accel_cnt;
+     79          static  uint8_t dbe_accel_cnt;
+     80          static  uint8_t dbe_gyro_cnt;
+     81          
+     82          
+     83          static uint16_t crank_count = 0;
+     84          static uint16_t shake_count = 0;
+     85          
+     86          static int16_t g_stop_acc[3];
+     87          static int16_t g_run_acc[3];
+     88          
+     89          static void_int16_fptr sensor_event_handler[]=
+     90          {
+     91              prvSensor_evt_nop,              //SENSOR_EVT_NOP
+     92              prvSensor_evt_bma253_crash,     // SENSOR_EVT_BMA253_CRASH
+     93          };
+     94          
+     95          /*********************************************************************/
+     96          /* User file include                                                 */
+     97          /*********************************************************************/
+     98          
+     99          /**********************************************************************
+    100           * Function Definitions
+    101           *********************************************************************/
+    102          /*******************************************************************************
+    103          *    Function: Sensors_init
+    104          *
+    105          *  Parameters:  uint8_t regAddr
+    106          *     Returns:  None
+    107          * Description:  read register of Gsensor through IIC bus
+    108          *******************************************************************************/
+    109          void Sensors_init(void)
+    110          {
+    111              // Low level init
+    112              Sensors_LowLevel_Init(SENSOR_TYPE_CRASH_ACCEL);
+    113              
+    114              // Set Range 16g
+    115              Sensors_Range_Config(SENSOR_TYPE_CRASH_ACCEL, BMA2x2_RANGE_16G);
+    116              
+    117              /* Set ODR 
+    118               *  ODR = 2*BW =2 * 1000 = 2000 Hz
+    119               *  update time = 1/ ODR = 0.5 ms     
+    120               */
+    121              Sensors_ODR_Config(SENSOR_TYPE_CRASH_ACCEL, BMA2x2_BW_1000HZ);
+    122              
+    123              /* Set threshold 
+    124               * threshold = 50 * 62.5 mg = 3125 mg
+    125               */
+    126              Sensors_Threshold_Config(SENSOR_TYPE_CRASH_ACCEL, 50);
+    127              
+    128          }
+    129          
+    130          /*******************************************************************************
+    131          *    Function:  prvSensor_evt_nop
+    132          *
+    133          *  Parameters:  None
+    134          *     Returns:  None
+    135          * Description:  Empty event.
+    136          *******************************************************************************/
+    137          static void prvSensor_evt_nop(int16_t data)
+    138          {
+    139          }
+    140          
+    141          /*******************************************************************************
+    142          *    Function:  prvSensor_evt_bma253_crash
+    143          *
+    144          *  Parameters:  event data
+    145          *     Returns:  None
+    146          * Description:  handle bma253 interrupt event.
+    147          *******************************************************************************/
+    148          static void prvSensor_evt_bma253_crash(int16_t data)
+    149          {
+    150              uint8_t intr_sta[4];
+    151              uint8_t crash_accel_fifo_frame_cnt;
+    152              static uint16_t msg_data;
+    153              // Read interrupt type from sensor
+    154              bma2x2_get_intr_stat(intr_sta);
+    155              if(intr_sta[0] & 0x02) // bma253 interrupt is generated by high-g interrupt
+    156              {
+    157                  crash_data.crash_id++;
+    158                  crash_data.crash_accel_buf_frame_cnt = 0;
+    159                  
+    160                  //record the crash time
+    161                  crash_data.crash_time = RTC_GetCounter();
+    162          
+    163                  // clear old buffer data
+    164                  memset(crash_accel_data, 0, sizeof(crash_accel_data));
+    165                  memset(crash_data.crash_accel_buffer, 0, sizeof(crash_data.crash_accel_buffer));
+    166                  
+    167                  //disable high-g interrupt
+    168                  Sensors_set_high_g_intr_enable(SENSOR_TYPE_CRASH_ACCEL, false);
+    169                  
+    170                  //enable fifo full interrupt
+    171                  Sensors_fifo_full_intr_enable(SENSOR_TYPE_CRASH_ACCEL, true);  
+    172                  
+    173                  msg_data = 1;
+    174                  //notify the record_task to collect the crash data
+    175          //        OS_Send_Message(OS_RECORD_TASK, Build_Message(RECORD_EVT_CRASH, 1)); 
+    176              }
+    177              else if(intr_sta[1] & 0x20) // bma253 interrupt is generated by fifo full interrupt
+    178              {
+    179                  msg_data = 2;
+    180                  //Read FIFO directly
+    181              }
+    182              
+    183              // Read sensor FIFO data
+    184              crash_accel_fifo_frame_cnt = BMA253_ReadFIFOxyz(crash_accel_data); 
+    185          
+    186              // save FIFO data to buffer
+    187              memcpy(crash_data.crash_accel_buffer + crash_data.crash_accel_buf_frame_cnt*3, \
+    188                      crash_accel_data, crash_accel_fifo_frame_cnt*2*3);
+    189              crash_data.crash_accel_buf_frame_cnt += crash_accel_fifo_frame_cnt;
+    190                  
+    191              //if crash accelerate's data number is larger than 2 fifo's data, we should stop reading the fifo
+    192              if(crash_data.crash_accel_buf_frame_cnt > (31 + 31))
+    193              {
+    194                  //disable fifo full interrupt, end current crash record
+    195                  Sensors_fifo_full_intr_enable(SENSOR_TYPE_CRASH_ACCEL, false);
+    196                  
+    197                  //Enable high-g interrupt, start monitor next crash
+    198                  Sensors_set_high_g_intr_enable(SENSOR_TYPE_CRASH_ACCEL, true);
+    199                    
+    200                  msg_data = 0;
+    201          
+    202                  //notify the record_task to collect the crash data
+    203          //        OS_Send_Message(OS_RECORD_TASK, Build_Message(RECORD_EVT_CRASH, 0));     
+    204              }
+    205                 
+    206              //reset interrupt latched
+    207              Sensors_reset_intr(SENSOR_TYPE_CRASH_ACCEL, true);  
+    208              
+    209              //notify the record_task to collect the crash data
+    210              OS_Send_Message(OS_RECORD_TASK, Build_Message(RECORD_EVT_CRASH, msg_data)); 
+    211          }
+    212          
+    213          /*******************************************************************************
+    214          *    Function:  Sensors_LowLevel_Init
+    215          *
+    216          *  Parameters:  None
+    217          *     Returns:  None
+    218          * Description:  Low level initialize routine.
+    219          *******************************************************************************/
+    220          static void Sensors_LowLevel_Init(uint8_t sensor_type)
+    221          {
+    222              // Initialize IO
+    223              switch(sensor_type)
+    224              {
+    225                case SENSOR_TYPE_DBE_ACCEL:
+    226                  break;
+    227                case SENSOR_TYPE_DBE_GYRO:
+    228                  break;
+    229                case SENSOR_TYPE_CRASH_ACCEL:
+    230                  {
+    231                      BMA253_LowLevel_Init();
+    232                      crash_data.crash_id = 0;
+    233                      crash_data.crash_accel_buf_frame_cnt = 0;
+    234                      crash_data.crash_time = 0;
+    235                      memset(crash_data.crash_accel_buffer, 0, sizeof(crash_data.crash_accel_buffer));
+    236          //            if(!Sys_Is_Gsensor_Wakeup())
+    237                      {
+    238                          BMA253_Init();
+    239                      }           
+    240                      break;
+    241                  }
+    242                default:
+    243                  return ;
+    244              }
+    245          }
+    246          
+    247          /*******************************************************************************
+    248          *    Function:  Sensors_Threshold_Config
+    249          *
+    250          *  Parameters:  sensor type, threshold
+    251          *     Returns:  None
+    252          * Description:  Set threshold routine.
+    253          *******************************************************************************/
+    254          static void Sensors_Threshold_Config(uint8_t sensor_type, uint8_t threshold)
+    255          {
+    256              // Set Interrupt trigger threshold
+    257              switch(sensor_type)
+    258              {
+    259                case SENSOR_TYPE_DBE_ACCEL:
+    260                case SENSOR_TYPE_DBE_GYRO:
+    261                  break;
+    262                case SENSOR_TYPE_CRASH_ACCEL:
+    263                  /* only use high g  / range = 16g
+    264                   * interrupt = (thres_u8 * 62.5) mg
+    265                   */
+    266                  if(SUCCESS != bma2x2_set_thres(BMA2x2_HIGH_THRES, threshold))
+    267                  {
+    268                      //set  fail
+    269                      return ;
+    270                  }
+    271                  break;
+    272                  
+    273                default:
+    274                  break;
+    275              }
+    276          }
+    277          
+    278          /*******************************************************************************
+    279          *    Function:  Sensors_ODR_Config
+    280          *
+    281          *  Parameters:  sensor type, bandwidth
+    282          *     Returns:  None
+    283          * Description:  Set output date rate routine.
+    284          *******************************************************************************/
+    285          static void Sensors_ODR_Config(uint8_t sensor_type, uint8_t bw)
+    286          {
+    287              // Set sensor ODR
+    288              switch(sensor_type)
+    289              {
+    290                case SENSOR_TYPE_DBE_ACCEL:
+    291                case SENSOR_TYPE_DBE_GYRO:
+    292                  break;
+    293                case SENSOR_TYPE_CRASH_ACCEL:
+    294                  /* ODR = 2 * BW */
+    295                  if(SUCCESS != bma2x2_set_bw(bw))
+    296                  {
+    297                      //set  fail
+    298                      return ;
+    299                  }
+    300                  break;
+    301                  
+    302                default:
+    303                  break;
+    304              }
+    305          }
+    306          
+    307          /*******************************************************************************
+    308          *    Function:  Sensors_Range_Config
+    309          *
+    310          *  Parameters:  sensor type, range
+    311          *     Returns:  None
+    312          * Description:  Set range  routine.
+    313          *******************************************************************************/
+    314          static void Sensors_Range_Config(uint8_t sensor_type, uint8_t range)
+    315          {
+    316              // Set sensor range, accel and gyro uses different range
+    317              switch(sensor_type)
+    318              {
+    319                case SENSOR_TYPE_DBE_ACCEL:
+    320                case SENSOR_TYPE_DBE_GYRO:
+    321                  break;
+    322                case SENSOR_TYPE_CRASH_ACCEL:
+    323                  if(SUCCESS != bma2x2_set_range(range))
+    324                  {
+    325                      //set range fail
+    326                      return ;
+    327                  }
+    328                  break;
+    329                
+    330                default:
+    331                  break;
+    332              }
+    333          }
+    334          
+    335          /*******************************************************************************
+    336          *    Function:  Sensors_LowLevel_Init
+    337          *
+    338          *  Parameters:  None
+    339          *     Returns:  None
+    340          * Description:  Low level initialize routine.
+    341          *******************************************************************************/
+    342          static void Sensors_Set_FIFO(uint8_t sensor_type)
+    343          {
+    344              // sensor FIFO control
+    345              if (sensor_type > SENSOR_TYPE_MAX)
+    346                  return;
+    347          }
+    348          
+    349          static void Sensors_Data_Read(uint8_t sensor_type)
+    350          {
+    351              // Read last data
+    352              if (sensor_type > SENSOR_TYPE_MAX)
+    353                  return;
+    354          }
+    355          
+    356          void Sensors_sleep(void)
+    357          {
+    358              // All sensors set to sleep config
+    359          }
+    360          
+    361          void Sensors_get_DBE_data(uint8_t sensor_type, uint8_t *data)
+    362          {
+    363              // Read data stored in DBE buffer
+    364              if (sensor_type > SENSOR_TYPE_MAX)
+    365                  return;
+    366          }
+    367          
+    368          /*******************************************************************************
+    369          *    Function:  Sensors_set_range
+    370          *
+    371          *  Parameters:  sensor_type: DBE/Crash accel or gyro
+    372          *               data: parameter to get crash accel data
+    373          *     Returns:  None
+    374          * Description:  Set Sensor range.
+    375          *******************************************************************************/
+    376          void Sensors_get_crash_data(uint8_t sensor_type, uint8_t *data)
+    377          {
+    378              if (sensor_type > SENSOR_TYPE_MAX)
+    379                  return;
+    380          }
+    381          
+    382          /*******************************************************************************
+    383          *    Function:  Sensors_set_range
+    384          *
+    385          *  Parameters:  sensor_type: DBE/Crash accel or gyro
+    386          *               range: accel 2g to 16g, gyro 125dps to 2000dps
+    387          *     Returns:  None
+    388          * Description:  Set Sensor range.
+    389          *******************************************************************************/
+    390          void Sensors_set_range(uint8_t sensor_type, uint8_t range)
+    391          {
+    392              if (sensor_type > SENSOR_TYPE_MAX)
+    393                  return;
+    394          }
+    395          
+    396          /*******************************************************************************
+    397          *    Function:  Sensors_set_odr
+    398          *
+    399          *  Parameters:  sensor_type: DBE/Crash accel or gyro
+    400          *               odr: 6.25 to 1600
+    401          *     Returns:  None
+    402          * Description:  TASK to set Sensor ODR.
+    403          *******************************************************************************/
+    404          void Sensors_set_odr(uint8_t sensor_type, uint8_t odr)
+    405          {
+    406              if (sensor_type > SENSOR_TYPE_MAX)
+    407                  return;
+    408              // Call ODR setting functions according to sensor type
+    409          }
+    410          
+    411          /*******************************************************************************
+    412          *    Function:  Sensor_Task
+    413          *
+    414          *  Parameters:  None
+    415          *     Returns:  None
+    416          * Description:  TASK to handle Sensor interrupt.
+    417          *******************************************************************************/
+    418          void Sensors_INT(uint8_t sensor_type)
+    419          {
+    420              if (sensor_type > SENSOR_TYPE_MAX)
+    421                  return;
+    422              // Call Interrupt handling functions according to sensor type
+    423          }
+    424          
+    425          /*******************************************************************************
+    426          *    Function:  Sensor_Task
+    427          *
+    428          *  Parameters:  None
+    429          *     Returns:  None
+    430          * Description:  TASK to handle Sensor data read.
+    431          *******************************************************************************/
+    432          extern void Sensor_Task(void* pvParameters)
+    433          {
+    434              Data_Message_T msg;
+    435          
+    436              #ifdef USE_DEBUG
+    437              DEBUG_PRINT0( DEBUG_MEDIUM, "[Sensor]:Sensor TASK Started!\r\n");
+    438              #endif
+    439              
+    440              while(PS_Running())
+    441              {
+    442                  if(E_OK == OS_Wait_Message(OS_SENSOR_TASK, &msg.all, MSec_To_Ticks(20)))// 20ms
+    443                	{
+    444                      if(msg.parts.msg < SENSOR_NUM_EVENTS)
+    445                      {
+    446                          if(NULL != sensor_event_handler[msg.parts.msg])
+    447                          {
+    448                              (*sensor_event_handler[msg.parts.msg])(msg.parts.data);
+    449                          }
+    450                      }
+    451                  }
+    452          
+    453                  // Check sensor data and status
+    454              }
+    455              OS_Terminate_Task();
+    456          }
+    457          
+    458          
+    459          /*******************************************************************************
+    460          *    Function:  Sensor_get_data
+    461          *
+    462          *  Parameters:  sensor_type express which sensor to be operated
+    463          *               pData point to a buffer that store the data of the sensor
+    464          *     Returns:  the data len
+    465          * Description:  TASK to handle Sensor data read.
+    466          *******************************************************************************/
+    467          extern uint16_t Sensor_get_data(Sensor_Type_T sensor_type, int16_t *pData)
+    468          {
+    469              switch(sensor_type)
+    470              {
+    471                  case SENSOR_TYPE_DBE_ACCEL:
+    472                      memcpy(pData, dbe_accel_data, dbe_accel_cnt*2*3);
+    473                      return dbe_accel_cnt;
+    474                  case SENSOR_TYPE_DBE_GYRO:
+    475                      memcpy(pData, dbe_gyro_data, dbe_gyro_cnt*2*3);
+    476                      return dbe_gyro_cnt;
+    477                  case SENSOR_TYPE_CRASH_ACCEL:
+    478          //            memcpy(pData, crash_accel_data, crash_accel_cnt*2*3);
+    479          //            return crash_accel_cnt;
+    480                  default:
+    481                      return 0;
+    482              }
+    483          }
+    484          
+    485          extern void *Sensor_crash_data(Sensor_Type_T sensor_type)
+    486          {
+    487              switch(sensor_type)
+    488              {
+    489                  case SENSOR_TYPE_DBE_ACCEL:
+    490           //           memcpy(pData, dbe_accel_data, dbe_accel_cnt*2*3);
+    491           //           return dbe_accel_cnt;
+    492                  case SENSOR_TYPE_DBE_GYRO:
+    493          //            memcpy(pData, dbe_gyro_data, dbe_gyro_cnt*2*3);
+    494          //            return dbe_gyro_cnt;
+    495                  case SENSOR_TYPE_CRASH_ACCEL:
+    496                       return &crash_data;
+    497                  default:
+    498                      return 0;
+    499              }
+    500          }
+    501          
+    502          /*******************************************************************************
+    503          *    Function: Sensors_set_high_g_intr_enable
+    504          *
+    505          *  Parameters:  type express the type of the sensor
+    506          *               state express the state of the sensor, ENABLE
+    507          *     Returns:  ture of fasle
+    508          * Description:  enable or disable the specified sensor
+    509          *******************************************************************************/
+    510          bool Sensors_set_high_g_intr_enable(Sensor_Type_T type, bool state)
+    511          {
+    512              uint8_t sensor_sta = INTR_DISABLE;
+    513              if(state == true)
+    514              {
+    515                  sensor_sta = INTR_ENABLE;
+    516              }
+    517              switch(type)
+    518              {
+    519                  case SENSOR_TYPE_DBE_ACCEL:
+    520                      break;
+    521                  case SENSOR_TYPE_DBE_GYRO:
+    522                      break;
+    523                  case SENSOR_TYPE_CRASH_ACCEL:
+    524                      //enable high-g x interrupt
+    525                      if(SUCCESS != bma2x2_set_intr_enable(BMA2x2_HIGH_G_X_INTR, sensor_sta))
+    526                      {
+    527                          return false;
+    528                      }
+    529                      //enable high-g y interrupt
+    530                      if(SUCCESS != bma2x2_set_intr_enable(BMA2x2_HIGH_G_Y_INTR, sensor_sta))
+    531                      {
+    532                          return false;
+    533                      }
+    534                      //enable high-g z interrupt
+    535                      if(SUCCESS != bma2x2_set_intr_enable(BMA2x2_HIGH_G_Z_INTR, sensor_sta))
+    536                      {
+    537                          return false;
+    538                      }
+    539                      break;
+    540                  default:
+    541                      return false;
+    542              }
+    543              return true;
+    544          }
+    545          
+    546          /*******************************************************************************
+    547          *    Function: Sensors_set_fifo_mode
+    548          *
+    549          *  Parameters:  type express the type of the sensor
+    550          *               'mode' express  the sensor should work in which mode
+    551          *     Returns:  ture of fasle
+    552          * Description:  set the fifo mode
+    553          *******************************************************************************/
+    554          bool Sensors_set_fifo_mode(Sensor_Type_T type, Sensor_fifo_mode_type mode)
+    555          {
+    556              switch(type)
+    557              {
+    558                  case SENSOR_TYPE_DBE_ACCEL:
+    559                      break;
+    560                  case SENSOR_TYPE_DBE_GYRO:
+    561                      break;
+    562                  case SENSOR_TYPE_CRASH_ACCEL:
+    563                      if(SUCCESS != bma2x2_set_fifo_mode((uint8_t)mode))
+    564                      { 
+    565                          return false;
+    566                      }
+    567                      break;
+    568                  default:
+    569                      return false;
+    570              }
+    571              return true;
+    572          }
+    573          
+    574          /*******************************************************************************
+    575          *    Function: Sensors_fifo_full_intr_enable
+    576          *
+    577          *  Parameters:  'type' express the type of the sensor
+    578          *               'state' express whether we should enable the 'fifo full' interrupt
+    579          *     Returns:  ture of fasle
+    580          * Description:  enable of disable the 'fifo full' interrupt
+    581          *******************************************************************************/
+    582          bool Sensors_fifo_full_intr_enable(Sensor_Type_T type, bool state)
+    583          {
+    584              uint8_t sensor_sta = INTR_DISABLE;
+    585              if(state == true)
+    586              {
+    587                  sensor_sta = INTR_ENABLE;
+    588              }
+    589              switch(type)
+    590              {
+    591                  case SENSOR_TYPE_DBE_ACCEL:
+    592                      break;
+    593                  case SENSOR_TYPE_DBE_GYRO:
+    594                      break;
+    595                  case SENSOR_TYPE_CRASH_ACCEL:
+    596                      if(SUCCESS != bma2x2_set_intr_fifo_full(sensor_sta))
+    597                      {
+    598                          return false;
+    599                      }    
+    600                      break;
+    601                  default:
+    602                      return false;
+    603              }
+    604              return true;
+    605          }
+    606          
+    607          /*******************************************************************************
+    608          *    Function: Sensors_reset_intr
+    609          *
+    610          *  Parameters:  'type' express the type of the sensor
+    611          *               'state' express whether we should enable the 'fifo full' interrupt
+    612          *     Returns:  ture of fasle
+    613          * Description:  enable of disable the 'fifo full' interrupt
+    614          *******************************************************************************/
+    615          bool Sensors_reset_intr(Sensor_Type_T type, bool state)
+    616          {
+    617              uint8_t sensor_sta = INTR_DISABLE;
+    618              if(state == true)
+    619              {
+    620                  sensor_sta = INTR_ENABLE;
+    621              }
+    622              switch(type)
+    623              {
+    624                  case SENSOR_TYPE_DBE_ACCEL:
+    625                      break;
+    626                  case SENSOR_TYPE_DBE_GYRO:
+    627                      break;
+    628                  case SENSOR_TYPE_CRASH_ACCEL:
+    629                      if(SUCCESS != bma2x2_rst_intr(sensor_sta))
+    630                      {
+    631                          return false;
+    632                      }    
+    633                      break;
+    634                  default:
+    635                      return false;
+    636              }
+    637              return true;
+    638          }
+    639          
+    640          /*******************************************************************************
+    641          *    Function: Sensors_crash_reset
+    642          *
+    643          *  Parameters:  None
+    644          *               
+    645          *     Returns:  None
+    646          * Description:  Reset to high g interrupte
+    647          *******************************************************************************/
+    648          void Sensors_crash_reset(void)
+    649          {
+    650          
+    651              //disable fifo full interrupt, end current crash record
+    652              Sensors_fifo_full_intr_enable(SENSOR_TYPE_CRASH_ACCEL, false);
+    653              
+    654              //Enable high-g interrupt, start monitor next crash
+    655              Sensors_set_high_g_intr_enable(SENSOR_TYPE_CRASH_ACCEL, true);
+    656              
+    657              //reset interrupt latched
+    658              Sensors_reset_intr(SENSOR_TYPE_CRASH_ACCEL, true); 
+    659          }
+    660          
+    661          /*====================================================================================*\
+    662           * File Revision History
+    663           *====================================================================================
+    664           *
+    665           * Date        userid  (Description on following lines:)
+    666           * ----------- ------  ---------------------------------------------
+    667           *
+    668            ====================================================================================*/
+    669          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   Sensor_Task
+         8   -- Indirect call
+         8   -> OS_Wait_Message
+         8   -> PS_Running
+         8   -> printf
+         8   -> vTaskSuspend
+       0   Sensor_crash_data
+       8   Sensor_get_data
+         8   -> __aeabi_memcpy
+       0   Sensors_INT
+       8   Sensors_LowLevel_Init
+         8   -> BMA253_Init
+         8   -> BMA253_LowLevel_Init
+         8   -> __aeabi_memset
+       8   Sensors_ODR_Config
+         8   -> bma2x2_set_bw
+       8   Sensors_Range_Config
+         8   -> bma2x2_set_range
+       8   Sensors_Threshold_Config
+         8   -> bma2x2_set_thres
+       8   Sensors_crash_reset
+         8   -> Sensors_fifo_full_intr_enable
+         8   -> Sensors_reset_intr
+         8   -> Sensors_set_high_g_intr_enable
+       8   Sensors_fifo_full_intr_enable
+         8   -> bma2x2_set_intr_fifo_full
+       0   Sensors_get_DBE_data
+       0   Sensors_get_crash_data
+       8   Sensors_init
+         8   -> Sensors_LowLevel_Init
+         8   -> Sensors_ODR_Config
+         8   -> Sensors_Range_Config
+         8   -> Sensors_Threshold_Config
+       8   Sensors_reset_intr
+         8   -> bma2x2_rst_intr
+       8   Sensors_set_high_g_intr_enable
+         8   -> bma2x2_set_intr_enable
+       0   Sensors_set_odr
+       0   Sensors_set_range
+       0   Sensors_sleep
+      16   prvSensor_evt_bma253_crash
+        16   -> BMA253_ReadFIFOxyz
+        16   -> Build_Message
+        16   -> OS_Send_Message
+        16   -> RTC_GetCounter
+        16   -> Sensors_fifo_full_intr_enable
+        16   -> Sensors_reset_intr
+        16   -> Sensors_set_high_g_intr_enable
+        16   -> __aeabi_memcpy
+        16   -> __aeabi_memset
+        16   -> bma2x2_get_intr_stat
+       0   prvSensor_evt_nop
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable4
+       4  ??DataTable4_1
+       4  ??DataTable4_2
+       4  ??DataTable4_3
+       4  ??DataTable4_4
+       4  ??DataTable4_5
+       4  ??DataTable4_6
+       4  ??DataTable4_7
+       4  ??DataTable4_8
+       4  ??DataTable4_9
+      32  ?_0
+      78  Sensor_Task
+      16  Sensor_crash_data
+      72  Sensor_get_data
+       8  Sensors_INT
+      68  Sensors_LowLevel_Init
+      34  Sensors_ODR_Config
+      34  Sensors_Range_Config
+      34  Sensors_Threshold_Config
+      28  Sensors_crash_reset
+      54  Sensors_fifo_full_intr_enable
+       8  Sensors_get_DBE_data
+       8  Sensors_get_crash_data
+      34  Sensors_init
+      54  Sensors_reset_intr
+      92  Sensors_set_high_g_intr_enable
+       8  Sensors_set_odr
+       8  Sensors_set_range
+       2  Sensors_sleep
+       4  car_move_detected
+     192  crash_accel_data
+     584  crash_data
+       1  dbe_accel_cnt
+     384  dbe_accel_data
+       1  dbe_gyro_cnt
+     192  dbe_gyro_data
+       2  msg_data
+     218  prvSensor_evt_bma253_crash
+       2  prvSensor_evt_nop
+       8  sensor_event_handler
+
+ 
+ 1 360 bytes in section .bss
+     8 bytes in section .data
+    32 bytes in section .rodata
+   900 bytes in section .text
+ 
+   900 bytes of CODE  memory
+    32 bytes of CONST memory
+ 1 368 bytes of DATA  memory
+
+Errors: none
+Warnings: 16

@@ -1,0 +1,1904 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project>
+  <fileVersion>2</fileVersion>
+  <fileChecksum>620285538</fileChecksum>
+  <configuration>
+    <name>Debug</name>
+    <outputs>
+      <file>$PROJ_DIR$\..\main_app\drivers\spi_flash.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\misc.c</file>
+      <file>$PROJ_DIR$\..\main_app\drivers\cortexm3_macro.s</file>
+      <file>$PROJ_DIR$\Debug\Obj\relays.pbi</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\lowpower.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\powerfail.pbi</file>
+      <file>$PROJ_DIR$\..\main_app\Power\fsm_acfg.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_iwdg.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\tasks.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_tim.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\ACC_Detect.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\system.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\powerfail.o</file>
+      <file>$PROJ_DIR$\Debug\Exe\DR002_STM32_MB.out</file>
+      <file>$PROJ_DIR$\Debug\Obj\DR002_STM32_MB.pbd</file>
+      <file>$PROJ_DIR$\Debug\List\rtos.lst</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_pwr.o</file>
+      <file>$PROJ_DIR$\Debug\List\relays.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Diag_Factory\Diag_man.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\ACC_Detect.o</file>
+      <file>$PROJ_DIR$\Debug\List\param.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Power\ACC_Detect.h</file>
+      <file>$PROJ_DIR$\..\main_app\drivers\stm32f10x_it.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\ACC_Detect.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\crc_ccitt.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\GPRS.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\List\Sensors.lst</file>
+      <file>$PROJ_DIR$\Debug\List\TelmProtocol.lst</file>
+      <file>$PROJ_DIR$\Debug\List\record_task.lst</file>
+      <file>$PROJ_DIR$\..\main_app\common\crc_ccitt.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_rtc.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\diag_task.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\ring_buf.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\rtos.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\port.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\regulator.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\queue.o</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_adc.lst</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\projdefs.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\core_cm3.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\record_task.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\crc_ccitt.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_gpio.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\GPRS.o</file>
+      <file>$PROJ_DIR$\..\main_app\common\diag_task.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\queue.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_dma.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\cortexm3_macro.o</file>
+      <file>$PROJ_DIR$\Debug\List\gps.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\rtos.o</file>
+      <file>$PROJ_DIR$\Debug\List\crc_ccitt.lst</file>
+      <file>$TOOLKIT_DIR$\inc\c\stddef.h</file>
+      <file>$PROJ_DIR$\Debug\List\powerfail.lst</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\list.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_spi.__cstat.et</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\portable.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\queue.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\core_cmInstr.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\str_lib.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\TelmApp.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\rtos.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_gpio.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_exti.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\Psync.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\Diag_man.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\TelmProtocol.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\str_lib.o</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_iwdg.lst</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\fsm.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\system.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\fsm.o</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_rcc.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\spi_flash.o</file>
+      <file>$PROJ_DIR$\Debug\List\str_lib.lst</file>
+      <file>$PROJ_DIR$\Debug\List\system.lst</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_usart.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Power\fsm_stat.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rtc.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\gps.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\param.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\periodic.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_adc.pbi</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\uart.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\delay.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\crc_ccitt.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\lowpower.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_rtc.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\relays.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\misc.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\param.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\main.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\TelmProtocol.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\main.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\int2evt.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\periodic.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_bkp.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\timer.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\Diag_man.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\record_task.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\delay.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_exti.__cstat.et</file>
+      <file>$TOOLKIT_DIR$\lib\dl7M_tlf.a</file>
+      <file>$PROJ_DIR$\Debug\Obj\powerfail.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\gps.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\system.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\fsm.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\ATProtocol.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\regulator.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\TelmProtocol.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_it.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\gensubs.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\ATApp.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\tasks.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_usart.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\heap_2.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\uart.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_dma.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_tim.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\queue.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_pwr.__cstat.et</file>
+      <file>$PROJ_DIR$\..\main_app\Diag_Factory\Diag_man.cu</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_gpio.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_stm32f10x.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\spi_flash.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_adc.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\Psync.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_iwdg.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\list.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_rcc.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\List\Psync.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Power\int2evt.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\tasks.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_adc.o</file>
+      <file>$TOOLKIT_DIR$\lib\rt7M_tl.a</file>
+      <file>$PROJ_DIR$\..\main_app\common\prj_config.h</file>
+      <file>$PROJ_DIR$\Debug\Exe\DR002_STM32_MB.hex</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_rcc.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\ATProtocol.o</file>
+      <file>$PROJ_DIR$\..\main_app\GPS\gps.h</file>
+      <file>$PROJ_DIR$\..\main_app\Linkfile\STM32F10x_FLASH.icf</file>
+      <file>$PROJ_DIR$\..\main_app\common\definiti.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\ATProtocol.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\Diag_man.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Sensors\Sensors.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_iwdg.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_spi.o</file>
+      <file>$PROJ_DIR$\..\main_app\common\str_lib.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_exti.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_rtc.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_gpio.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_usart.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\TelmApp.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\diag_task.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\GPRS.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\port.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_conf.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_spi.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\spi_flash.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\misc.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\cmsis_iar.h</file>
+      <file>$PROJ_DIR$\..\main_app\Power\fsm.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_bkp.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_usart.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\delay.lst</file>
+      <file>$PROJ_DIR$\..\main_app\common\gensubs.h</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\TelmApp.h</file>
+      <file>$PROJ_DIR$\..\main_app\Power\powerfail.h</file>
+      <file>$PROJ_DIR$\Debug\List\list.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_pwr.h</file>
+      <file>$PROJ_DIR$\Debug\List\heap_2.lst</file>
+      <file>$PROJ_DIR$\..\main_app\common\ring_buf.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\task.h</file>
+      <file>$PROJ_DIR$\..\main_app\common\main.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_can.h</file>
+      <file>$PROJ_DIR$\..\main_app\Power\regulator.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\semphr.h</file>
+      <file>$TOOLKIT_DIR$\lib\m7M_tl.a</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_it.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\ATApp.pbi</file>
+      <file>$PROJ_DIR$\..\main_app\Power\ps_stt.h</file>
+      <file>$PROJ_DIR$\..\main_app\drivers\cortexm3_macro.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_stm32f10x.o</file>
+      <file>$PROJ_DIR$\..\main_app\Power\fsm_tree.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\heap_2.pbi</file>
+      <file>$PROJ_DIR$\..\main_app\Power\psync.hee</file>
+      <file>$PROJ_DIR$\..\main_app\Power\fsm_tran.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\mpu_wrappers.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\Sensors.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\port.o</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\core_cmFunc.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\ATApp.o</file>
+      <file>$PROJ_DIR$\Debug\List\gensubs.lst</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
+      <file>$PROJ_DIR$\Debug\List\GPRS.lst</file>
+      <file>$PROJ_DIR$\Debug\List\int2evt.lst</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\ATProtocol.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\timer.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_exti.lst</file>
+      <file>$PROJ_DIR$\Debug\List\ATProtocol.lst</file>
+      <file>$PROJ_DIR$\Debug\List\spi_flash.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\TelmApp.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\regulator.lst</file>
+      <file>$PROJ_DIR$\Debug\List\queue.lst</file>
+      <file>$PROJ_DIR$\Debug\List\ATApp.lst</file>
+      <file>$PROJ_DIR$\..\main_app\SysMan\system.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\timers.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_bkp.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_tim.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\gensubs.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\param.o</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\FreeRTOS.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_rcc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\list.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_dma.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\record_task.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\port.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\bma2x2_app.__cstat.et</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\ATApp.h</file>
+      <file>$PROJ_DIR$\..\main_app\common\record_task.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\lowpower.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\uart.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_stm32f10x.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\str_lib.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\lowpower.lst</file>
+      <file>$PROJ_DIR$\..\main_app\drivers\iic.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\FreeRTOSConfig.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_pwr.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\uart.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\stm32f10x.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\bma2x2.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\Sensors.__cstat.et</file>
+      <file>$PROJ_DIR$\Debug\Obj\delay.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_bkp.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dma.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_adc.h</file>
+      <file>$PROJ_DIR$\Debug\List\DR002_STM32_MB.map</file>
+      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+      <file>$PROJ_DIR$\..\main_app\Sensors\bma2x2.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_bkp.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\ring_buf.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\Sensors.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\bma2x2.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\bma2x2_app.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\bma2x2_app.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\bma2x2.pbi</file>
+      <file>$PROJ_DIR$\..\main_app\Sensors\bma2x2_app.h</file>
+      <file>$PROJ_DIR$\Debug\List\bma2x2.lst</file>
+      <file>$PROJ_DIR$\Debug\List\bma2x2_app.lst</file>
+      <file>$PROJ_DIR$\..\main_app\common\diag_task.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\crc_ccitt.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\delay.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\gensubs.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\main.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\param.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\periodic.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\record_task.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\ring_buf.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\rtos.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\str_lib.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\delay.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\StackMacros.h</file>
+      <file>$PROJ_DIR$\..\main_app\common\Debug.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\relays.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_exti.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_it.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\heap_2.o</file>
+      <file>$PROJ_DIR$\Debug\List\misc.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\system_stm32f10x.h</file>
+      <file>$PROJ_DIR$\Debug\List\fsm.lst</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_pwr.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\int2evt.pbi</file>
+      <file>$PROJ_DIR$\..\main_app\common\rtos.h</file>
+      <file>$PROJ_DIR$\..\main_app\common\standard.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\diag_task.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\main.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_spi.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_tim.lst</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
+      <file>$PROJ_DIR$\..\main_app\common\rtos_ext.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\startup_stm32f10x_cl.o</file>
+      <file>$PROJ_DIR$\Debug\List\diag_task.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\periodic.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\ring_buf.o</file>
+      <file>$PROJ_DIR$\Debug\List\tasks.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\gensubs.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\time.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\Diag_man.o</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_dma.lst</file>
+      <file>$TOOLKIT_DIR$\inc\c\ystdio.h</file>
+      <file>$PROJ_DIR$\..\main_app\drivers\spi_flash.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\list.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\int2evt.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\ring_buf.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\Psync.pbi</file>
+      <file>$PROJ_DIR$\Debug\List\timer.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\gps.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_it.pbi</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\GPRS.h</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_iwdg.h</file>
+      <file>$PROJ_DIR$\Debug\List\periodic.lst</file>
+      <file>$PROJ_DIR$\..\main_app\drivers\uart.h</file>
+      <file>$PROJ_DIR$\Debug\List\stm32f10x_spi.lst</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Full.h</file>
+      <file>$PROJ_DIR$\Debug\List\system_stm32f10x.lst</file>
+      <file>$PROJ_DIR$\..\main_app\Power\lowpower.h</file>
+      <file>$PROJ_DIR$\Debug\List\ACC_Detect.lst</file>
+      <file>$TOOLKIT_DIR$\inc\c\string.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\misc.pbi</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\TelmProtocol.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\include\timer.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\regulator.o</file>
+      <file>$PROJ_DIR$\..\main_app\Power\relays.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\timer.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f10x_rtc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\portasm.o</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\iar\startup_stm32f10x_cl.s</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dma.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_gpio.c</file>
+      <file>$PROJ_DIR$\..\main_app\drivers\stm32f10x_it.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_iwdg.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_pwr.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rcc.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_tim.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c</file>
+      <file>$PROJ_DIR$\..\main_app\drivers\uart.c</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\portable\MemMang\heap_2.c</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\list.c</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\port.c</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\portasm.s</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\queue.c</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\tasks.c</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\timer.c</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\ATProtocol.c</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\ATApp.c</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\GPRS.c</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\TelmApp.c</file>
+      <file>$PROJ_DIR$\..\main_app\GPRS\TelmProtocol.c</file>
+      <file>$PROJ_DIR$\..\main_app\GPS\gps.c</file>
+      <file>$PROJ_DIR$\..\main_app\Power\ACC_Detect.c</file>
+      <file>$PROJ_DIR$\..\main_app\Diag_Factory\Diag_man.c</file>
+      <file>$PROJ_DIR$\..\main_app\Power\fsm.c</file>
+      <file>$PROJ_DIR$\..\main_app\Power\int2evt.c</file>
+      <file>$PROJ_DIR$\..\main_app\Power\lowpower.c</file>
+      <file>$PROJ_DIR$\..\main_app\Power\powerfail.c</file>
+      <file>$PROJ_DIR$\..\main_app\Power\Psync.c</file>
+      <file>$PROJ_DIR$\..\main_app\Power\regulator.c</file>
+      <file>$PROJ_DIR$\..\main_app\Power\relays.c</file>
+      <file>$PROJ_DIR$\..\main_app\Sensors\bma2x2.c</file>
+      <file>$PROJ_DIR$\..\main_app\Sensors\bma2x2_app.c</file>
+      <file>$PROJ_DIR$\..\main_app\Sensors\Sensors.c</file>
+      <file>$PROJ_DIR$\..\main_app\SysMan\system.c</file>
+      <file>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\system_stm32f10x.c</file>
+      <file>$PROJ_DIR$\..\main_app\common\compiler.h</file>
+      <file>$PROJ_DIR$\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\portmacro.h</file>
+      <file>$PROJ_DIR$\..\main_app\Power\psync.h</file>
+      <file>$PROJ_DIR$\Debug\List\TelmApp.lst</file>
+      <file>$PROJ_DIR$\..\main_app\common\periodic.h</file>
+    </outputs>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\drivers\spi_flash.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 210 77</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 165</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 130</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 318 375 166 246 72 180 288 372 55 59 291 184 150 322 248 284 41 371 154 88 203 147 137 182 325 31 20 57 290 168 222 60 40 145 81 373 200 169 183 312 287 320 215 283 141 323 174 236 46 271 302 230 153 176 311 23 316 217 17 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\misc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 278 167</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 321</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 95</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 88 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 246 41 240 59 371 169 154 88 279 200 183 312 287 163 61 84 166 218 245 155 178 82 308</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\drivers\cortexm3_macro.s</name>
+      <outputs>
+        <tool>
+          <name>AARM</name>
+          <file> 49</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>[ROOT_NODE]</name>
+      <outputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 14 247</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Debug\Exe\DR002_STM32_MB.out</name>
+      <outputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 247</file>
+        </tool>
+        <tool>
+          <name>OBJCOPY</name>
+          <file> 142</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 146 21 201 144 253 254 49 26 90 299 160 75 220 45 83 277 304 224 5 97 167 221 86 199 328 13 67 38 226 324 274 295 51 252 77 292 139 171 48 66 65 187 8 18 143 156 152 219 158 70 12 192 138 63 69 326 232 140 186 108</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\diag_task.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 293 160</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 285</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 33</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 325 53 240 203 248 166 371 279 61 155 137 31 290 284 72 147 182 20 57 237 58 197 163 84 169 218 82 249 291 318 184 180 150 375 322 288 301 181 185 283 189 245 178 308 257 145 273 320 215 141 323 174 236 373 46 271 302 230 153 176 311 23 168 316 217 17 222 372 60 40 55 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\crc_ccitt.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 52 26</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 43</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 91</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 57 240 60 284 81 147 287 182 20 168 183 203 137 325 31 248 290 166 222 40 145 373 200 169 312 72 291 318 184 180 150 375 322 288 372 55 41 371 246 154 59 88 320 215 283 141 323 174 236 46 271 302 230 153 176 311 23 316 217 17 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\delay.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 173 90</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 243</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 106</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 318 375 166 246 72 180 288 372 55 59 291 184 150 322 248 284 41 371 154 88 203 147 137 182 325 31 20 57 290 168 222 60 40 145 81 373 200 169 183 312 287 320 215 283 141 323 174 236 46 271 302 230 153 176 311 23 316 217 17 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\gensubs.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 202 220</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 297</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 117</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 153 184 323 316 301 240 163 320 46 168 248 17 181 237 58 166 178 257 371 283 236 302 311 185 189 245 308 215 141 174 373 271 230 176 23 217 53 197 284 279 61 84 169 218 155 82 249 203 72 147 291 137 318 182 325 180 150 31 375 20 322 288 57 290 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\main.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 286 97</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 191</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 99</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 72 166 248 57 316 217 288 290 168 301 222 53 40 237 58 372 197 181 55 60 284 371 203 320 17 215 147 283 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 314 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 312 60 168 58 325 222 200 169 316 203 248 137 31 145 373 371 72 284 166 53 147 182 240 20 81 183 287 181 217 237 197 291 318 184 180 150 375 322 288 372 41 246 154 59 88 314 273 301 57 290 40 55 320 215 283 141 323 174 236 46 271 302 230 153 176 311 23 17 185 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\param.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 22 221</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 85</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 96</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 298 206 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 218 311 197 248 166 236 163 240 283 302 237 58 84 169 82 206 320 323 46 153 168 316 53 371 284 279 61 155 298 215 141 174 373 271 230 176 23 217 301 181 185 189 184 245 178 308 249 273 203 72 147 291 137 318 182 325 180 150 31 375 20 322 288 57 290 17 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88 257 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\periodic.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 313 86</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 294</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 101</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 155 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 312 178 59 82 287 308 88 284 203 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 302 150 257 249 230 31 153 375 176 20 311 322 175 23 206 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 166 183 240 180 72 248 168 279 61 287 318 375 60 284 81 206 163 312 291 184 150 322 316 17 222 40 145 373 84 246 154 59 88 203 147 137 182 325 31 20 288 217 372 55 175 273 41 371 200 169 218 245 155 178 82 308 320 215 283 141 323 174 236 46 271 302 230 153 176 311 23 57 290 301 181 237 185 53 58 197 189 257 249</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\record_task.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 30 226</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 42</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 105</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 206 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 174 168 145 176 373 240 215 271 288 17 222 40 60 200 169 312 72 320 371 141 230 23 248 166 284 81 183 287 311 283 323 236 46 302 153 57 290 372 55 41 246 154 59 88 249 203 206 273 147 291 137 318 182 184 325 180 150 31 375 20 322 316 217 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\ring_buf.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 251 295</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 305</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 34</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 371 180</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 180 371</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\rtos.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 16 51</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 64</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 35</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 236 166 311 245 283 302 185 189 308 320 323 46 153 168 316 248 17 301 181 237 58 184 178 240 257 163 371 215 141 174 373 271 230 176 23 217 53 197 284 279 61 84 169 218 155 82 249 203 72 147 291 137 318 182 325 180 150 31 375 20 322 288 57 290 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\common\str_lib.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 78 70</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 234</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 62</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 203 166 248 57 316 217 288 290 168 284 371 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 17 181 215 237 166 288 271 58 178 257 174 176 301 184 163 371 248 141 373 230 23 185 283 189 245 308 153 57 290 320 323 236 46 302 311 168 53 197 284 279 61 84 169 218 155 82 249 316 217 203 72 147 291 137 318 182 325 180 150 31 375 20 322 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 39 139</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 87</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 131</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 246 240 41 371 61 169 84 166 200 279 163 218 183 245 154 155 312 178 59 82 287 308 88 271</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 82 279 163 169 218 240 271 61 166 155 59 41 84 245 178 308 246 371 200 183 154 312 287 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\iar\startup_stm32f10x_cl.s</name>
+      <outputs>
+        <tool>
+          <name>AARM</name>
+          <file> 292</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 244 171</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 250</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 102</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 218 240 41 371 61 169 84 166 200 279 163 246 183 245 154 155 312 178 59 82 287 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 246 59 41 371 169 154 88 279 200 183 312 287 218 163 61 84 166 245 155 178 82 308</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dma.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 300 48</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 225</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 123</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 245 240 41 371 61 169 84 166 200 279 163 246 218 183 154 155 312 178 59 82 287 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 178 240 41 84 245 308 59 279 163 61 166 169 218 155 82 371 200 246 183 154 312 287 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 208 66</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 275</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 107</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 154 240 41 371 61 169 84 166 200 279 163 246 218 183 245 155 312 178 59 82 287 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 246 59 41 371 169 154 88 279 200 183 312 287 163 61 84 166 218 245 155 178 82 308</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_gpio.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 44 65</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 157</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 128</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 155 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 312 178 59 82 287 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 61 41 166 155 240 163 169 218 82 59 279 84 245 178 308 371 200 246 183 154 312 287 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\drivers\stm32f10x_it.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 276 187</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 310</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 116</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 24 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 314 284 203 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 302 150 257 249 230 31 153 375 176 20 311 322 175 23 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 82 371 169 248 41 271 215 168 218 174 176 288 185 283 189 155 240 141 373 230 23 301 181 237 58 184 257 163 284 200 245 178 308 320 323 236 46 302 153 311 166 57 290 53 197 249 314 273 279 61 84 246 183 154 312 59 287 88 203 72 147 291 137 318 182 325 180 150 31 375 20 322 316 217 17 222 372 60 40 55 145 81 175 24</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_iwdg.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 71 8</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 151</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 133</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 312 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 178 59 82 287 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 183 279 287 200 312 41 371 169 246 154 59 88 163 61 84 166 218 245 155 178 82 308</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_pwr.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 281 18</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 238</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 126</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 178 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 59 82 287 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 41 155 61 166 163 169 218 82 59 279 84 245 178 308 371 200 246 183 154 312 287 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rcc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 76 143</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 223</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 135</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 59 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 178 82 287 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 166 61 155 41 163 169 218 82 279 84 245 178 308 59 371 200 246 183 154 312 287 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 93 156</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 327</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 32</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 82 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 178 59 287 308 88 273 72 248 57 316 217 288 290 168 301 284 203 320 17 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 283 168 59 58 302 181 237 246 166 57 236 311 184 371 84 154 88 290 320 323 46 153 185 189 284 279 163 61 183 312 287 288 248 215 141 174 373 271 230 176 23 17 53 197 273 41 200 169 218 245 155 178 82 308 72 301 316 217 203 147 291 137 318 182 325 180 150 31 375 20 322 222 372 60 40 55 145 81 175 257 249</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 315 152</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 164</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 56</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 287 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 178 59 82 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 245 308 240 279 84 178 59 41 163 61 166 169 218 155 82 287 371 200 246 183 154 312 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_tim.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 289 219</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 10</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 124</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 4 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 308 279 245 84 178 240 59 41 163 61 166 169 218 155 82 4 371 200 246 183 154 312 287 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 80 158</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 172</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 120</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 308 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 178 59 82 287 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 312 200 279 183 287 240 59 41 371 169 246 154 88 308 163 61 84 166 218 245 155 178 82</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\drivers\uart.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 239 232</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 89</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 122</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 314 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 271 372 215 55 59 174 176 217 166 246 371 141 373 230 23 168 284 41 154 88 273 320 283 323 236 46 302 153 311 316 248 17 222 60 40 145 81 200 169 183 312 287 314 203 72 147 291 137 318 182 184 325 180 150 31 375 20 322 288 57 290 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\FreeRTOS\portable\MemMang\heap_2.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 179 277</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 194</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 121</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 203 166 248 57 316 217 288 290 168 222 53 40 237 58 372 197 181 55</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 168 288 316 58 222 248 166 181 217 40 372 203 57 290 53 237 197 55</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\FreeRTOS\list.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 177 224</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 303</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 134</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 203 166 248 57 316 217 288 290 168 222 53 40 237 58 372 197 55</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 58 288 248 166 290 53 372 222 168 57 237 203 55 316 217 40 197</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\port.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 162 199</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 227</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 36</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 84 166 222 53 248 57 316 217 288 290 168 40 237 58 372 197 181 55</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 316 58 181 53 166 372 222 237 248 217 84 40 168 57 288 290 197 55</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\portasm.s</name>
+      <outputs>
+        <tool>
+          <name>AARM</name>
+          <file> 328</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>AARM</name>
+          <file> 237</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\FreeRTOS\queue.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 213 38</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 47</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 125</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 203 166 248 57 316 217 288 290 168 320 17 222 53 40 237 58 372 197 181 55</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 166 181 248 217 40 288 316 372 320 222 168 57 290 58 203 17 53 237 197 55</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\FreeRTOS\tasks.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 296 138</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 9</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 119</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 72 166 248 57 316 217 288 290 168 301 203 320 17 222 53 40 237 58 372 197 181 55 216 272</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 58 290 222 248 288 168 320 216 301 203 181 272 166 57 40 372 72 316 217 17 53 237 197 55</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\FreeRTOS\timer.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 307 326</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 207</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 103</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 184 248 322 41 371 154 240 291 150 288 166 284 88 72 318 180 375 372 55 246 59 203 147 137 182 325 31 20 57 290 168 222 60 40 145 81 373 200 169 183 312 287 320 215 283 141 323 174 236 46 271 302 230 153 176 311 23 316 217 17 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\GPRS\ATProtocol.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 209 144</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 148</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 113</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 206 229 314 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 222 17 46 240 40 320 168 248 60 200 145 323 153 316 373 246 72 311 283 236 302 166 284 81 59 371 206 215 141 174 271 230 176 23 217 372 55 41 154 88 229 314 322 273 203 147 291 137 318 182 184 325 180 150 31 375 20 288 57 290 301 181 237 185 53 58 197 189 279 163 61 169 183 312 287 175 84 218 245 155 178 82 308 257 249</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\GPRS\ATApp.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 214 201</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 188</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 118</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 206 229 314 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 248 322 245 184 291 150 288 185 283 189 308 72 318 180 375 301 181 237 58 166 178 240 257 163 229 311 203 147 137 182 325 31 20 57 290 53 197 371 284 279 61 84 169 218 155 82 249 206 314 273 320 215 141 323 174 236 373 46 271 302 230 153 176 23 168 316 217 17 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\GPRS\GPRS.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 204 45</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 161</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 27</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 206 229 314 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 248 311 197 218 166 236 163 249 283 302 237 58 84 169 82 72 320 323 46 153 168 316 53 371 284 279 61 155 240 229 314 215 141 174 373 271 230 176 23 217 301 181 185 189 184 245 178 308 257 206 322 145 273 203 147 291 137 318 182 325 180 150 31 375 20 288 57 290 17 222 372 60 40 55 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\GPRS\TelmApp.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 374 63</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 211</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 159</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 206 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 246 176 166 174 217 240 215 271 372 55 59 72 145 371 141 373 230 23 168 284 41 154 88 322 320 283 323 236 46 302 153 311 316 248 17 222 60 40 81 200 169 183 312 287 249 175 206 273 203 147 291 137 318 182 184 325 180 150 31 375 20 288 57 290 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\GPRS\TelmProtocol.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 29 69</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 98</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 115</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 206 229 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 197 20 248 240 182 147 57 237 58 59 371 72 229 203 137 325 31 290 166 53 284 279 246 311 145 291 318 184 180 150 375 322 288 301 181 185 283 189 154 88 206 273 320 215 141 323 174 236 373 46 271 302 230 153 176 23 168 316 217 17 222 372 60 40 55 81 41 200 169 183 312 287 175 163 61 84 218 245 155 178 82 308 257 249</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\GPS\gps.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 50 83</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 309</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 110</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 72 166 248 57 316 217 288 290 168 301 284 371 203 320 17 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 314 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 218 322 168 184 166 291 150 60 284 81 249 180 316 248 72 318 375 288 222 40 145 373 200 84 169 82 371 217 203 147 137 182 325 240 31 20 372 55 41 155 314 273 301 57 290 320 215 283 141 323 174 236 46 271 302 230 153 176 311 23 17 181 237 185 53 58 197 189 279 163 61 245 178 308 257 175 246 183 154 312 59 287 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Power\ACC_Detect.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 319 21</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 11</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 25</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 23 371 323 284 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 284 81 291 150 57 60 287 240 371 184 322 168 183 72 318 180 375 248 290 166 222 40 145 373 200 169 312 203 147 137 182 325 31 20 288 372 55 41 246 154 59 88 323 320 215 283 141 174 236 46 271 302 230 153 176 311 23 316 217 17 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Diag_Factory\Diag_man.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 149 299</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 68</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 104</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 206 127</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 215 84 82 271 237 58 169 174 176 217 248 197 163 218 31 127 371 141 373 230 23 166 168 53 284 279 61 155 240 145 320 283 323 236 46 302 153 311 316 17 301 181 185 189 184 245 178 308 322 206 203 72 147 291 137 318 182 325 180 150 375 20 288 57 290 222 372 60 40 55 81 41 200 246 183 154 312 59 287 88 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Power\fsm.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 280 75</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 73</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 112</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 371 147 170 7 283 222 53 166 248 57 316 217 288 290 168 40 237 58 372 197 181 55 60 185</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 290 7 237 248 170 57 60 147 181 185 53 58 288 372 55 371 283 222 40 166 168 316 217 197</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Power\int2evt.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 205 304</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 282</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 100</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 375 166 246 318 240 72 180 288 372 55 59 291 184 150 322 248 284 41 371 154 88 203 147 137 182 325 31 20 57 290 168 222 60 40 145 81 373 200 169 183 312 287 320 215 283 141 323 174 236 46 271 302 230 153 176 311 23 316 217 17 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Power\lowpower.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 235 5</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 231</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 92</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 318 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 248 176 197 59 240 174 217 215 271 237 58 246 371 141 373 230 23 166 168 53 41 154 88 284 320 283 323 236 46 302 153 311 316 17 301 181 185 81 200 169 183 312 287 203 72 147 291 137 318 182 184 325 180 150 31 375 20 322 288 57 290 222 372 60 40 55 145 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Power\powerfail.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 54 13</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 6</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 109</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 302 60 284 81 283 287 240 236 311 166 168 183 72 320 323 46 153 316 248 17 222 40 145 373 200 169 312 273 371 215 141 174 271 230 176 23 217 372 55 41 246 154 59 88 322 203 147 291 137 318 182 184 325 180 150 31 375 20 288 57 290 301 181 237 185 53 58 197 189 279 163 61 84 218 245 155 178 82 308 257 249 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Power\Psync.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 136 67</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 306</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 132</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 170 7 195 206 273 196 193</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 215 88 55 271 372 240 174 176 217 166 41 371 154 206 189 141 373 230 23 168 284 246 59 195 320 283 323 236 46 302 153 311 316 248 17 222 60 40 145 81 200 169 183 312 287 249 72 170 175 322 273 196 193 203 147 291 137 318 182 184 325 180 150 31 375 20 288 57 290 301 181 237 185 53 58 197 279 163 61 84 218 245 155 178 82 308 257 7</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Power\regulator.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 212 324</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 37</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 114</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 58 271 237 169 215 84 82 174 176 217 248 197 163 218 249 371 141 373 230 23 166 168 53 284 279 61 155 240 320 283 323 236 46 302 153 311 316 17 301 181 185 189 184 245 178 308 257 203 72 147 291 137 318 182 325 180 150 31 375 20 322 288 57 290 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Power\relays.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 19 274</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 3</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 94</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 325 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 163 375 240 318 301 72 180 288 181 237 58 166 178 257 311 284 291 184 150 322 248 185 283 189 245 308 215 203 147 137 182 325 31 20 57 290 53 197 371 279 61 84 169 218 155 82 249 271 273 373 320 141 323 174 236 46 302 230 153 176 23 168 316 217 17 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Sensors\bma2x2.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 258 253</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 256</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 241</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 249</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 183 287 200 312 249 41 371 169 246 154 59 88 279 163 61 84 166 218 245 155 178 82 308</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Sensors\bma2x2_app.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 259 254</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 255</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 228</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 325 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 291 288 150 185 283 189 308 184 322 248 245 72 318 180 375 301 181 237 58 166 178 240 257 163 273 373 203 147 137 182 325 31 20 57 290 53 197 371 284 279 61 84 169 218 155 82 249 271 320 215 141 323 174 236 46 302 230 153 176 311 23 168 316 217 17 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Sensors\Sensors.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 28 252</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 198</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 242</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 273</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 283 31 185 189 137 308 203 325 166 248 245 72 147 182 240 20 217 301 181 237 58 184 178 257 163 150 291 318 180 375 322 168 316 53 197 371 284 279 61 84 169 218 155 82 249 320 273 215 141 323 174 236 373 46 271 302 230 153 176 311 23 288 57 290 17 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88 175</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\SysMan\system.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 79 12</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 74</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 111</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 284 371 203 166 248 57 316 217 288 290 168 320 17 72 301 215 147 283 222 53 40 237 58 372 197 181 55 60 185 291 141 145 137 323 318 174 182 236 184 373 81 189 325 46 180 271 240 41 61 169 84 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88 302 150 257 249 230 31 153 375 176 20 311 322 175 23 190</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 323 316 301 163 153 184 320 46 168 248 17 181 237 58 166 178 257 283 236 302 311 185 189 245 308 371 215 141 174 373 271 230 176 23 217 53 197 284 279 61 84 169 218 155 82 249 175 190 203 72 147 291 137 318 182 325 180 150 31 375 20 322 288 57 290 222 372 60 40 55 145 81 41 200 246 183 154 312 59 287 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\system_stm32f10x.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 317 192</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 233</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 129</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 240 41 371 61 169 84 166 200 279 163 246 218 183 245 154 155 312 178 59 82 287 308 88</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 240 155 41 61 166 163 169 218 82 279 84 245 178 308 371 200 246 183 154 312 59 287 88</file>
+        </tool>
+      </inputs>
+    </file>
+    <forcedrebuild>
+      <name>$PROJ_DIR$\..\main_app\common\diag_task.c</name>
+      <tool>C-STAT</tool>
+    </forcedrebuild>
+    <forcedrebuild>
+      <name>$PROJ_DIR$\..\main_app\common\record_task.c</name>
+      <tool>C-STAT</tool>
+    </forcedrebuild>
+    <forcedrebuild>
+      <name>$PROJ_DIR$\..\main_app\Sensors\Sensors.c</name>
+      <tool>C-STAT</tool>
+    </forcedrebuild>
+  </configuration>
+  <configuration>
+    <name>Release</name>
+    <outputs/>
+    <forcedrebuild>
+      <name>[MULTI_TOOL]</name>
+      <tool>ILINK</tool>
+    </forcedrebuild>
+    <forcedrebuild>
+      <name>[REBUILD_ALL]</name>
+    </forcedrebuild>
+  </configuration>
+</project>
+
+

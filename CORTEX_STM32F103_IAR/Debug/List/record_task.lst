@@ -1,0 +1,992 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:26
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\record_task.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\record_task.c
+#        -D VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\record_task.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\record_task.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\common\record_task.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          
+     16          /**********************************************************************
+     17             Title                      : record_task.c         
+     18                                                                                   
+     19             Module Description         : Handle timing/distance related record tasks.
+     20          
+     21             Author                     : 
+     22             
+     23           *********************************************************************/
+     24          
+     25          /**********************************************************************
+     26           * Include files                                                       
+     27           *********************************************************************/
+     28          #include "standard.h"
+     29          #include "record_task.h"
+     30          #include <stdio.h>
+     31          #include <stdlib.h>
+     32          #include <string.h>
+     33          
+     34          #include "gps.h"
+     35          #include "GPRS.h"
+     36          #include "ATProtocol.h"
+     37          
+     38          #define USE_DEBUG
+     39          #include "Debug.h"
+     40          
+     41          /**********************************************************************
+     42           * Constant and Macro Definitions using #define
+     43           *********************************************************************/
+     44          #define DEVICE_UNMOUNT_LIMIT (1)
+     45          #define AD_TEMP 0 /* temperature channel */
+     46          
+     47          // 1s timer for upload check
+     48          #define GPS_UPLOAD_TIME_1 (1000)
+     49          
+     50          // 3s for gps data upload
+     51          #define TRAVEL_UPLOAD_INTERVAL (3)
+     52          #define IGNITION_OFF_UPLOAD_INTERVAL (60)
+     53          
+     54          #define EXT_BATT_LOW_LIMIT (1100)
+     55          #define EXT_BATT_HIGH_LIMIT (3200)
+     56          #define INT_BATT_LOW_LIMIT (300)
+     57          #define INT_BATT_HIGH_LIMIT (400)
+     58          #define INT_BATT_CHARGE_LIMIT (330)
+     59          
+     60          #define TRIP_STATUS_GOING   (2)
+     61          #define TRIP_STATUS_END     (1)
+     62          
+     63          /*********************************************************************/
+     64          /* Enumerations and Structures and Typedefs                          */
+     65          /*********************************************************************/
+     66          typedef struct Driving_BHV_GPS_tag
+     67          {
+     68              uint8_t gps_data[26];
+     69          }Driving_BHV_GPS_t;
+     70          
+     71          typedef struct Driving_BHV_Status_tag
+     72          {
+     73              uint8_t timestamp[4];
+     74              uint8_t gps_num;
+     75              uint8_t dbe_duration[2];
+     76              uint8_t dbe_event;
+     77              uint8_t dbe_max_speed;
+     78              uint8_t dbe_min_speed;
+     79              uint8_t dbe_accel_num;
+     80              uint8_t dbe_accel_setting;
+     81              uint8_t dbe_gyro_num;
+     82              uint8_t dbe_gyro_setting;
+     83          }Driving_BHV_Status_t;
+     84          
+     85          typedef struct Driving_BHV_Sensor_tag
+     86          {
+     87              uint8_t sensor_data[6];
+     88          }Driving_BHV_Sensor_t;
+     89          
+     90          /**********************************************************************
+     91           * Global and Const Variable Defining Definitions / Initializations
+     92           *********************************************************************/
+     93          
+     94          //static uint8_t device_unmounted=1;
+     95          static uint8_t trace_mode_on=0;
+     96          static uint8_t int_bat_charging=0;
+     97          // 0=off; 1=on
+     98          static uint8_t ignition_status=0;
+     99          static Config_t config_data;
+    100          
+    101          static Last_Trip_t trip_info;
+    102          #if 0
+    103          static uint8_t trip_status=TRIP_STATUS_END;
+    104          static uint32_t trip_start_time;
+    105          static uint32_t trip_end_time;
+    106          static uint32_t trip_start_odo;
+    107          static uint32_t trip_end_odo;
+    108          static uint32_t trip_current_odo;
+    109          static uint16_t average_speed;
+    110          static uint8_t accel_num;
+    111          static uint8_t brake_num;
+    112          static uint8_t fturn_num;
+    113          #endif
+    114          
+    115          static Driving_BHV_Status_t dbe_status;
+    116          static Driving_BHV_GPS_t dbe_gps_data[100];
+    117          static Driving_BHV_Sensor_t dbe_accel_data[100];
+    118          static Driving_BHV_Sensor_t dbe_gyro_data[100];
+    119          
+    120          static Driving_BHV_GPS_t crash_gps_data[100];
+    121          static Driving_BHV_Sensor_t crash_accel_data[100];
+    122          static uint8_t crash_accel_num=0;
+    123          static uint8_t crash_accel_setting=4;
+    124          static uint8_t crash_id=0;
+    125          static uint32_t crash_time;
+    126          static uint8_t crash_gps_num;
+    127          static uint16_t crash_duration;
+    128          
+    129          //static crash_sampling_type crash_sampling_schedule = crash_sampling_init;
+    130          
+    131          /**********************************************************************
+    132           * Function Definitions
+    133           *********************************************************************/
+    134          static void prvRecord_evt_nop(int16_t data);
+    135          static void prvRecord_evt_acc_on(int16_t data);
+    136          static void prvRecord_evt_acc_off(int16_t data);
+    137          static void prvRecord_evt_acc_source_set(int16_t data);
+    138          static void prvRecord_evt_gps_fixed(int16_t data);
+    139          static void prvRecord_evt_crash(int16_t data);
+    140          
+    141          //static uint32_t gps_record_interval(void);
+    142          static uint32_t gps_upload_interval(void);
+    143          static void test_rtc(void);
+    144          static void record_check(void);
+    145          //static void vDev_Go_Sleep(void);
+    146          
+    147          static bool Record_flush_Crash_buffer(int16_t *pData, uint8_t Cnt);
+    148          
+    149          /*********************************************************************/
+    150          /* Static Variables and Const Variables With File Level Scope        */
+    151          /*********************************************************************/
+    152          
+    153          static void_int16_fptr record_event_handler[]=
+    154          {
+    155              prvRecord_evt_nop,					// EVT_NOP
+    156              prvRecord_evt_acc_on,                // ACC on event
+    157              prvRecord_evt_acc_off,               // ACC off event
+    158              prvRecord_evt_acc_source_set,        // ACC source setting
+    159              prvRecord_evt_gps_fixed,             // Update trip start time event
+    160              prvRecord_evt_crash,                 // Crash event from BMA253 sensor
+    161              
+    162          };
+    163          /*********************************************************************/
+    164          /* User file include                                                 */
+    165          /*********************************************************************/
+    166          
+    167          
+    168          /*******************************************************************************
+    169          *    Function:  Record_Task
+    170          *
+    171          *  Parameters:  None
+    172          *     Returns:  None
+    173          * Description:  TASK to handle timing/distance records.
+    174          *******************************************************************************/
+    175          extern void Record_Task(void* pvParameters)
+    176          {
+    177              Data_Message_T msg;
+    178              uint32_t csq_time = OS_Time();
+    179          
+    180              #ifdef USE_DEBUG
+    181              DEBUG_PRINT0( DEBUG_MEDIUM, "[Record]:Record TASK Started!\r\n");
+    182              #endif
+    183          
+    184          #if 0
+    185              test_rtc();
+    186          #endif
+    187              
+    188          //    sFLASH_Init();
+    189              
+    190          //    Get_Config(&config_data);
+    191              Get_config_data(&config_data);
+    192              
+    193              TMR_Start_Timer(GPS_UPLOAD_TIMER, GPS_UPLOAD_TIME_1, record_check);
+    194              while(PS_Running())
+    195              {
+    196                  if(E_OK == OS_Wait_Message(OS_RECORD_TASK, &msg.all, MSec_To_Ticks(500)))
+    197                  {
+    198                      if(msg.parts.msg < RECORD_NUM_EVENTS)
+    199                      {
+    200                          if(NULL != record_event_handler[msg.parts.msg])
+    201                          {
+    202                              (*record_event_handler[msg.parts.msg])(msg.parts.data);
+    203                          }
+    204                      }
+    205                  }
+    206                  if ((csq_time + MSec_To_Ticks(300)) < OS_Time())
+    207                  {
+    208                      csq_time = OS_Time();
+    209                      // Check messages in flash
+    210                      if ((Get_GPS_Data_Total_Number()>0) && (0!=GPRS_server_connected()))
+    211                      {
+    212                          OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BACKUP_GPS_UP, 1));
+    213                      }
+    214                  }
+    215              }
+    216              OS_Terminate_Task();
+    217          }
+    218          
+    219          /*******************************************************************************
+    220          *    Function:  prvRecord_evt_nop
+    221          *
+    222          *  Parameters:  data
+    223          *     Returns:  None
+    224          * Description:  No run.
+    225          *******************************************************************************/
+    226          static void prvRecord_evt_nop(int16_t data)
+    227          {
+    228          }
+    229          
+    230          /*******************************************************************************
+    231          *    Function:  prvRecord_evt_acc_on
+    232          *
+    233          *  Parameters:  data
+    234          *     Returns:  None
+    235          * Description:  Acc on event, start trip statistic.
+    236          *******************************************************************************/
+    237          static void prvRecord_evt_acc_on(int16_t data)
+    238          {
+    239              // Start trip statistic works
+    240              uint32_t sec_offset;
+    241              sec_offset = sys_get_cur_sec_offset();
+    242          
+    243              ignition_status=1;
+    244              // load trip data
+    245              if (0==Get_Last_Trip_Info(&trip_info))
+    246              {
+    247                  trip_info.trip_start_odo=0;
+    248              }
+    249              trip_info.trip_end_odo=0;
+    250              trip_info.trip_end_time=0;
+    251              trip_info.accel_num=0;
+    252              trip_info.brake_num=0;
+    253              trip_info.fturn_num=0;
+    254              trip_info.trip_start_time=sec_offset;
+    255              gps_set_trip_start(1);
+    256              trip_info.trip_status=TRIP_FLAG_STARTED;
+    257              OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_TRIP, 2));
+    258          }
+    259          
+    260          /*******************************************************************************
+    261          *    Function:  prvRecord_evt_acc_off
+    262          *
+    263          *  Parameters:  data
+    264          *     Returns:  None
+    265          * Description:  Acc off event, stop trip statistic.
+    266          *******************************************************************************/
+    267          static void prvRecord_evt_acc_off(int16_t data)
+    268          {
+    269              uint32_t sec_offset;
+    270              sec_offset = sys_get_cur_sec_offset();
+    271              // Trip statistic works over
+    272              ignition_status=0;
+    273              trip_info.trip_end_odo=trip_info.trip_start_odo+(gps_get_trip_distance()/10000);
+    274              trip_info.trip_current_odo=trip_info.trip_end_odo;
+    275              trip_info.trip_end_time=sec_offset;
+    276              gps_set_trip_start(0);
+    277              trip_info.trip_status=TRIP_FLAG_ENDED;
+    278              trip_info.average_speed=((trip_info.trip_current_odo-trip_info.trip_start_odo)*3600)/(trip_info.trip_end_time-trip_info.trip_start_time);
+    279              Set_Last_Trip_Info(&trip_info);
+    280              OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_TRIP, 1));
+    281          }
+    282          
+    283          /*******************************************************************************
+    284          *    Function:  prvRecord_evt_gps_fixed
+    285          *
+    286          *  Parameters:  data
+    287          *     Returns:  None
+    288          * Description:  gps_fixed information.
+    289          *******************************************************************************/
+    290          static void prvRecord_evt_gps_fixed(int16_t data)
+    291          {
+    292              if (trip_info.trip_status == TRIP_FLAG_STARTED)
+    293              {
+    294                  uint32_t sec_offset;
+    295                  sec_offset = sys_get_cur_sec_offset();
+    296                  trip_info.trip_start_time=sec_offset;
+    297              }
+    298          }
+    299          
+    300          /*******************************************************************************
+    301          *    Function:  prvRecord_evt_acc_source_set
+    302          *
+    303          *  Parameters:  None
+    304          *     Returns:  None
+    305          * Description:  ACC source event.
+    306          *******************************************************************************/
+    307          static void prvRecord_evt_acc_source_set(int16_t data)
+    308          {
+    309              if (ACC_Set_Source())   // wirte to conifg data to flash
+    310              {
+    311                  Get_config_data(&config_data);  // reflesh local config data
+    312                  
+    313          #ifdef USE_DEBUG
+    314                  DEBUG_PRINT1(DEBUG_MEDIUM,"[RECORD]:ACC source is initialied to %d\n\r",config_data.structData.ignition_detection_source);
+    315          #endif       
+    316              }  
+    317          }
+    318          
+    319          /*******************************************************************************
+    320          *    Function:  prvRecord_evt_crash
+    321          *
+    322          *  Parameters:  None
+    323          *     Returns:  None
+    324          * Description:  handle crash event.
+    325          *******************************************************************************/
+    326          static void prvRecord_evt_crash(int16_t data)
+    327          {
+    328              if (1== data)
+    329              {
+    330                  crash_gps_num = 0;
+    331              }
+    332              else if (!data)
+    333              {
+    334                  Sensor_crash_data_type * pCrash;
+    335                  
+    336                  pCrash = (Sensor_crash_data_type *)Sensor_crash_data(SENSOR_TYPE_CRASH_ACCEL);
+    337                  crash_id = pCrash->crash_id;
+    338                  crash_time = pCrash->crash_time;
+    339                  crash_accel_num = pCrash->crash_accel_buf_frame_cnt;
+    340                  memcpy(crash_accel_data, pCrash->crash_accel_buffer, crash_accel_num*3*2);
+    341                  
+    342                  OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_CAR_CRASHED, 0));
+    343              }
+    344          
+    345              gps_data_t gpsInfo;
+    346              GPS_log_t gps_log;
+    347              vGps_Get_Gps_Info(&gpsInfo);
+    348              Switch_GPS_Sturcture_data_to_log(gpsInfo,&gps_log);
+    349              ATProt_Get_Loc(gps_log.structData.lac,gps_log.structData.cell_id);
+    350              if (!gpsInfo.valid)
+    351              {
+    352                  uint32_t timestamp=0;
+    353                  uint8_t clk_tmp[14];
+    354                  if (0!=ATProt_Get_Clock(clk_tmp))
+    355                  {
+    356                      timestamp=sys_get_sec_offset(clk_tmp);
+    357                  }
+    358                  gps_log.structData.postion_time[0]=(timestamp>>24) & 0xff;
+    359                  gps_log.structData.postion_time[1]=(timestamp>>16) & 0xff;
+    360                  gps_log.structData.postion_time[2]=(timestamp>>8) & 0xff;
+    361                  gps_log.structData.postion_time[3]=(timestamp) & 0xff;
+    362              }   
+    363              
+    364              memcpy(crash_gps_data + crash_gps_num, &gps_log, sizeof(gps_log));
+    365              crash_gps_num++;
+    366          }
+    367          
+    368          
+    369          static void record_save_current_pos(void)
+    370          {
+    371              static gps_data_t gpsInfo;
+    372              GPS_log_t gps_log;
+    373              vGps_Get_Gps_Info(&gpsInfo);
+    374              Switch_GPS_Sturcture_data_to_log(gpsInfo,&gps_log);
+    375              ATProt_Get_Loc(gps_log.structData.lac,gps_log.structData.cell_id);
+    376              if (!gpsInfo.valid)
+    377              {
+    378                  uint32_t timestamp=0;
+    379                  uint8_t clk_tmp[14];
+    380                  if (0!=ATProt_Get_Clock(clk_tmp))
+    381                  {
+    382                      timestamp=sys_get_sec_offset(clk_tmp);
+    383                  }
+    384                  gps_log.structData.postion_time[0]=(timestamp>>24) & 0xff;
+    385                  gps_log.structData.postion_time[1]=(timestamp>>16) & 0xff;
+    386                  gps_log.structData.postion_time[2]=(timestamp>>8) & 0xff;
+    387                  gps_log.structData.postion_time[3]=(timestamp) & 0xff;
+    388              }
+    389              Write_GPS_Data(&gps_log);
+    390          }
+    391          
+    392          static void record_check(void)
+    393          {
+    394              static uint8_t gps_record_count=0;
+    395              // Travel gps check
+    396              // Check ingnition status
+    397              uint16_t ext_vol=Pwr_Fail_Get_Voltage();
+    398              uint16_t int_vol=Pwr_Fail_Get_Int_Voltage();
+    399              static uint8_t ext_vol_normal=1;
+    400              static uint8_t int_vol_normal=1;
+    401              uint8_t ignition_on_abs=config_data.structData.ignition_on_absolute_voltage;
+    402              uint8_t ignition_off_abs=config_data.structData.ignition_off_absolute_voltage;
+    403              if ((ext_vol > (ignition_on_abs*10)) && (ignition_on_abs!=0u))
+    404              {
+    405                  // Ignition on
+    406                  if (!ignition_status)
+    407                  {
+    408                      OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BACKUP_GPS_UP, 1));
+    409                  }
+    410                  ignition_status = 1;
+    411              }
+    412              else if ((ext_vol < (ignition_off_abs*10)) && (ignition_off_abs!=0u))
+    413              {
+    414                  // Ignition off
+    415                  if (ignition_status)
+    416                  {
+    417                      OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BACKUP_GPS_UP, 0));
+    418                  }
+    419                  ignition_status = 0;
+    420              }
+    421          //    else if ((ext_vol > EXT_BATT_HIGH_LIMIT) || (ext_vol < EXT_BATT_LOW_LIMIT))
+    422          //    {
+    423          //        // abnormal voltage
+    424          //        ext_vol_normal=0;
+    425          //    }
+    426          //
+    427          //    if ((int_vol > INT_BATT_HIGH_LIMIT) || (int_vol < INT_BATT_LOW_LIMIT))
+    428          //    {
+    429          //        // abnormal voltage
+    430          //        int_vol_normal=0;
+    431          //    }
+    432          //    else if (int_vol <= INT_BATT_CHARGE_LIMIT) //&& (int_vol_normal)
+    433          //    {
+    434          //        // start 5 minute charging
+    435          //    }
+    436          //
+    437          //    if (!ext_vol_normal)
+    438          //    {
+    439          //        if (!int_vol_normal)
+    440          //        {
+    441          //            // go to sleep
+    442          //        }
+    443          //    }
+    444          
+    445              if (0==GPRS_server_connected())
+    446              {
+    447                  // Start new timer to send data
+    448          //        TMR_Start_Timer(GPS_UPLOAD_TIMER, GPS_UPLOAD_TIME_1, record_check);
+    449              }
+    450              else if ((gps_record_count > TRAVEL_UPLOAD_INTERVAL) && (ignition_status))
+    451              {
+    452                  // send travel gps data
+    453                  if (0 < Get_GPS_Data_Total_Number())
+    454                  {
+    455                      if(vGps_Get_Gps_Status())
+    456                      {
+    457                          record_save_current_pos();
+    458                      }
+    459                      OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BACKUP_GPS_UP, 1));
+    460                  }
+    461                  else
+    462                  {
+    463                      if(vGps_Get_Gps_Status())
+    464                      {
+    465                          OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_GPS_UPLOAD, 1));
+    466                          #ifdef EV_TEST_DATA
+    467                          OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_ENV_TEST, 1));    
+    468                          #endif
+    469                      }
+    470                      else
+    471                      {
+    472                          OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_GPS_UPLOAD, 1));//?? upload GPS???, ywf
+    473                          OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_TRIP, 1));
+    474                      }
+    475                  }
+    476                  gps_record_count=0;
+    477              }
+    478              else if ((gps_record_count > IGNITION_OFF_UPLOAD_INTERVAL) && (ignition_status==0))
+    479              {
+    480                  // send ignition off gps data
+    481                  OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_GPS_UPLOAD, 1));
+    482                  OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_TRIP, 1));
+    483                  gps_record_count=0;
+    484              }
+    485              gps_record_count++;
+    486              TMR_Start_Timer(GPS_UPLOAD_TIMER, GPS_UPLOAD_TIME_1, record_check);
+    487          }
+    488          
+    489          static uint32_t gps_upload_interval(void)
+    490          {
+    491              Config_t cfg;
+    492              Get_config_data(&cfg);
+    493              if (cfg.structData.GPS_upload_interval <= 2)
+    494              {
+    495                  return 20000;
+    496              }
+    497              else
+    498              {
+    499                  return (cfg.structData.GPS_upload_interval*1000);
+    500              }
+    501          }
+    502          
+    503          static uint32_t gps_record_interval(void)
+    504          {
+    505              Config_t cfg;
+    506              Get_config_data(&cfg);
+    507              if (cfg.structData.GPS_record_interval <=1)
+    508              {
+    509                  return 10000;
+    510              }
+    511              else
+    512              {
+    513                  return (cfg.structData.GPS_record_interval*1000);
+    514              }
+    515          //    return 10000;
+    516          }
+    517          
+    518          static void test_rtc(void)
+    519          {
+    520              DEBUG_PRINT1(DEBUG_MEDIUM,"RTC:%x\n\r",RTC_GetCounter());
+    521          }
+    522          
+    523          void get_trip_data(uint8_t *data)
+    524          {
+    525              if (ignition_status)
+    526              {
+    527                  *(data)=TRIP_STATUS_GOING;
+    528              }
+    529              else
+    530              {
+    531                  *(data)=TRIP_STATUS_END;
+    532              }
+    533              trip_info.trip_current_odo=trip_info.trip_start_odo+(gps_get_trip_distance()/10000);
+    534              trip_info.trip_end_odo=trip_info.trip_current_odo;
+    535              memcpy(data+1, &trip_info.trip_start_time, 4);
+    536              memcpy(data+5, &trip_info.trip_start_odo, 4);
+    537              if (trip_info.trip_current_odo > trip_info.trip_start_odo)
+    538              {
+    539                  uint32_t tmp_mileage=trip_info.trip_current_odo-trip_info.trip_start_odo;
+    540                  memcpy(data+9,&tmp_mileage,4);
+    541              }
+    542              else
+    543              {
+    544                  memset(data+9,0,4);
+    545              }
+    546              *(data+13)=trip_info.average_speed;
+    547              memcpy(data+14,&trip_info.trip_end_time,4);
+    548              memcpy(data+18,&trip_info.trip_end_odo,4);
+    549              *(data+22)=trip_info.accel_num;
+    550              *(data+23)=trip_info.brake_num;
+    551              *(data+24)=trip_info.fturn_num;
+    552          }
+    553          
+    554          extern uint16_t get_dbe_data(uint8_t *data, uint16_t max_size)
+    555          {
+    556              uint16_t ret_size=(dbe_status.gps_num*26)+(dbe_status.dbe_accel_num*6)+(dbe_status.dbe_gyro_num*6);
+    557              if (ret_size > max_size)
+    558              {
+    559                  return 0;
+    560              }
+    561              else
+    562              {
+    563                  uint16_t pos=0;
+    564                  memcpy(data,dbe_status.timestamp,4);
+    565                  pos+=4;
+    566                  *(data+pos)=dbe_status.gps_num;
+    567                  pos+=1;
+    568                  memcpy(data+pos,dbe_gps_data,26*dbe_status.gps_num);
+    569                  pos+=26*dbe_status.gps_num;
+    570                  memcpy(data+pos,dbe_status.dbe_duration,2);
+    571                  pos+=2;
+    572                  *(data+pos)=dbe_status.dbe_event;
+    573                  pos+=1;
+    574                  *(data+pos)=dbe_status.dbe_max_speed;
+    575                  pos+=1;
+    576                  *(data+pos)=dbe_status.dbe_min_speed;
+    577                  pos+=1;
+    578                  *(data+pos)=dbe_status.dbe_accel_num;
+    579                  pos+=1;
+    580                  *(data+pos)=dbe_status.dbe_accel_setting;
+    581                  pos+=1;
+    582                  memcpy(data+pos,dbe_accel_data,6*dbe_status.dbe_accel_num);
+    583                  pos+=6*dbe_status.dbe_accel_num;
+    584                  *(data+pos)=dbe_status.dbe_gyro_num;
+    585                  pos+=1;
+    586                  *(data+pos)=dbe_status.dbe_gyro_setting;
+    587                  pos+=1;
+    588                  memcpy(data+pos,dbe_gyro_data,6*dbe_status.dbe_gyro_num);
+    589                  pos+=6*dbe_status.dbe_gyro_num;
+    590                  return ret_size;
+    591              }
+    592          }
+    593          
+    594          extern uint16_t get_sensor_data(uint8_t *data, uint8_t sensor_type, uint16_t max_size)
+    595          {
+    596              uint16_t ret_size=35;
+    597              uint8_t data_count=0;
+    598              switch(sensor_type)
+    599              {
+    600                  case SENSOR_TYPE_DBE_ACCEL:
+    601                      data_count = 6*dbe_status.dbe_accel_num;
+    602                      ret_size += data_count;
+    603                      break;
+    604                  case SENSOR_TYPE_DBE_GYRO:
+    605                      data_count = 6*dbe_status.dbe_gyro_num;
+    606                      ret_size += data_count;
+    607                      break;
+    608                  case SENSOR_TYPE_CRASH_ACCEL:
+    609                      data_count = 6*crash_accel_num;
+    610                      ret_size += data_count;
+    611                      break;
+    612                  default:
+    613                      ret_size+=0;
+    614                      break;
+    615              }
+    616              if (ret_size > max_size)
+    617              {
+    618                  return 0;
+    619              }
+    620              else
+    621              {
+    622                  gps_data_t gps_info;
+    623                  uint32_t timestamp;
+    624                  uint16_t speed;
+    625                  vGps_Get_Gps_Info(&gps_info);
+    626                  *data = sensor_type;
+    627          
+    628                  timestamp = sys_get_cur_sec_offset();
+    629                  speed = (gps_info.speed[0]<<8)+gps_info.speed[1];
+    630                  if (!gps_info.valid)
+    631                  {
+    632                      uint8_t clk_tmp[14];
+    633                      if (0!=ATProt_Get_Clock(clk_tmp))
+    634                      {
+    635                          timestamp=sys_get_sec_offset(clk_tmp);
+    636                      }
+    637                  }
+    638                  *(data+1)=(timestamp>>24) & 0xff;
+    639                  *(data+2)=(timestamp>>16) & 0xff;
+    640                  *(data+3)=(timestamp>>8) & 0xff;
+    641                  *(data+4)=(timestamp) & 0xff;
+    642                  memcpy(data+5,gps_info.longitude,4);
+    643                  memcpy(data+9,gps_info.latitude,4);
+    644                  memcpy(data+13,gps_info.altitude,4);
+    645                  *(data+17)=gps_info.gnss_sat_info.used_sat_num + gps_info.bd_sat_info.used_sat_num;
+    646                  if (false==gps_info.valid)
+    647                      *(data+18)=0;
+    648                  else
+    649                      *(data+18)=1;
+    650                  memcpy(data+19,gps_info.cog,2);
+    651                  if (speed<=255)
+    652                      *(data+21)=speed;
+    653                  else
+    654                      *(data+21)=255;
+    655                  *(data+22)=gps_info.pdop[1];
+    656                  ATProt_Get_Loc(data+23,data+25);
+    657          
+    658                  // timestamp
+    659                  timestamp -= (data_count/100);
+    660                  *(data+27)=(timestamp>>24) & 0xff;
+    661                  *(data+28)=(timestamp>>16) & 0xff;
+    662                  *(data+29)=(timestamp>>8) & 0xff;
+    663                  *(data+30)=(timestamp) & 0xff;
+    664                  // duration
+    665                  if (data_count>100)
+    666                  {
+    667                      *(data+31)=(data_count/100) >> 8;
+    668                      *(data+32)=(data_count/100) & 0xff;
+    669                  }
+    670                  else
+    671                  {
+    672                      *(data+31)=0x00;
+    673                      *(data+32)=0x01;
+    674                  }
+    675                  // total package
+    676                  *(data+33) = data_count;
+    677                  
+    678                  switch(sensor_type)
+    679                  {
+    680                      case SENSOR_TYPE_DBE_ACCEL:
+    681                          *(data+34) = dbe_status.dbe_accel_setting;
+    682                          memcpy(data, dbe_accel_data, ret_size);
+    683                          break;
+    684                      case SENSOR_TYPE_DBE_GYRO:
+    685                          *(data+34) = dbe_status.dbe_gyro_setting;
+    686                          memcpy(data, dbe_gyro_data, ret_size);
+    687                          break;
+    688                      case SENSOR_TYPE_CRASH_ACCEL:
+    689                          *(data+34) = crash_accel_setting;
+    690                          memcpy(data, crash_accel_data, ret_size);
+    691                          break;
+    692                      default:
+    693                          break;
+    694                  }
+    695                  return ret_size;
+    696              }
+    697          }
+    698          
+    699          extern uint16_t get_crash_data(uint8_t *data, uint16_t max_size)
+    700          {
+    701              uint16_t ret=10+26*crash_gps_num+6*crash_accel_num;
+    702              uint16_t pos=0;
+    703              if (ret > max_size)
+    704                  return 0;
+    705              *data = crash_id;
+    706          //    crash_id++;
+    707              *(data+1)=(crash_time>>24) & 0xff;
+    708              *(data+2)=(crash_time>>16) & 0xff;
+    709              *(data+3)=(crash_time>>8) & 0xff;
+    710              *(data+4)=(crash_time) & 0xff;
+    711          
+    712              *(data+5)=crash_gps_num;
+    713              pos=6;
+    714              memcpy(data+pos,crash_gps_data,(26*crash_gps_num));
+    715              pos+=26*crash_gps_num;
+    716              *(data+pos)=crash_accel_setting;
+    717              pos++;
+    718              *(data+pos)=crash_duration>>8;
+    719              pos++;
+    720              *(data+pos)=crash_duration & 0xff;
+    721              pos++;
+    722              *(data+pos)=crash_accel_num;
+    723              pos++;
+    724              memcpy(data+pos,crash_accel_data,(6*crash_accel_num));
+    725              return ret;
+    726          }
+    727          
+    728          /*******************************************************************************
+    729          *    Function:  Record_flush_Crash_buffer
+    730          *
+    731          *  Parameters:  'pData' point to the buffer that store the crash data
+    732          *               'Cnt' express the how much data to store to the buffer          
+    733          *     Returns:  None
+    734          * Description:  add some crash data to the specified buffer
+    735          *******************************************************************************/
+    736          #if 0
+    737          static bool Record_flush_Crash_buffer(int16_t *pData, uint8_t Cnt)
+    738          {
+    739              if(pData == NULL || Cnt > 100)
+    740              {
+    741                  return false;
+    742              }
+    743              else
+    744              {
+    745                  uint8_t idx;
+    746                  for(idx=crash_accel_num; idx<Cnt; idx++)
+    747                  {
+    748                      //encode axix-x
+    749                      crash_accel_data[idx].sensor_data[0] = (*pData >> 8) & 0xFF;
+    750                      crash_accel_data[idx].sensor_data[1] = *pData & 0xFF;
+    751                      pData++;
+    752                      //encode axix-y
+    753                      crash_accel_data[idx].sensor_data[2] = (*pData >> 8) & 0xFF;
+    754                      crash_accel_data[idx].sensor_data[3] = *pData & 0xFF;
+    755                      pData++;
+    756                      //encode axix-z
+    757                      crash_accel_data[idx].sensor_data[4] = (*pData >> 8) & 0xFF;
+    758                      crash_accel_data[idx].sensor_data[5] = *pData & 0xFF;
+    759                      pData++;
+    760                  }  
+    761              }  
+    762              return true;
+    763          }
+    764          #endif
+    765          /*====================================================================================*\
+    766           * File Revision History
+    767           *====================================================================================
+    768           *
+    769           * Date        userid  (Description on following lines:)
+    770           * ----------- ------  ---------------------------------------------
+    771           *
+    772            ====================================================================================*/
+    773          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      16   Record_Task
+        16   -- Indirect call
+        16   -> Build_Message
+        16   -> GPRS_server_connected
+        16   -> Get_GPS_Data_Total_Number
+        16   -> Get_config_data
+        16   -> OS_Send_Message
+        16   -> OS_Wait_Message
+        16   -> PS_Running
+        16   -> TMR_Start_Timer
+        16   -> printf
+        16   -> vTaskSuspend
+        16   -> xTaskGetTickCountFromISR
+      24   get_crash_data
+        24   -> __aeabi_memcpy
+      24   get_dbe_data
+        24   -> __aeabi_memcpy
+     168   get_sensor_data
+       168   -> ATProt_Get_Clock
+       168   -> ATProt_Get_Loc
+       168   -> __aeabi_memcpy
+       168   -> sys_get_cur_sec_offset
+       168   -> sys_get_sec_offset
+       168   -> vGps_Get_Gps_Info
+      16   get_trip_data
+        16   -> __aeabi_memcpy
+        16   -> __aeabi_memset
+        16   -> gps_get_trip_distance
+       8   prvRecord_evt_acc_off
+         8   -> Build_Message
+         8   -> OS_Send_Message
+         8   -> Set_Last_Trip_Info
+         8   -> gps_get_trip_distance
+         8   -> gps_set_trip_start
+         8   -> sys_get_cur_sec_offset
+       8   prvRecord_evt_acc_on
+         8   -> Build_Message
+         8   -> Get_Last_Trip_Info
+         8   -> OS_Send_Message
+         8   -> gps_set_trip_start
+         8   -> sys_get_cur_sec_offset
+       8   prvRecord_evt_acc_source_set
+         8   -> ACC_Set_Source
+         8   -> Get_config_data
+         8   -> printf
+     280   prvRecord_evt_crash
+       264   -> ATProt_Get_Clock
+       264   -> ATProt_Get_Loc
+       264   -> Build_Message
+       264   -> OS_Send_Message
+       264   -> Sensor_crash_data
+       264   -> Switch_GPS_Sturcture_data_to_log
+       264   -> __aeabi_memcpy
+       280   -> __aeabi_memcpy4
+       264   -> sys_get_sec_offset
+       264   -> vGps_Get_Gps_Info
+       8   prvRecord_evt_gps_fixed
+         8   -> sys_get_cur_sec_offset
+       0   prvRecord_evt_nop
+       8   record_check
+         8   -> Build_Message
+         8   -> GPRS_server_connected
+         8   -> Get_GPS_Data_Total_Number
+         8   -> OS_Send_Message
+         8   -> Pwr_Fail_Get_Int_Voltage
+         8   -> Pwr_Fail_Get_Voltage
+         8   -> TMR_Start_Timer
+         8   -> record_save_current_pos
+         8   -> vGps_Get_Gps_Status
+     160   record_save_current_pos
+       144   -> ATProt_Get_Clock
+       144   -> ATProt_Get_Loc
+       144   -> Switch_GPS_Sturcture_data_to_log
+       144   -> Write_GPS_Data
+       160   -> __aeabi_memcpy4
+       144   -> sys_get_sec_offset
+       144   -> vGps_Get_Gps_Info
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable11
+       4  ??DataTable11_1
+       4  ??DataTable11_10
+       4  ??DataTable11_11
+       4  ??DataTable11_12
+       4  ??DataTable11_13
+       4  ??DataTable11_14
+       4  ??DataTable11_15
+       4  ??DataTable11_16
+       4  ??DataTable11_17
+       4  ??DataTable11_18
+       4  ??DataTable11_19
+       4  ??DataTable11_2
+       4  ??DataTable11_20
+       4  ??DataTable11_21
+       4  ??DataTable11_22
+       4  ??DataTable11_23
+       4  ??DataTable11_24
+       4  ??DataTable11_25
+       4  ??DataTable11_3
+       4  ??DataTable11_4
+       4  ??DataTable11_5
+       4  ??DataTable11_6
+       4  ??DataTable11_7
+       4  ??DataTable11_8
+       4  ??DataTable11_9
+      32  ?_0
+      44  ?_1
+     166  Record_Task
+      76  config_data
+     600  crash_accel_data
+       1  crash_accel_num
+       1  crash_accel_setting
+       2  crash_duration
+    2600  crash_gps_data
+       1  crash_gps_num
+       1  crash_id
+       4  crash_time
+     600  dbe_accel_data
+    2600  dbe_gps_data
+     600  dbe_gyro_data
+      16  dbe_status
+     194  get_crash_data
+     290  get_dbe_data
+     462  get_sensor_data
+     218  get_trip_data
+     120  gpsInfo
+       1  gps_record_count
+       1  ignition_status
+     144  prvRecord_evt_acc_off
+     114  prvRecord_evt_acc_on
+      34  prvRecord_evt_acc_source_set
+     230  prvRecord_evt_crash
+      24  prvRecord_evt_gps_fixed
+       2  prvRecord_evt_nop
+     358  record_check
+      24  record_event_handler
+     108  record_save_current_pos
+      32  trip_info
+
+ 
+ 7 255 bytes in section .bss
+    25 bytes in section .data
+    76 bytes in section .rodata
+ 2 448 bytes in section .text
+ 
+ 2 448 bytes of CODE  memory
+    76 bytes of CONST memory
+ 7 280 bytes of DATA  memory
+
+Errors: none
+Warnings: 8

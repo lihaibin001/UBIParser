@@ -1,0 +1,777 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:31
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\SysMan\system.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\SysMan\system.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\system.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\system.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\SysMan\system.c
+      1          /* $Header:   system.c  $*/
+      2          /*----------------------------------------------------------------------------/
+      3           *  (C)Dedao, 2016
+      4           *-----------------------------------------------------------------------------/
+      5           *
+      6           * Copyright (C) 2016, Dedao, all right reserved.
+      7           *
+      8           * 1. Redistributions of source code must retain the above copyright notice,
+      9           *    this condition and the following disclaimer.
+     10           *
+     11           * This software is provided by the copyright holder and contributors "AS IS"
+     12           * and any warranties related to this software are DISCLAIMED.
+     13           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     14           * by use of this software.
+     15           *----------------------------------------------------------------------------*/
+     16          
+     17          /*===========================================================================*\
+     18             Title                    : SYSTEM.C
+     19          
+     20             Module Description       : This is the standard code file for SYSTEM
+     21                                        for 78K0R core.
+     22          
+     23             Author                   : 
+     24          
+     25          \*===========================================================================*/
+     26          
+     27          /*===========================================================================*\
+     28           * Installation Instructions (periodic tasks, etc.)
+     29           *
+     30           *
+     31          \*===========================================================================*/
+     32          
+     33          
+     34          /*===========================================================================*\
+     35           * Include header files
+     36          \*===========================================================================*/
+     37          /*===========================================================================*/
+     38          
+     39          #include "standard.h"
+     40          #include "cortexm3_macro.h"
+     41          
+     42          /*===========================================================================*\
+     43           * File level pragmas
+     44          \*===========================================================================*/
+     45          
+     46          /*===========================================================================*\
+     47           * Constant and Macro Definitions using #define
+     48          \*===========================================================================*/
+     49          #define SY_HW_ID       {'V','1','.','0'} 
+     50          #define SY_SW_ID       {'D','R','0','0','2','-','-','1','7','D','0','1','A','0','0','3'}
+     51          #define SY_SW_DATE     {'2','0','1','7','0','7','2','8','R'}
+     52          #define SY_PROTOCOL_VER  {0,1}
+     53          
+     54          #define LED_MAX_NUM (2)
+     55          /*===========================================================================*\
+     56           * Enumerations and Structures and Typedefs
+     57          \*===========================================================================*/
+     58          
+     59          /*===========================================================================*\
+     60           * Global and Const Variable Defining Definitions / Initializations
+     61          \*===========================================================================*/
+     62          const char  Sys_HWID[] = SY_HW_ID;  // HW ID,FOR test,need get the ID from EEPROM:SCB
+     63          const char  Sys_SWID[] = SY_SW_ID;
+     64          const char  Sys_SW_Date[] = SY_SW_DATE;
+     65          const char  Sys_Protocol_Ver[] = SY_PROTOCOL_VER;
+     66          
+     67          /*===========================================================================*\
+     68           * Static Variables and Const Variables With File Level Scope
+     69          \*===========================================================================*/
+     70          __no_init wake_up_src_flags_t sys_wakeup_src_flags;/* clear after each warm start!!! */
+     71          __no_init  bool sys_sleep_request_flag;/*    */
+     72          __no_init  uint8_t sys_2g_request_flag;/*    */
+     73          
+     74          __no_init  uint8_t sys_int_battery_used_flag ;/*    */
+     75          
+     76          //static bool watchdog_reset_flag = false;
+     77          static LED_Toggle_Period_T Led_Period[LED_MAX_NUM];
+     78          static uint8_t Led_ID = 0;
+     79          /*===========================================================================*\
+     80           * ROM Const Variables With File Level Scope
+     81          \*===========================================================================*/
+     82          
+     83          
+     84          /*===========================================================================*\
+     85           * Function Prototypes for Private Functions with File Level Scope
+     86          \*===========================================================================*/
+     87          
+     88          /*===========================================================================*\
+     89           * Add User defined functions
+     90          \*===========================================================================*/
+     91          
+     92          #ifndef SY_POWER_OFF_DELAY
+     93          #   define SY_POWER_OFF_DELAY (MSec_To_Ticks(200))
+     94          #endif /* SY_POWER_OFF_DELAY */
+     95          
+     96          /*===========================================================================*\
+     97           * Function Definitions
+     98          \*===========================================================================*/
+     99          /**********************************************************************
+    100           *    Function: SY_Swid()
+    101           *
+    102           *  Parameters: None.
+    103           *
+    104           *     Returns: sy_swid
+    105           *
+    106           * Description: Return the current S/W ID revision.
+    107           *
+    108           **********************************************************************/
+    109          int8_t *SY_Swid(void)
+    110          {
+    111             return((int8_t *) &Sys_SWID[0]);
+    112          }
+    113          /**********************************************************************
+    114           *    Function: SY_Swid()
+    115           *
+    116           *  Parameters: None.
+    117           *
+    118           *     Returns: sy_swid
+    119           *
+    120           * Description: Return the current S/W ID revision.
+    121           *
+    122           **********************************************************************/
+    123          int8_t *SY_Hwid(void)
+    124          {
+    125             return((int8_t *)&Sys_HWID[0]);
+    126          }
+    127          /**********************************************************************
+    128           *    Function: SY_Sw_Date()
+    129           *
+    130           *  Parameters: None.
+    131           *
+    132           *     Returns: sy_swid
+    133           *
+    134           * Description: Return the current S/W Date revision.
+    135           *
+    136           **********************************************************************/
+    137          int8_t *SY_Sw_Date(void)
+    138          {
+    139             return((int8_t *) &Sys_SW_Date[0]);
+    140          }
+    141          
+    142          /**********************************************************************
+    143           *    Function: SY_Sw_Version()
+    144           *
+    145           *  Parameters: None.
+    146           *
+    147           *     Returns: sy_swid
+    148           *
+    149           * Description: Return the current S/W Date revision.
+    150           *
+    151           **********************************************************************/
+    152          int8_t *SY_Sw_Version(void)
+    153          {
+    154             return((int8_t *) &Sys_SWID[0]);
+    155          }
+    156          
+    157          /**********************************************************************
+    158           *    Function: SY_Protocol_Version()
+    159           *
+    160           *  Parameters: None.
+    161           *
+    162           *     Returns: sy_protocol_ver
+    163           *
+    164           * Description: Return the current S/W Protocol revision.
+    165           *
+    166           **********************************************************************/
+    167          int8_t *SY_Protocol_Version(void)
+    168          {
+    169             return((int8_t *) &Sys_Protocol_Ver[0]);
+    170          }
+    171          
+    172          /*===========================================================================*\
+    173           *    Function: Restart
+    174           *
+    175           *  Parameters: type = WARM or COLD
+    176           *
+    177           *     Returns: None
+    178           *
+    179           * Description: Forces obd into warm start after EE Queue is cleaned up.
+    180           *
+    181          \*===========================================================================*/
+    182          void Restart(bool warm)
+    183          {
+    184             static bool do_warm;
+    185          
+    186             do_warm = warm;
+    187          
+    188             if (do_warm)                 /* true if warm start is desired */
+    189             {
+    190                Set_warm_Start();
+    191                Force_WatchDog_Reset();
+    192             }
+    193             else
+    194             {
+    195                Force_WatchDog_Reset();   /* force reset (cold start) via watchdog */
+    196             }
+    197          }
+    198          /**********************************************************************
+    199          *    Function: Sys_Set_CAN_Wakeup_Flag
+    200          *  Parameters: none
+    201          *     Returns: none
+    202          * Description: 
+    203          **********************************************************************/
+    204          void Sys_Set_CAN_Wakeup_Flag (void)
+    205          {
+    206              sys_wakeup_src_flags.all  |= CAN_WAKE_UP; 
+    207          }
+    208          
+    209          /**********************************************************************
+    210          *    Function: Sys_Clear_CAN_Wakeup_Flag
+    211          *  Parameters: none
+    212          *     Returns: none
+    213          * Description: 
+    214          **********************************************************************/
+    215          void Sys_Clear_CAN_Wakeup_Flag (void)
+    216          {
+    217              sys_wakeup_src_flags.all  &= ~CAN_WAKE_UP; 
+    218          }
+    219          
+    220          /**********************************************************************
+    221          *    Function: Sys_Is_CAN_Wakeup
+    222          *  Parameters: none
+    223          *     Returns: none
+    224          * Description: 
+    225          **********************************************************************/
+    226          bool Sys_Is_CAN_Wakeup (void)
+    227          {
+    228              return(CAN_WAKE_UP & sys_wakeup_src_flags.all) ; 
+    229          }
+    230          
+    231          /**********************************************************************
+    232          *    Function: Sys_Is_2G_Wakeup
+    233          *  Parameters: none
+    234          *     Returns: none
+    235          * Description: 
+    236          **********************************************************************/
+    237          bool Sys_Is_2G_Wakeup (void)
+    238          {
+    239              return(sys_2g_request_flag == 0x55) ; 
+    240          }
+    241          
+    242          /**********************************************************************
+    243          *    Function: Sys_Set_2G_Wakeup_Flag
+    244          *  Parameters: none
+    245          *     Returns: none
+    246          * Description: 
+    247          **********************************************************************/
+    248          void Sys_Set_2G_Wakeup_Flag (void)
+    249          {
+    250              sys_2g_request_flag = 0x55; 
+    251          }
+    252          
+    253          /**********************************************************************
+    254          *    Function: Sys_Clear_2G_Wakeup_Flag
+    255          *  Parameters: none
+    256          *     Returns: none
+    257          * Description: 
+    258          **********************************************************************/
+    259          void Sys_Clear_2G_Wakeup_Flag (void)
+    260          {
+    261              sys_2g_request_flag = 0; 
+    262          }
+    263          
+    264          
+    265          /**********************************************************************
+    266          *    Function: Sys_Set_Low_Batt_Wakeup_Flag
+    267          *  Parameters: none
+    268          *     Returns: none
+    269          * Description: 
+    270          **********************************************************************/
+    271          void Sys_Set_Low_Batt_Wakeup_Flag (void)
+    272          {
+    273              sys_wakeup_src_flags.all  |= LOW_BAT_WAKE_UP; 
+    274          }
+    275          /**********************************************************************
+    276          *    Function: Sys_Is_Low_Batt_Wakeup
+    277          *  Parameters: none
+    278          *     Returns: none
+    279          * Description: 
+    280          **********************************************************************/
+    281          bool Sys_Is_Low_Batt_Wakeup (void)
+    282          {
+    283              return(LOW_BAT_WAKE_UP & sys_wakeup_src_flags.all) ; 
+    284          }
+    285          
+    286          /**********************************************************************
+    287          *    Function: Sys_Clear_Low_Batt_Wakeup_Flag
+    288          *  Parameters: none
+    289          *     Returns: none
+    290          * Description: 
+    291          **********************************************************************/
+    292          void Sys_Clear_Low_Batt_Wakeup_Flag (void)
+    293          {
+    294              sys_wakeup_src_flags.all  &= ~LOW_BAT_WAKE_UP; 
+    295          }
+    296          
+    297          /**********************************************************************
+    298          *    Function: Sys_Set_Gsensor_Wakeup_Flag
+    299          *  Parameters: none
+    300          *     Returns: none
+    301          * Description: 
+    302          **********************************************************************/
+    303          void Sys_Set_Gsensor_Wakeup_Flag(void)
+    304          {
+    305              sys_wakeup_src_flags.all  |= GSENSOR_WAKE_UP; 
+    306          }
+    307          
+    308          /**********************************************************************
+    309          *    Function: Sys_Is_Gsensor_Wakeup
+    310          *  Parameters: none
+    311          *     Returns: none
+    312          * Description: 
+    313          **********************************************************************/
+    314          bool Sys_Is_Gsensor_Wakeup(void)
+    315          {
+    316              return(GSENSOR_WAKE_UP & sys_wakeup_src_flags.all) ; 
+    317          }
+    318          
+    319          /**********************************************************************
+    320          *    Function: Sys_Clear_Gsensor_Wakeup_Flag
+    321          *  Parameters: none
+    322          *     Returns: none
+    323          * Description: 
+    324          **********************************************************************/
+    325          void Sys_Clear_Gsensor_Wakeup_Flag (void)
+    326          {
+    327              sys_wakeup_src_flags.all  &= ~GSENSOR_WAKE_UP; 
+    328          }
+    329          
+    330          /**********************************************************************
+    331          *    Function: Sys_Set_RTC_Wakeup_Flag
+    332          *  Parameters: none
+    333          *     Returns: none
+    334          * Description: 
+    335          **********************************************************************/
+    336          void Sys_Set_RTC_Wakeup_Flag (void)
+    337          {
+    338              sys_wakeup_src_flags.all  |= RTC_WAKE_UP; 
+    339          }
+    340          
+    341          /**********************************************************************
+    342          *    Function: Sys_Is_RTC_Wakeup
+    343          *  Parameters: none
+    344          *     Returns: none
+    345          * Description: 
+    346          **********************************************************************/
+    347          bool Sys_Is_RTC_Wakeup (void)
+    348          {
+    349              return(RTC_WAKE_UP & sys_wakeup_src_flags.all) ; 
+    350          }
+    351          
+    352          /**********************************************************************
+    353          *    Function: Sys_Clear_RTC_Wakeup
+    354          *  Parameters: none
+    355          *     Returns: none
+    356          * Description: 
+    357          **********************************************************************/
+    358          void Sys_Clear_RTC_Wakeup (void)
+    359          {
+    360              sys_wakeup_src_flags.all  &= ~RTC_WAKE_UP; 
+    361          }
+    362          
+    363          /**********************************************************************
+    364          *    Function: Sys_Set_RTC_Deep_Wakeup_Flag
+    365          *  Parameters: none
+    366          *     Returns: none
+    367          * Description: 
+    368          **********************************************************************/
+    369          void Sys_Set_RTC_Deep_Wakeup_Flag (void)
+    370          {
+    371              sys_wakeup_src_flags.all  |= RTC_DEEP_STDBY_WAKE_UP; 
+    372          }
+    373          
+    374          /**********************************************************************
+    375          *    Function: Sys_Is_RTC_Deep_Wakeup
+    376          *  Parameters: none
+    377          *     Returns: none
+    378          * Description: 
+    379          **********************************************************************/
+    380          bool Sys_Is_RTC_Deep_Wakeup (void)
+    381          {
+    382              return(RTC_DEEP_STDBY_WAKE_UP & sys_wakeup_src_flags.all) ; 
+    383          }
+    384          
+    385          /**********************************************************************
+    386          *    Function: Sys_Clear_RTC_Deep_Wakeup
+    387          *  Parameters: none
+    388          *     Returns: none
+    389          * Description: 
+    390          **********************************************************************/
+    391          void Sys_Clear_RTC_Deep_Wakeup (void)
+    392          {
+    393              sys_wakeup_src_flags.all  &= ~RTC_DEEP_STDBY_WAKE_UP; 
+    394          }
+    395          
+    396          /**********************************************************************
+    397          *    Function: Sys_Set_Ignition_Wakeup_Flag
+    398          *  Parameters: none
+    399          *     Returns: none
+    400          * Description: 
+    401          **********************************************************************/
+    402          void Sys_Set_Ignition_Wakeup_Flag (void)
+    403          {
+    404              sys_wakeup_src_flags.all  |= IGN_ON_WAKE_UP; 
+    405          }
+    406          
+    407          /**********************************************************************
+    408          *    Function: Sys_Is_Ignition_Wakeup
+    409          *  Parameters: none
+    410          *     Returns: none
+    411          * Description: 
+    412          **********************************************************************/
+    413          bool Sys_Is_Ignition_Wakeup (void)
+    414          {
+    415              return(IGN_ON_WAKE_UP & sys_wakeup_src_flags.all) ; 
+    416          }
+    417          
+    418          /**********************************************************************
+    419          *    Function: Sys_Clear_Ignition_Wakeup
+    420          *  Parameters: none
+    421          *     Returns: none
+    422          * Description: 
+    423          **********************************************************************/
+    424          void Sys_Clear_Ignition_Wakeup_Flag (void)
+    425          {
+    426              sys_wakeup_src_flags.all  &= ~IGN_ON_WAKE_UP; 
+    427          }
+    428          
+    429          /**********************************************************************
+    430          *    Function: Sys_Set_Ext_Batt_On_Wakeup_Flag
+    431          *  Parameters: none
+    432          *     Returns: none
+    433          * Description: 
+    434          **********************************************************************/
+    435          void Sys_Set_Ext_Batt_On_Wakeup_Flag(void)
+    436          {
+    437              sys_wakeup_src_flags.all  |= EXT_BATT_ON_WAKE_UP; 
+    438          }
+    439          
+    440          /**********************************************************************
+    441          *    Function: Sys_Is_Ext_Batt_On_Wakeup
+    442          *  Parameters: none
+    443          *     Returns: none
+    444          * Description: 
+    445          **********************************************************************/
+    446          bool Sys_Is_Ext_Batt_On_Wakeup(void)
+    447          {
+    448              return(EXT_BATT_ON_WAKE_UP & sys_wakeup_src_flags.all) ; 
+    449          }
+    450          
+    451          /**********************************************************************
+    452          *    Function: Sys_Clear_Ext_Batt_On_Wakeup_Flag
+    453          *  Parameters: none
+    454          *     Returns: none
+    455          * Description: 
+    456          **********************************************************************/
+    457          void Sys_Clear_Ext_Batt_On_Wakeup_Flag(void)
+    458          {
+    459              sys_wakeup_src_flags.all  &= ~EXT_BATT_ON_WAKE_UP; 
+    460          }
+    461          
+    462          /**********************************************************************
+    463           *       Name: Sys_Get_Wakeup_Src_Flags(void)
+    464           *    Purpose: 
+    465           * Parameters: none
+    466           *    Returns: none
+    467           *********************************************************************/
+    468          uint8_t Sys_Get_Wakeup_Src_Flags(void)
+    469          {
+    470               return (sys_wakeup_src_flags.all);
+    471          }
+    472          /**********************************************************************
+    473           *       Name: Sys_Clear_Wakeup_Src_Flags(void)
+    474           *    Purpose: 
+    475           * Parameters: none
+    476           *    Returns: none
+    477           *********************************************************************/
+    478          void Sys_Clear_Wakeup_Src_Flags(void)
+    479          {
+    480               sys_wakeup_src_flags.all = 0x00;
+    481          }
+    482          
+    483          /**********************************************************************
+    484           *       Name: Sys_Clear_Standby_Req_Flag(void)
+    485           *    Purpose: 
+    486           * Parameters: none
+    487           *    Returns: none
+    488           *********************************************************************/
+    489          void Sys_Clear_Standby_Req_Flag(void)
+    490          {
+    491               sys_sleep_request_flag = false;
+    492          }
+    493          /**********************************************************************
+    494           *       Name: Sys_Set_Standby_Req_Flag(void)
+    495           *    Purpose: 
+    496           * Parameters: none
+    497           *    Returns: none
+    498           *********************************************************************/
+    499          void Sys_Set_Standby_Req_Flag(void)
+    500          {
+    501              sys_sleep_request_flag = 0x5A; 
+    502          }
+    503          /**********************************************************************
+    504           *       Name: Sys_Get_Standby_Req_Flag(void)
+    505           *    Purpose: 
+    506           * Parameters: none
+    507           *    Returns: none
+    508           *********************************************************************/
+    509          bool Sys_Get_Standby_Req_Flag(void)
+    510          {
+    511               return (sys_sleep_request_flag);
+    512          }
+    513          
+    514          /**********************************************************************
+    515           *       Name: Sys_Req_Enter_Deep_Standby(void)
+    516           *    Purpose: 
+    517           * Parameters: none
+    518           *    Returns: none
+    519           *********************************************************************/
+    520          void  Sys_Req_Enter_Deep_Standby(void)
+    521          {
+    522               Sys_Set_Standby_Req_Flag();
+    523          //     SY_Warm_Start(); 
+    524               Set_Wkup_Enable(ENABLE);
+    525               Micro_Go_Standby();
+    526          }
+    527          
+    528          /**********************************************************************
+    529           *       Name: LED_Set_Toggle_Period(LED_Toggle_Period_T period )
+    530           *    Purpose: 
+    531           * Parameters: none
+    532           *    Returns: none
+    533           *********************************************************************/
+    534          
+    535          void LED_Set_Toggle_Period(uint8_t Led_id, LED_Toggle_Period_T period )
+    536          {
+    537          	Led_Period[Led_id] = period;
+    538          }
+    539          /**********************************************************************
+    540           *       Name: LED_Get_Toggle_Period(void)
+    541           *    Purpose: 
+    542           * Parameters: none
+    543           *    Returns: none
+    544           *********************************************************************/
+    545          LED_Toggle_Period_T LED_Get_Toggle_Period(uint8_t Led_id)
+    546          {
+    547          	return Led_Period[Led_id];
+    548          }
+    549          
+    550          
+    551          /**********************************************************************
+    552           *       Name: Sys_Clear_Int_battery_Flag(void)
+    553           *    Purpose: 
+    554           * Parameters: none
+    555           *    Returns: none
+    556           *********************************************************************/
+    557          void Sys_Clear_Int_battery_Flag(void)
+    558          {
+    559               sys_int_battery_used_flag = false;
+    560          }
+    561          /**********************************************************************
+    562           *       Name: Sys_Set_Int_battery_Flag(void)
+    563           *    Purpose: 
+    564           * Parameters: none
+    565           *    Returns: none
+    566           *********************************************************************/
+    567          void Sys_Set_Int_battery_Flag(void)
+    568          {
+    569              sys_int_battery_used_flag = true; 
+    570          }
+    571          /**********************************************************************
+    572           *       Name: Sys_Get_Int_battery_Flag(void)
+    573           *    Purpose: 
+    574           * Parameters: none
+    575           *    Returns: none
+    576           *********************************************************************/
+    577          bool Sys_Get_Int_battery_Flag(void)
+    578          {
+    579               return (sys_int_battery_used_flag);
+    580          }
+    581          
+    582          /*===========================================================================*\
+    583           * File Revision History
+    584           *===========================================================================
+    585           *
+    586          \*===========================================================================*/
+    587          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   LED_Get_Toggle_Period
+       0   LED_Set_Toggle_Period
+       8   Restart
+         8   -> Force_WatchDog_Reset
+         8   -> Set_warm_Start
+       0   SY_Hwid
+       0   SY_Protocol_Version
+       0   SY_Sw_Date
+       0   SY_Sw_Version
+       0   SY_Swid
+       0   Sys_Clear_2G_Wakeup_Flag
+       0   Sys_Clear_CAN_Wakeup_Flag
+       0   Sys_Clear_Ext_Batt_On_Wakeup_Flag
+       0   Sys_Clear_Gsensor_Wakeup_Flag
+       0   Sys_Clear_Ignition_Wakeup_Flag
+       0   Sys_Clear_Int_battery_Flag
+       0   Sys_Clear_Low_Batt_Wakeup_Flag
+       0   Sys_Clear_RTC_Deep_Wakeup
+       0   Sys_Clear_RTC_Wakeup
+       0   Sys_Clear_Standby_Req_Flag
+       0   Sys_Clear_Wakeup_Src_Flags
+       0   Sys_Get_Int_battery_Flag
+       0   Sys_Get_Standby_Req_Flag
+       0   Sys_Get_Wakeup_Src_Flags
+       0   Sys_Is_2G_Wakeup
+       0   Sys_Is_CAN_Wakeup
+       0   Sys_Is_Ext_Batt_On_Wakeup
+       0   Sys_Is_Gsensor_Wakeup
+       0   Sys_Is_Ignition_Wakeup
+       0   Sys_Is_Low_Batt_Wakeup
+       0   Sys_Is_RTC_Deep_Wakeup
+       0   Sys_Is_RTC_Wakeup
+       8   Sys_Req_Enter_Deep_Standby
+         8   -> Micro_Go_Standby
+         8   -> Set_Wkup_Enable
+         8   -> Sys_Set_Standby_Req_Flag
+       0   Sys_Set_2G_Wakeup_Flag
+       0   Sys_Set_CAN_Wakeup_Flag
+       0   Sys_Set_Ext_Batt_On_Wakeup_Flag
+       0   Sys_Set_Gsensor_Wakeup_Flag
+       0   Sys_Set_Ignition_Wakeup_Flag
+       0   Sys_Set_Int_battery_Flag
+       0   Sys_Set_Low_Batt_Wakeup_Flag
+       0   Sys_Set_RTC_Deep_Wakeup_Flag
+       0   Sys_Set_RTC_Wakeup_Flag
+       0   Sys_Set_Standby_Req_Flag
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable39
+       4  ??DataTable39_1
+       4  ??DataTable39_2
+       4  ??DataTable39_3
+       4  ??DataTable39_4
+       4  ??DataTable39_5
+       4  ??DataTable39_6
+       4  ??DataTable39_7
+       4  ??DataTable39_8
+       4  ??DataTable39_9
+       8  LED_Get_Toggle_Period
+       8  LED_Set_Toggle_Period
+       2  Led_Period
+      30  Restart
+       4  SY_Hwid
+       4  SY_Protocol_Version
+       4  SY_Sw_Date
+       4  SY_Sw_Version
+       4  SY_Swid
+       8  Sys_Clear_2G_Wakeup_Flag
+      14  Sys_Clear_CAN_Wakeup_Flag
+      14  Sys_Clear_Ext_Batt_On_Wakeup_Flag
+      14  Sys_Clear_Gsensor_Wakeup_Flag
+      14  Sys_Clear_Ignition_Wakeup_Flag
+       8  Sys_Clear_Int_battery_Flag
+      14  Sys_Clear_Low_Batt_Wakeup_Flag
+      14  Sys_Clear_RTC_Deep_Wakeup
+      14  Sys_Clear_RTC_Wakeup
+       8  Sys_Clear_Standby_Req_Flag
+       8  Sys_Clear_Wakeup_Src_Flags
+       6  Sys_Get_Int_battery_Flag
+       6  Sys_Get_Standby_Req_Flag
+       6  Sys_Get_Wakeup_Src_Flags
+       4  Sys_HWID
+      18  Sys_Is_2G_Wakeup
+      10  Sys_Is_CAN_Wakeup
+      10  Sys_Is_Ext_Batt_On_Wakeup
+      10  Sys_Is_Gsensor_Wakeup
+      10  Sys_Is_Ignition_Wakeup
+      10  Sys_Is_Low_Batt_Wakeup
+      10  Sys_Is_RTC_Deep_Wakeup
+      10  Sys_Is_RTC_Wakeup
+       2  Sys_Protocol_Ver
+      18  Sys_Req_Enter_Deep_Standby
+      16  Sys_SWID
+      12  Sys_SW_Date
+       8  Sys_Set_2G_Wakeup_Flag
+      14  Sys_Set_CAN_Wakeup_Flag
+      14  Sys_Set_Ext_Batt_On_Wakeup_Flag
+      14  Sys_Set_Gsensor_Wakeup_Flag
+      14  Sys_Set_Ignition_Wakeup_Flag
+       8  Sys_Set_Int_battery_Flag
+      14  Sys_Set_Low_Batt_Wakeup_Flag
+      14  Sys_Set_RTC_Deep_Wakeup_Flag
+      14  Sys_Set_RTC_Wakeup_Flag
+       8  Sys_Set_Standby_Req_Flag
+       4  do_warm
+       1  sys_2g_request_flag
+       1  sys_int_battery_used_flag
+       4  sys_sleep_request_flag
+       4  sys_wakeup_src_flags
+
+ 
+   6 bytes in section .bss
+  10 bytes in section .noinit
+  34 bytes in section .rodata
+ 482 bytes in section .text
+ 
+ 482 bytes of CODE  memory
+  34 bytes of CONST memory
+  16 bytes of DATA  memory
+
+Errors: none
+Warnings: 1

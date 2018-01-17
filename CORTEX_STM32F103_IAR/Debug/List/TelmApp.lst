@@ -1,0 +1,1243 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:32
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\TelmApp.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\TelmApp.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\TelmApp.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\TelmApp.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\TelmApp.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          /**********************************************************************
+     16           * Include files                                                       
+     17           *********************************************************************/
+     18          #include "standard.h"
+     19          #include "TelmApp.h"
+     20          #include "TelmProtocol.h"
+     21          #include "ATProtocol.h"
+     22          #include "gps.h"
+     23          #include "GPRS.h"
+     24          
+     25          #define USE_DEBUG
+     26          #include "Debug.h"
+     27          /******************************************************************************
+     28          * Constant and Macro Definitions using #define
+     29          *****************************************************************************/
+     30          #define TELM_TIME_CMD_TIMEOUT		(MSec_To_Ticks(1000))
+     31          
+     32          #define TELM_LEN_QUEUE_UPLOAD_INFO	(8)
+     33          #define TELM_LEN_QUEUE_COMMAND		(4)
+     34          #define	TELM_CAN_COMMAND_RETRY_MAX	(3)
+     35          
+     36          #define TELM_LEN_BACKUP_LIST (20)
+     37          
+     38          #define GPS_BACKUP_SECTOR_MAX (128)
+     39          
+     40          #define GPS_BACKUP_RECORD_PER_SECTOR (70)
+     41          
+     42          #define VEHICLE_STOP_GPS_CMP_LEN (7)
+     43          
+     44          #define ENG_ON_OFF_NV_BUF_LEN (20)
+     45          #define ENG_ON_OFF_RAM_BUF_LEN   (20)
+     46          
+     47          #define NUM_OF_SAVED_BATT_VOLT (6)
+     48          /*********************************************************************/
+     49          /* Enumerations and Structures and Typedefs                          */
+     50          /*********************************************************************/
+     51          
+     52          /* queue data type */
+     53          typedef struct Telm_Queue_tag
+     54          {
+     55          	void* const queue;
+     56          	const uint8_t elementSize;
+     57          	const uint8_t queueSize;
+     58          	uint8_t	num;
+     59          	uint8_t in;
+     60          	uint8_t out;
+     61          }Telm_Queue;
+     62          
+     63          /* collect telmatics info encode function type */
+     64          
+     65          /**********************************************************************
+     66           * Function Prototypes for Private Functions with File Level Scope
+     67           *********************************************************************/
+     68          
+     69          /* functions to control the sequence of the tranceieve between tbox and server */
+     70          /* function of upload data */
+     71          static void prvTelmApp_sendNextData(void);
+     72          /* function of execute command */
+     73          static void prvTelmApp_excuteNextCommand(void);
+     74          static void prvTelmApp_Execute_Command(void);
+     75          static void prvTelmApp_End_Execute_Command(void);
+     76          static void prvTelmApp_Command_Wait_TimeUp(void);
+     77          static bool prvTelmApp_Check_Command_Result(void);
+     78          static void prvTelmApp_Return_Cmd_Result(bool result);
+     79          
+     80          /* functions to manage queues */
+     81          static uint8 prvTelmApp_Queue_Push(Telm_Queue_Handler q,void const* added);
+     82          static void* prvTelmApp_Queue_Get(Telm_Queue_Handler q);
+     83          static void prvTelmApp_Queue_Shift(Telm_Queue_Handler q);
+     84          static bool prvTelmApp_Queue_isEmpty(Telm_Queue_Handler q);
+     85          
+     86          static uint8_t get_gps_buffer(uint8_t *drive_data);
+     87          
+     88          static void convert_gps_lon(uint8_t *gps_data, uint8_t *dst_buf);
+     89          
+     90          /*********************************************************************/
+     91          /* Static Variables and Const Variables With File Level Scope        */
+     92          /*********************************************************************/
+     93          #define	TELM_UPLOAD_RETRY_MAX		(2)
+     94          #define TELM_TIME_SERVER_ACK_TIMEOUT		(MSec_To_Ticks(10000))
+     95          
+     96          static uint8_t	telm_server_ack; //Check if have received server ack.
+     97          static uint8_t telm_server_ack_result;//Check the server ack is ok or ng.
+     98          static uint8_t telm_app_upload_retrytimes;//Upload information retry times, max is TELM_UPLOAD_RETRY_MAX .
+     99          static Tick_Type telm_app_server_ack_timer;//Server ACK timer, max is TELM_TIME_SERVER_ACK_TIMEOUT.
+    100          
+    101          static uint8_t gps_backup = 0; /* 0=no backup; 1=storing gps; 2=uploading gps */
+    102          
+    103          static uint8_t gps_is_first_fixed = 0;/*1:indicate first-fix after ignition*/
+    104          
+    105          /* status flag */
+    106          static Telm_State telm_upload_state = TELM_STATE_IDLE;
+    107          
+    108          /* memory space of queue of commands */
+    109          static Telm_Rcvd_Command telm_command_queue[TELM_LEN_QUEUE_COMMAND];
+    110          /* memory space of queue of uploading data */
+    111          static Telm_Upload_Info_Request	upload_info_req_queue[TELM_LEN_QUEUE_UPLOAD_INFO];
+    112          
+    113          static uint8_t backup_list_num = 0;
+    114          static Telm_Security_Event event_backup[TELM_LEN_BACKUP_LIST];
+    115          
+    116          /* object of two queues */
+    117          static Telm_Queue telm_queue[TELM_QUEUE_NUM] = {
+    118          	/* queue			elementSize				queueSize		num	head	tail*/
+    119          	{(void*)upload_info_req_queue,	sizeof(Telm_Upload_Info_Request), TELM_LEN_QUEUE_UPLOAD_INFO,	0,	0,		0},
+    120          	{(void*)telm_command_queue,	sizeof(Telm_Rcvd_Command),        TELM_LEN_QUEUE_COMMAND,	0,	0,		0}
+    121          };
+    122          
+    123          /* table to define what information is supposed to be uploaded to server in each situation */
+    124          static uint8_t uploadDataTable[TELM_SEC_EVT_NUM][TELM_INFO_IN_PACK_MAX_NUM] = {
+    125          	/* */
+    126              {TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_NONE				*/
+    127              {TELM_INFO_DEV,TELM_INFO_ACTIVATION,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE}, /* TELM_SEC_EVT_DEV		*/
+    128              {TELM_INFO_OTA_CHECK,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE}, /* TELM_SEC_EVT_OTACHECK		*/
+    129              {TELM_INFO_OTA,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_OTA		*/
+    130              {TELM_INFO_DRIVE_BHV,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_DRIVE_BHV		*/
+    131              {TELM_INFO_BACKUP_GPS,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE}, /* TELM_SEC_EVT_BACKUP		*/
+    132              {TELM_INFO_GPS,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE}, /* TELM_SEC_EVT_GPS		*/
+    133              {TELM_INFO_TOWING,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_TOWING		*/
+    134              {TELM_INFO_BATT,TELM_INFO_GPS,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_BATT		*/
+    135              {TELM_INFO_TRIP,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_TRAVEL_SUMMARY		*/
+    136              {TELM_INFO_ACTIVATION,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_ACTIVATE */
+    137              {TELM_INFO_REMOVAL,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_REMOVAL */
+    138              {TELM_INFO_CONFIG,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_CONFIG */
+    139              {TELM_INFO_GPS_FIX,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_GPS_FIX */
+    140              {TELM_INFO_TRIP,TELM_INFO_GPS,TELM_INFO_DASHBOARD,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_TRIP */
+    141              {TELM_INFO_CRASH,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_CRASH */
+    142              {TELM_INFO_SENSOR,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE,TELM_INFO_NONE},/* TELM_SEC_EVT_SENSOR */
+    143          };
+    144          
+    145          /*********************************************************************/
+    146          /* User file include                                                 */
+    147          /*********************************************************************/
+    148          
+    149          /**********************************************************************
+    150           * Function Definitions
+    151           *********************************************************************/
+    152          
+    153          /*******************************************************************************
+    154          *  Function: eTelmApp_upload_state
+    155          *
+    156          *  Parameters: :void
+    157          *  Returns: Telm_State
+    158          *  Description: 
+    159          *******************************************************************************/
+    160          Telm_State eTelmApp_upload_state(void)
+    161          {
+    162             return telm_upload_state;
+    163          }
+    164          /*******************************************************************************
+    165          *  Function: vTelmApp_AT_Var_Reset
+    166          *
+    167          *  Parameters: :void
+    168          *  Returns: none
+    169          *  Description: 
+    170          *******************************************************************************/
+    171          void vTelmApp_AT_Var_Reset(void)
+    172          {
+    173             telm_upload_state = TELM_STATE_IDLE;
+    174          
+    175             /*Stop the telm timers*/
+    176             TMR_Stop_Timer(TELM_COMMAND_TIMER);
+    177          }
+    178          
+    179          /*******************************************************************************
+    180          *    Function:  prvTelmApp_Collect_UTC_Time
+    181          *
+    182          *  Parameters:  Telm_Upload_Info* const:data collected
+    183          *     Returns:  None
+    184          * Description:  Collect UTC time from GPS
+    185          *******************************************************************************/
+    186          static void prvTelmApp_Collect_UTC_Time(Telm_Upload_Info* const uploadInfo)
+    187          {
+    188             uint32_t cur_time = 0;
+    189          
+    190             cur_time = sys_get_cur_sec_offset();
+    191             //For test.
+    192             uploadInfo->utcTime[0] = (cur_time >> 24) & 0xFF;
+    193             uploadInfo->utcTime[1] = (cur_time >> 16) & 0xFF;
+    194             uploadInfo->utcTime[2] = (cur_time >>  8) & 0xFF;
+    195             uploadInfo->utcTime[3] = cur_time & 0xFF;
+    196          }
+    197          
+    198          /*******************************************************************************
+    199          *    Function: vTelmApp_uploadData
+    200          *
+    201          *  Parameters: Telm_Security_Event:what happened
+    202          * 			   notifyResult:	function to notify caller 
+    203          								when finished data uploading
+    204          *     Returns: None
+    205          * Description: 
+    206          *******************************************************************************/
+    207          extern uint8_t vTelmApp_uploadData(Telm_Security_Event evt, notifyResult uploaded)
+    208          {
+    209          	Telm_Upload_Info_Request	upLoadInfoReq;
+    210          
+    211          	/* Check activation  */
+    212          	/* save the call back */	
+    213          	upLoadInfoReq.informDataUploaded = uploaded;
+    214          	/* set event */
+    215          	upLoadInfoReq.evt = evt;
+    216          	/* copy information of which data need to upload to request */
+    217          	memcpy(upLoadInfoReq.reqTable, uploadDataTable,sizeof(upLoadInfoReq.reqTable));
+    218          	/* push the request into request queue */
+    219          	if(1 == prvTelmApp_Queue_Push(TELM_QUEUE_UPLOAD, &upLoadInfoReq))
+    220          	{
+    221          		return 1;
+    222          	}
+    223          	return 0;
+    224          }
+    225          
+    226          /*******************************************************************************
+    227          *    Function: vTelmApp_Inform_Received_Command
+    228          *
+    229          *  Parameters: Telm_Rcvd_Command*:recieved command
+    230          *     Returns: none
+    231          * Description: when a command is recieved, this function is called
+    232          				to notify the contents of the command 
+    233          *******************************************************************************/
+    234          extern void vTelmApp_Inform_Received_Command(Telm_Rcvd_Command* rcvdCmd)
+    235          {
+    236              /* push the command into command queue */
+    237              prvTelmApp_Queue_Push(TELM_QUEUE_COMMAND, rcvdCmd);
+    238              prvTelmApp_excuteNextCommand();
+    239          }
+    240          /*******************************************************************************
+    241          *    Function: prvTelmApp_excuteNextCommand
+    242          *
+    243          *  Parameters: None
+    244          *     Returns: None
+    245          * Description: check if there is recieved command in the queue and excute it
+    246          *******************************************************************************/
+    247          static void prvTelmApp_excuteNextCommand()
+    248          {
+    249          	if (prvTelmApp_Queue_isEmpty(TELM_QUEUE_COMMAND) == false)
+    250          	{
+    251          		prvTelmApp_Execute_Command();
+    252          	}
+    253          }
+    254          
+    255          /*******************************************************************************
+    256          *    Function: prvTelmApp_Execute_Command
+    257          *
+    258          *  Parameters: none
+    259          *     Returns: none
+    260          * Description: handle command
+    261          *******************************************************************************/
+    262          static void prvTelmApp_Execute_Command()
+    263          {
+    264          	Telm_Rcvd_Command const *lastCmd;
+    265          
+    266          	lastCmd = prvTelmApp_Queue_Get(TELM_QUEUE_COMMAND);
+    267          	if (lastCmd == NULL)
+    268          	{
+    269          		return;
+    270          	}
+    271          	switch (lastCmd->commType)
+    272          	{
+    273          		case TELM_COMM_THEFT:
+    274          			break;
+    275          		case TELM_COMM_FMC:
+    276          			break;
+    277          		case TELM_COMM_GPS:
+    278          			vTelmApp_uploadData(TELM_SEC_EVT_GPS,NULL);
+    279          			break;
+    280          		case TELM_COMM_DRWN:
+    281          			break;
+    282          		case TELM_COMM_OTA:
+    283          			break;
+    284          		case TELM_COMM_CONFIG:
+    285          			break;
+    286          		case TELM_COMM_SVRCMD:
+    287          			break;
+    288                  case TELM_COMM_DEV:
+    289                      vTelmApp_uploadData(TELM_SEC_EVT_DEV,NULL);
+    290                      break;
+    291          		case TELM_COMM_SPEED:
+    292          		case TELM_COMM_LAMP:
+    293          		case TELM_COMM_HVAC:
+    294          		case TELM_COMM_START:
+    295          		default:
+    296          			break;
+    297          	}
+    298          	return;
+    299          }
+    300          
+    301          /*******************************************************************************
+    302          *    Function: prvTelmApp_End_Execute_Command
+    303          *
+    304          *  Parameters: none
+    305          *     Returns: bool true:can command executed/false:no can command
+    306          * Description: handle command
+    307          *******************************************************************************/
+    308          static void prvTelmApp_End_Execute_Command(void)
+    309          {
+    310          	Telm_Rcvd_Command const *lastCmd;
+    311          
+    312          	lastCmd = prvTelmApp_Queue_Get(TELM_QUEUE_COMMAND);
+    313          	if (lastCmd == NULL)
+    314          	{
+    315          		return;
+    316          	}
+    317          	switch (lastCmd->commType)
+    318          	{
+    319          		case TELM_COMM_FMC:
+    320          			break;
+    321          		case TELM_COMM_DRWN:
+    322          			break;
+    323          		case TELM_COMM_GPS:
+    324          		case TELM_COMM_THEFT:
+    325          		case TELM_COMM_SPEED:
+    326          		case TELM_COMM_LAMP:
+    327                case TELM_COMM_GET_STATUS:
+    328          		case TELM_COMM_HVAC:
+    329          		case TELM_COMM_START:
+    330          		default:
+    331          			break;
+    332          	}
+    333          	return;
+    334          }
+    335          
+    336          /*******************************************************************************
+    337          *    Function: prvTelmApp_Execute_Command
+    338          *  Parameters: void
+    339          *     Returns: void
+    340          * Description: check CAN signal and judge whether command is correctly executed	
+    341          *******************************************************************************/
+    342          static void prvTelmApp_Command_Wait_TimeUp(void)
+    343          {
+    344          	static uint8_t retried = 0;
+    345          	uint8_t	i = 0;
+    346          	bool found = false;
+    347          	retried++;
+    348          
+    349          	if ((prvTelmApp_Check_Command_Result() == true)
+    350          	 || (retried >= TELM_CAN_COMMAND_RETRY_MAX))
+    351          	{
+    352          		/* clear retrying counter */
+    353          		retried = 0;
+    354          		
+    355          		/* clear can control command */
+    356          		prvTelmApp_End_Execute_Command();
+    357          
+    358          		/* check if there is any data needed to send back to server */
+    359          		/* uploadDataTable[TELM_SEC_EVT_CMD_RES][]is refreshed in 
+    360          			prvTelmApp_Check_Command_Result */
+    361          		for (i = 0; (i < TELM_INFO_NUM) && (found == false); i++)
+    362          		{
+    363          		}
+    364          		/* if command need to send data back to server, make upload request */
+    365          		if (found == true)
+    366          		{
+    367          		}
+    368          		else
+    369          		{
+    370          			/* if command doesn't need to send back data, return ok to server */
+    371          			prvTelmApp_Return_Cmd_Result(true);
+    372          		}
+    373          	}
+    374          	else
+    375          	{
+    376          		/* try to excute command again */
+    377          		/* it is no necessary to check the return value,because this is a timeout callback
+    378          		   which means a CAN command is being executed so that we need to check the result */
+    379          		prvTelmApp_Execute_Command();
+    380          		/* set the timer */
+    381          		TMR_Start_Timer(TELM_COMMAND_TIMER,TELM_TIME_CMD_TIMEOUT, prvTelmApp_Command_Wait_TimeUp);
+    382          	}
+    383          }
+    384          
+    385          /*******************************************************************************
+    386          *    Function: prvTelmApp_Check_Command_Result
+    387          *  Parameters: void
+    388          *     Returns: void
+    389          * Description: check CAN signal and judge whether command is correctly executed	
+    390          *******************************************************************************/
+    391          static bool prvTelmApp_Check_Command_Result(void)
+    392          {
+    393          
+    394          	Telm_Rcvd_Command *lastCmd;
+    395          	bool	cmdOK = false;
+    396          
+    397          	lastCmd = prvTelmApp_Queue_Get(TELM_QUEUE_COMMAND);
+    398          	if (lastCmd == NULL)
+    399          	{
+    400          		return true;
+    401          	}
+    402          	switch (lastCmd->commType)
+    403          	{
+    404          		default:
+    405          			cmdOK = true;
+    406          			break;
+    407          	}
+    408          	/* save result of last command to send back to server at the end of trancieve sequence */
+    409          	lastCmd->result = cmdOK;
+    410          	return cmdOK;
+    411          }
+    412          
+    413          /*******************************************************************************
+    414          *    Function: prvTelmApp_Return_Cmd_Result
+    415          *
+    416          *  Parameters: bool : result of uploading Data
+    417          *     Returns: None
+    418          * Description: send result of command result to server
+    419          *******************************************************************************/
+    420          static void prvTelmApp_Return_Cmd_Result(bool result)
+    421          {
+    422          	Telm_Rcvd_Command const *lastCmd;
+    423          	lastCmd = prvTelmApp_Queue_Get(TELM_QUEUE_COMMAND);
+    424          	/* return execute result as ACK */
+    425          	{
+    426          		lastCmd->cmdExecuted(result);
+    427          	}
+    428          	/* delete command after finish it */
+    429          	prvTelmApp_Queue_Shift(TELM_QUEUE_COMMAND);
+    430          	
+    431          	prvTelmApp_excuteNextCommand();
+    432          }
+    433          
+    434          
+    435          /*******************************************************************************
+    436          *    Function: prvTelmApp_Queue_Push
+    437          *
+    438          *  Parameters: Telm_Queue_Handler:specify which queue to access
+    439          *			   &uploadReq:reqeust to push into the queue
+    440          *     Returns: None
+    441          * Description: push data into the queue
+    442          *******************************************************************************/
+    443          static uint8_t prvTelmApp_Queue_Push(Telm_Queue_Handler q,void const* added)
+    444          {
+    445          	if (telm_queue[q].num < telm_queue[q].queueSize)
+    446          	{
+    447                  uint8_t *tmp_ptr = (uint8_t *)telm_queue[q].queue;
+    448                  tmp_ptr += (telm_queue[q].in * telm_queue[q].elementSize);
+    449                  memcpy(tmp_ptr, added, telm_queue[q].elementSize);
+    450                  telm_queue[q].num++;
+    451                  telm_queue[q].in++;
+    452                  if (telm_queue[q].in == telm_queue[q].queueSize)
+    453                  {
+    454                      telm_queue[q].in = 0;
+    455                  }
+    456                  return 1;
+    457              }
+    458              else
+    459              {
+    460                  return 0;
+    461              }
+    462          }
+    463          
+    464          /*******************************************************************************
+    465          *    Function: prvTelmApp_Queue_Get
+    466          *
+    467          *  Parameters: Telm_Queue_Handler:specify which queue to access
+    468          *     Returns: none
+    469          * Description: get the first upload data request from request queue
+    470          *******************************************************************************/
+    471          static void* prvTelmApp_Queue_Get(Telm_Queue_Handler q)
+    472          {
+    473              if (telm_queue[q].num > 0)
+    474              {
+    475                  return (void *)((uint8_t *)telm_queue[q].queue+(telm_queue[q].out * telm_queue[q].elementSize));
+    476              }
+    477              else
+    478              {
+    479                  return NULL;
+    480              }
+    481          }
+    482          
+    483          /*******************************************************************************
+    484          *    Function: prvTelmApp_Upload_Queue_Shift
+    485          *
+    486          *  Parameters: Telm_Queue_Handler:specify which queue to access
+    487          *     Returns: none
+    488          * Description: get the first upload data request out of request queue
+    489          *******************************************************************************/
+    490          static void prvTelmApp_Queue_Shift(Telm_Queue_Handler q)
+    491          {
+    492              if (telm_queue[q].num > 0)
+    493              {
+    494                  telm_queue[q].num--;
+    495                  telm_queue[q].out++;
+    496                  if (telm_queue[q].out == telm_queue[q].queueSize)
+    497                  {
+    498                      telm_queue[q].out = 0;
+    499                  }
+    500              }
+    501          }
+    502          
+    503          /*******************************************************************************
+    504          *    Function: prvTelmApp_Queue_Query
+    505          *
+    506          *  Parameters:
+    507          *     Returns: none
+    508          * Description: check if the specific event is in queue
+    509          *******************************************************************************/
+    510          uint8_t prvTelmApp_Queue_Query(Telm_Security_Event event)
+    511          {
+    512              Telm_Upload_Info_Request * pQueue = (Telm_Upload_Info_Request *)(telm_queue[TELM_QUEUE_UPLOAD].queue);
+    513              uint8_t out_index = telm_queue[TELM_QUEUE_UPLOAD].out;
+    514              uint8_t i;
+    515          
+    516              for(i = 0; i < telm_queue[TELM_QUEUE_UPLOAD].num; i++)
+    517              {
+    518                  if(event == (*(pQueue+out_index)).evt)
+    519                  {
+    520                      return 1;
+    521                  }
+    522                  else
+    523                  {
+    524                      out_index ++;
+    525                      if(out_index >= telm_queue[TELM_QUEUE_UPLOAD].queueSize)
+    526                      {
+    527                          out_index = 0;
+    528                      }
+    529                  }
+    530              }
+    531              return 0;
+    532          }
+    533          
+    534          /*******************************************************************************
+    535          *    Function: prvTelmApp_Queue_isEmpty
+    536          *
+    537          *  Parameters: Telm_Queue_Handler:specify which queue to access
+    538          *     Returns: bool true:empty false:not empty
+    539          * Description: tell whether the queue is empty
+    540          *******************************************************************************/
+    541          static bool prvTelmApp_Queue_isEmpty(Telm_Queue_Handler q)
+    542          {
+    543          	if (telm_queue[q].num == 0)
+    544          	{
+    545          		return true;
+    546          	}
+    547          	else
+    548          	{
+    549          		return false;
+    550          	}
+    551          }
+    552          
+    553          uint8_t vTelmApp_Backup_Msg(Telm_Security_Event evt)
+    554          {
+    555              // Push message into queue
+    556              if (backup_list_num < TELM_LEN_BACKUP_LIST)
+    557              {
+    558                  event_backup[backup_list_num] = evt;
+    559                  backup_list_num++;
+    560                  return 1;
+    561              }
+    562              else
+    563              {
+    564                  backup_list_num = TELM_LEN_BACKUP_LIST;
+    565                  return 0;
+    566              }
+    567          }
+    568          
+    569          uint8_t vTelmApp_Upload_Backup(void)
+    570          {
+    571              // If backup command not empty, upload message
+    572              if (backup_list_num > 0)
+    573              {
+    574                  backup_list_num--;
+    575                  vTelmApp_uploadData(event_backup[backup_list_num], NULL);
+    576                  return 1;
+    577              }
+    578              else
+    579              {
+    580                  return 0;
+    581              }
+    582          }
+    583          
+    584          static Telm_State TelmApp_Get_Upload_state(void)
+    585          {
+    586             return telm_upload_state;
+    587          }
+    588          
+    589          static void TelmApp_Set_Upload_state(Telm_State set_value)
+    590          {
+    591             telm_upload_state = set_value;
+    592          }
+    593          
+    594          void TelmApp_Set_Server_Ack_State(bool akc_or_nak)
+    595          {
+    596              telm_server_ack = true;
+    597              telm_server_ack_result = akc_or_nak;
+    598          }
+    599          /*******************************************************************************
+    600          *    Function: vTelmApp_Inform_Upload_Result
+    601          *
+    602          *  Parameters: bool:true uploaded OK,false:uploaded NG
+    603          *     Returns: none
+    604          * Description: when ACK from server is recieved,this function is called
+    605          				to notify the result of last upload
+    606          *******************************************************************************/
+    607          extern void vTelmApp_Inform_Upload_Result(Telm_Upload_Result res)
+    608          {
+    609          	Telm_Upload_Info_Request const *lastReq;
+    610          	/* get last request from queue */
+    611          	lastReq = (Telm_Upload_Info_Request *)prvTelmApp_Queue_Get(TELM_QUEUE_UPLOAD);
+    612          	if (lastReq != NULL)
+    613          	{
+    614          		/* get call back function and execute */
+    615          		if(lastReq->informDataUploaded != (notifyResult)NULL)
+    616          		{
+    617          			lastReq->informDataUploaded(res == TELM_UPLOAD_RES_OK? true:false);
+    618          		}
+    619          	}
+    620          
+    621          	/* remove req from queue */
+    622          	prvTelmApp_Queue_Shift(TELM_QUEUE_UPLOAD);
+    623          
+    624          	//ACK of last message is received, send next message
+    625          	TelmApp_Set_Upload_state(TELM_STATE_IDLE);
+    626          }
+    627          
+    628          Telm_Upload_Info_Request	*newReq;
+    629          /*******************************************************************************
+    630          *    Function: prvTelmApp_Upload_Preprocess
+    631          *
+    632          *  Parameters: the upload structure
+    633          *     Returns: true: preprocess check ok, can send out the data.
+    634          * Description: Check if the necessary data of upload info is prepared ok.
+    635          *******************************************************************************/
+    636          static bool prvTelmApp_Upload_Preprocess(Telm_Upload_Info_Request const * const newReq)
+    637          {
+    638              bool process_result = true; //default is data ok.
+    639          
+    640              if (newReq != NULL)
+    641              {
+    642                  if (newReq->evt == TELM_SEC_EVT_BACKUP)
+    643                  {
+    644                      if(1 == gps_backup_empty())
+    645                          process_result = false; //Intend to upload backup gps, but gps data is empty.
+    646                  }
+    647                  else if(newReq->evt == TELM_SEC_EVT_GPS)
+    648                  {
+    649                  }
+    650                  else
+    651                  {
+    652                      //Other upload information check, please add here.
+    653                  }
+    654              }
+    655              else
+    656              {
+    657                  process_result = false;
+    658              }
+    659              return process_result;
+    660          }
+    661          
+    662          static void prvTelmApp_SetHeader(Telm_Upload_Info *info)
+    663          {
+    664              info->imei_flag=1;
+    665              info->ts_flag=1;
+    666              info->msgttl_flag=0;
+    667              info->ver=1;
+    668              info->packet_type=0;
+    669              info->ack_flag=0;
+    670              info->chk_flag=1;
+    671              info->trans_mode=0;
+    672              info->priority=1;
+    673              info->packet_id=1;
+    674              info->msgttl[0]=0;
+    675              info->msgttl[1]=0;
+    676          }
+    677          
+    678          /*******************************************************************************
+    679          *    Function: prvTelmApp_sendNextData
+    680          *
+    681          *  Parameters: None
+    682          *     Returns: None
+    683          * Description: check if there is upload request in the queue and send it
+    684          *******************************************************************************/
+    685          static void prvTelmApp_sendNextData()
+    686          {
+    687              Telm_Upload_Info_Request	*newReq;
+    688          
+    689              /* get request from queue */
+    690              newReq = (Telm_Upload_Info_Request *)prvTelmApp_Queue_Get(TELM_QUEUE_UPLOAD);
+    691          
+    692              if(true == prvTelmApp_Upload_Preprocess(newReq))
+    693              {//First check, the upload necessary data must be prepared ok. 
+    694                  prvTelmApp_Collect_UTC_Time(&lastInfo);
+    695                  prvTelmApp_SetHeader(&lastInfo);
+    696                  if(true == vTelmProt_UploadInfo(newReq,&lastInfo))
+    697                  {//Second check, the upload data must be decoded ok and start the upload process. 
+    698          
+    699                      /* queue check ok, set to busy mode.*/
+    700                      TelmApp_Set_Upload_state(TELM_STATE_BUSY);
+    701          
+    702                      /* Start up the server ack timer.*/
+    703                      telm_app_server_ack_timer = OS_Time() + TELM_TIME_SERVER_ACK_TIMEOUT;
+    704                  }
+    705                  else
+    706                  {
+    707                      prvTelmApp_Queue_Shift(TELM_QUEUE_UPLOAD);
+    708                      TelmApp_Set_Upload_state(TELM_STATE_IDLE);
+    709                  }
+    710              }
+    711              else
+    712              {//Preprocess check error, drop the upload information and set upload state to idle.
+    713                  prvTelmApp_Queue_Shift(TELM_QUEUE_UPLOAD);
+    714                  TelmApp_Set_Upload_state(TELM_STATE_IDLE);
+    715              }
+    716          }
+    717          
+    718          static void prvTelmApp_Initial(void)
+    719          {
+    720              telm_server_ack = false;
+    721              telm_server_ack_result = false;
+    722              telm_app_upload_retrytimes = 0;
+    723              telm_app_server_ack_timer = 0;
+    724          }
+    725          
+    726          static void prvTelmProt_Check_Server_Response(void)
+    727          {
+    728              if (TRUE == telm_server_ack)
+    729              {
+    730          		/* when recieved ACK, Stop Retrying and Timeout Timer */
+    731          		telm_app_upload_retrytimes = 0;
+    732          		telm_app_server_ack_timer = 0;
+    733          		
+    734          		/* Check server ACK or NAK, current is always ACK, need check */
+    735          		if(telm_server_ack_result == true) 
+    736          		{
+    737          			/* Receive the ACK,now report the result:ACK */
+    738          			vTelmApp_Inform_Upload_Result(TELM_UPLOAD_RES_OK);
+    739          		}
+    740          		else
+    741          		{
+    742          			/* Receive the NAK,now report the result:NG */
+    743          			vTelmApp_Inform_Upload_Result(TELM_UPLOAD_RES_NG);			
+    744          		}				
+    745          	}
+    746              else
+    747              {
+    748                  if (telm_app_server_ack_timer < OS_Time())
+    749                  {
+    750                      if (0 == telm_app_server_ack_timer)
+    751                      {
+    752                          /* Receive the ACK,now report the result:ACK */
+    753                          vTelmApp_Inform_Upload_Result(TELM_UPLOAD_RES_OK);
+    754                          return;
+    755                      }
+    756                      telm_app_upload_retrytimes++;
+    757                      if ((TELM_UPLOAD_RETRY_MAX *2) <= telm_app_upload_retrytimes )
+    758                      {
+    759                          /* Retry max times ,now report the result:timeout */
+    760                          telm_app_upload_retrytimes = 0;
+    761                          vATProt_Com_Reset();
+    762                          vATProt_sendAT_Command(AT_CMD_IPCLOSE_EXCUTE, NULL, NULL);
+    763                      }
+    764                      else if(telm_app_upload_retrytimes % 2)
+    765                      {
+    766                          /* Start up the server ack timer.*/
+    767                          telm_app_server_ack_timer = OS_Time() + TELM_TIME_SERVER_ACK_TIMEOUT;
+    768                          /* Manually get the data from Network, in case the RX data is not received*/
+    769                          vATProt_sendAT_Command(AT_CMD_IP_RX_MANUALLY_QUERY, NULL, NULL);            
+    770                      }
+    771                      else
+    772                      {
+    773                          /* send data by tcp/ip to server again , get the next data is the same data*/
+    774                      }
+    775                  }
+    776              }
+    777          }
+    778          
+    779          static void TelmApp_checkUploadState(void)
+    780          {
+    781              switch(TelmApp_Get_Upload_state())
+    782              {
+    783                  case TELM_STATE_IDLE:
+    784                      prvTelmApp_Initial();
+    785                      prvTelmApp_sendNextData();
+    786                      break;
+    787                  case TELM_STATE_BUSY:
+    788                      vTelmApp_Inform_Upload_Result(TELM_UPLOAD_RES_OK);
+    789                      break;
+    790                  default:
+    791                      break;
+    792              }
+    793          }
+    794          
+    795          static void TelmApp_checkCommandState(void)
+    796          {
+    797          
+    798          }
+    799          
+    800          /* The loop is executed after AT receive, before AT send. */
+    801          /* To ensure the received message is checked at once, and can send out the latest upload information quickly*/
+    802          extern void vTelmApp_main_loop(void)
+    803          {
+    804              //GPRS connected.
+    805              if (NET_TCP_CONNECTED <= vATProt_Get_TCP_State())
+    806              {
+    807                  /*Server command may fill upload info to queue, so check command first. */
+    808                  TelmApp_checkUploadState();
+    809              }
+    810          }
+    811          
+    812          static uint8_t gps_last_pos[2][VEHICLE_STOP_GPS_CMP_LEN];
+    813          
+    814          void gps_write_nv(void)
+    815          {
+    816              gps_data_t gps_info;
+    817              Gps_Store_Type_t tmp_gps;
+    818              if (gps_backup == 0)
+    819                  return;
+    820              vGps_Get_Gps_Info(&gps_info);
+    821              {
+    822                  if ((0 == strncmp((char *)gps_info.longitude,(char *)gps_last_pos[0],VEHICLE_STOP_GPS_CMP_LEN)) &&
+    823                      (0 == strncmp((char *)gps_info.latitude,(char *)gps_last_pos[1],VEHICLE_STOP_GPS_CMP_LEN)))
+    824                      return;
+    825              }
+    826              {
+    827                  if (tmp_gps.utc_time[0] != '2')//invalid UTC time,remark as invalid
+    828                  {
+    829                      tmp_gps.valid = 0;
+    830                  }
+    831                  else if(gps_info.valid)
+    832                  {
+    833                     tmp_gps.valid = 1;
+    834                     if(gps_is_first_fixed == 0)
+    835                     {
+    836                         tmp_gps.valid = 2;//mark this gps message as first-fixed
+    837                         gps_is_first_fixed = 1;
+    838                     }
+    839                  }
+    840                  else
+    841                  {
+    842                      tmp_gps.valid = 0;
+    843                  }
+    844                  tmp_gps.temp = 0;
+    845                  tmp_gps.intake_map = 0;
+    846                  tmp_gps.intake_temp = 0;
+    847                  tmp_gps.throttle = 0;
+    848          #ifdef UPLOAD_GPS_COG
+    849                  ;
+    850          #elif defined (UPLOAD_GPS_SIG)
+    851                  {
+    852                      uint8_t sig_data[8];
+    853                      GPS_Get_Sig(sig_data);
+    854                      tmp_gps.temp = ((sig_data[0] << 2)& 0xf0) + ((sig_data[1] >> 2) & 0x0f);
+    855                      tmp_gps.intake_map = ((sig_data[2] << 2)& 0xf0) + ((sig_data[3] >> 2) & 0x0f);
+    856                      tmp_gps.intake_temp = ((sig_data[4] << 2)& 0xf0) + ((sig_data[5] >> 2) & 0x0f);
+    857                      tmp_gps.throttle = ((sig_data[6] << 2)& 0xf0) + ((sig_data[7] >> 2) & 0x0f);
+    858                  }
+    859          #endif
+    860          #if 0
+    861                  if(2 == tmp_gps.valid)
+    862                  {
+    863                         /* Save travel start to flash */
+    864                         travel_start_nv_write((uint8_t *)&tmp_gps);
+    865                         return;
+    866                  }
+    867          #endif
+    868          #if 0
+    869                  sFLASH_WriteBuffer((unsigned char *)&tmp_gps,GPS_BACKUP_ADDR+(gps_backup_tail*0x1000)+(backup_info[gps_backup_tail].store_pos*sizeof(Gps_Store_Type_t)),sizeof(Gps_Store_Type_t));
+    870          
+    871                  if (backup_info[gps_backup_tail].store_pos < GPS_BACKUP_RECORD_PER_SECTOR)
+    872                  {
+    873                      backup_info[gps_backup_tail].store_pos++;
+    874                  }
+    875                  else
+    876                  {
+    877                      if (gps_backup_tail < (GPS_BACKUP_SECTOR_MAX-1))
+    878                      {
+    879                          gps_backup_tail++;
+    880                      }
+    881                      else
+    882                      {
+    883                          gps_backup_tail = 0;
+    884                      }
+    885                      clear_nv_gpsdata(gps_backup_tail);
+    886                      backup_info[gps_backup_tail].store_pos=0;
+    887                      backup_info[gps_backup_tail].read_pos=0;
+    888                  }
+    889          #endif
+    890              }
+    891          }
+    892          
+    893          static uint8_t get_nv_gpsdata(uint8_t *data)
+    894          {
+    895          
+    896              return 0;
+    897          }
+    898          
+    899          uint8_t gps_backup_empty(void)
+    900          {
+    901              {
+    902                  return 0;
+    903              }
+    904          }
+    905          
+    906          void clear_nv_gpsdata(uint8_t sector)
+    907          {
+    908              if (sector < GPS_BACKUP_SECTOR_MAX)
+    909                  sFLASH_EraseSector(GPS_BACKUP_ADDR+sector*0x1000);
+    910          }
+    911          
+    912          void set_gps_upload_backup(uint8_t enable)
+    913          {
+    914              gps_backup = enable;
+    915          }
+    916          
+    917          uint8_t gps_upload_status(void)
+    918          {
+    919              return gps_backup;
+    920          }
+    921          
+    922          
+    923          static uint8_t gps_buffer_head = 0;
+    924          static uint8_t gps_buffer_tail = 0;
+    925          static void clear_gps_buffer(void)
+    926          {
+    927              gps_buffer_head = 0;
+    928              gps_buffer_tail = 0;
+    929          }
+    930          
+    931          void save_gps_buffer(void)
+    932          {
+    933              gps_data_t gps_info;
+    934              Gps_Store_Type_t tmp_gps;
+    935          
+    936              vGps_Get_Gps_Info(&gps_info);
+    937          
+    938              {
+    939                  uint16_t cog = GPS_Parse_Cog(gps_info.cog);
+    940                  if (tmp_gps.utc_time[0] != '2')//invalid UTC time,remark as invalid
+    941                  {
+    942                      tmp_gps.valid = 0;
+    943                  }
+    944                  else if(gps_info.valid)
+    945                  {
+    946                      tmp_gps.valid = 1;
+    947                      if(gps_is_first_fixed == 0)
+    948                      {
+    949                          tmp_gps.valid = 2;//mark this gps message as first-fixed
+    950                          gps_is_first_fixed = 1;
+    951                      }
+    952                  }
+    953                  else
+    954                  {
+    955                      tmp_gps.valid = 0;
+    956                  }
+    957                  tmp_gps.temp = 0;
+    958                  tmp_gps.intake_map = 0;
+    959                  tmp_gps.intake_temp = 0;
+    960                  tmp_gps.throttle = 0;
+    961          #ifdef UPLOAD_GPS_COG
+    962                  tmp_gps.intake_map = cog/255;
+    963                  tmp_gps.intake_temp = cog%255;
+    964          #elif defined (UPLOAD_GPS_SIG)
+    965                  {
+    966                      uint8_t sig_data[8];
+    967                      GPS_Get_Sig(sig_data);
+    968                      tmp_gps.temp = ((sig_data[0] << 2)& 0xf0) + ((sig_data[1] >> 2) & 0x0f);
+    969                      tmp_gps.intake_map = ((sig_data[2] << 2)& 0xf0) + ((sig_data[3] >> 2) & 0x0f);
+    970                      tmp_gps.intake_temp = ((sig_data[4] << 2)& 0xf0) + ((sig_data[5] >> 2) & 0x0f);
+    971                      tmp_gps.throttle = ((sig_data[6] << 2)& 0xf0) + ((sig_data[7] >> 2) & 0x0f);
+    972                  }
+    973          #endif
+    974              }  
+    975              if (gps_info.valid)
+    976                  store_last_pos((uint8_t *)&gps_info);
+    977          }
+    978          
+    979          static uint8_t get_gps_buffer(uint8_t *drive_data)
+    980          {
+    981          
+    982          }
+    983          
+    984          
+    985          static void load_last_pos(void)
+    986          {
+    987          
+    988          }
+    989          
+    990          void store_last_pos(uint8_t *data)
+    991          {
+    992          
+    993          }
+    994          
+    995          void write_flash_last_pos(void)
+    996          {
+    997          }
+    998          
+    999          static void get_last_pos(uint8_t *lon, uint8_t *lat)
+   1000          {
+   1001          
+   1002          }
+   1003          
+   1004          uint8_t gps_buffer_empty(void)
+   1005          {
+   1006              if (gps_buffer_tail > (gps_buffer_head))
+   1007              {
+   1008                  return 0;
+   1009              }
+   1010              else
+   1011              {
+   1012                  clear_gps_buffer();
+   1013                  return 1;
+   1014              }
+   1015          }
+   1016          
+   1017          
+   1018          /*=======================================================================================*\
+   1019           * File Revision History
+   1020           *=======================================================================================
+   1021           * ----------  ------   ---------------------------------------------
+   1022           *
+   1023          \*=======================================================================================*/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   TelmApp_Get_Upload_state
+       0   TelmApp_Set_Server_Ack_State
+       0   TelmApp_Set_Upload_state
+       8   TelmApp_checkUploadState
+         8   -> TelmApp_Get_Upload_state
+         8   -> prvTelmApp_Initial
+         8   -> prvTelmApp_sendNextData
+         8   -> vTelmApp_Inform_Upload_Result
+       0   clear_gps_buffer
+       8   clear_nv_gpsdata
+         8   -> sFLASH_EraseSector
+       0   eTelmApp_upload_state
+       0   gps_backup_empty
+       8   gps_buffer_empty
+         8   -> clear_gps_buffer
+       0   gps_upload_status
+     184   gps_write_nv
+       184   -> strncmp
+       184   -> vGps_Get_Gps_Info
+       8   prvTelmApp_Collect_UTC_Time
+         8   -> sys_get_cur_sec_offset
+       8   prvTelmApp_Execute_Command
+         8   -> prvTelmApp_Queue_Get
+         8   -> vTelmApp_uploadData
+       0   prvTelmApp_Initial
+       4   prvTelmApp_Queue_Get
+      16   prvTelmApp_Queue_Push
+        16   -> __aeabi_memcpy
+       8   prvTelmApp_Queue_Query
+       0   prvTelmApp_Queue_Shift
+       0   prvTelmApp_Queue_isEmpty
+       0   prvTelmApp_SetHeader
+       8   prvTelmApp_Upload_Preprocess
+         8   -> gps_backup_empty
+       8   prvTelmApp_excuteNextCommand
+         8   -> prvTelmApp_Execute_Command
+         8   -> prvTelmApp_Queue_isEmpty
+       8   prvTelmApp_sendNextData
+         8   -> TelmApp_Set_Upload_state
+         8   -> prvTelmApp_Collect_UTC_Time
+         8   -> prvTelmApp_Queue_Get
+         8   -> prvTelmApp_Queue_Shift
+         8   -> prvTelmApp_SetHeader
+         8   -> prvTelmApp_Upload_Preprocess
+         8   -> vTelmProt_UploadInfo
+         8   -> xTaskGetTickCountFromISR
+     184   save_gps_buffer
+       184   -> GPS_Parse_Cog
+       184   -> store_last_pos
+       184   -> vGps_Get_Gps_Info
+       0   set_gps_upload_backup
+       0   store_last_pos
+       8   vTelmApp_AT_Var_Reset
+         8   -> TMR_Stop_Timer
+       0   vTelmApp_Backup_Msg
+       8   vTelmApp_Inform_Received_Command
+         8   -> prvTelmApp_Queue_Push
+         8   -> prvTelmApp_excuteNextCommand
+       8   vTelmApp_Inform_Upload_Result
+         8   -- Indirect call
+         8   -> TelmApp_Set_Upload_state
+         8   -> prvTelmApp_Queue_Get
+         8   -> prvTelmApp_Queue_Shift
+       8   vTelmApp_Upload_Backup
+         8   -> vTelmApp_uploadData
+       8   vTelmApp_main_loop
+         8   -> TelmApp_checkUploadState
+         8   -> vATProt_Get_TCP_State
+     104   vTelmApp_uploadData
+       104   -> __aeabi_memcpy
+       104   -> prvTelmApp_Queue_Push
+       0   write_flash_last_pos
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable20
+       4  ??DataTable20_1
+       4  ??DataTable20_10
+       4  ??DataTable20_11
+       4  ??DataTable20_12
+       4  ??DataTable20_13
+       4  ??DataTable20_14
+       4  ??DataTable20_15
+       4  ??DataTable20_2
+       4  ??DataTable20_3
+       4  ??DataTable20_4
+       4  ??DataTable20_5
+       4  ??DataTable20_6
+       4  ??DataTable20_7
+       4  ??DataTable20_8
+       4  ??DataTable20_9
+       6  TelmApp_Get_Upload_state
+      12  TelmApp_Set_Server_Ack_State
+       6  TelmApp_Set_Upload_state
+      36  TelmApp_checkUploadState
+       1  backup_list_num
+      14  clear_gps_buffer
+      26  clear_nv_gpsdata
+       8  eTelmApp_upload_state
+      20  event_backup
+       1  gps_backup
+       4  gps_backup_empty
+      26  gps_buffer_empty
+       1  gps_buffer_head
+       1  gps_buffer_tail
+       1  gps_is_first_fixed
+      16  gps_last_pos
+       6  gps_upload_status
+     134  gps_write_nv
+       4  newReq
+      26  prvTelmApp_Collect_UTC_Time
+      82  prvTelmApp_Execute_Command
+      26  prvTelmApp_Initial
+      80  prvTelmApp_Queue_Get
+     242  prvTelmApp_Queue_Push
+      80  prvTelmApp_Queue_Query
+     142  prvTelmApp_Queue_Shift
+      24  prvTelmApp_Queue_isEmpty
+      52  prvTelmApp_SetHeader
+      34  prvTelmApp_Upload_Preprocess
+      18  prvTelmApp_excuteNextCommand
+      94  prvTelmApp_sendNextData
+     112  save_gps_buffer
+       6  set_gps_upload_backup
+       2  store_last_pos
+       4  telm_app_server_ack_timer
+       1  telm_app_upload_retrytimes
+      48  telm_command_queue
+      24  telm_queue
+       1  telm_server_ack
+       1  telm_server_ack_result
+       1  telm_upload_state
+      88  uploadDataTable
+     736  upload_info_req_queue
+      18  vTelmApp_AT_Var_Reset
+      40  vTelmApp_Backup_Msg
+      16  vTelmApp_Inform_Received_Command
+      52  vTelmApp_Inform_Upload_Result
+      42  vTelmApp_Upload_Backup
+      16  vTelmApp_main_loop
+      48  vTelmApp_uploadData
+       2  write_flash_last_pos
+
+ 
+   837 bytes in section .bss
+   112 bytes in section .data
+ 1 596 bytes in section .text
+ 
+ 1 596 bytes of CODE memory
+   949 bytes of DATA memory
+
+Errors: none
+Warnings: 10

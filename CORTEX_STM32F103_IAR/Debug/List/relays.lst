@@ -1,0 +1,1562 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:27
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\relays.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\relays.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\relays.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\relays.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\relays.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          /* $Header:   relays.c  $*/
+     16          /**********************************************************************
+     17             Title                    : relays.c
+     18          
+     19             Module Description       : This is the standard code file for relays.
+     20          
+     21             Author                   : 
+     22          
+     23             Created                  : 
+     24          
+     25             Configuration ID         : 
+     26          
+     27           *********************************************************************/
+     28          
+     29          /*********************************************************************/
+     30          /* Include header files                                              */
+     31          /*********************************************************************/
+     32          /* Dependent "compile.cmd"                                           */
+     33          /*********************************************************************/
+     34          #include        "relays.h"
+     35          #include        "lowpower.h"
+     36          #include        "system.h"
+     37          #include        "delay.h"
+     38          //#include	"Gsensor.h"
+     39          #include	"GPRS.h"
+     40          #include	"TelmProtocol.h"
+     41          //#include "crc_ccitt.h"
+     42          
+     43          #define USE_DEBUG
+     44          #include "Debug.h"
+     45          
+     46          /*********************************************************************/
+     47          /* File level pragmas                                                */
+     48          /*********************************************************************/
+     49          
+     50          /*********************************************************************/
+     51          /* Constant and Macro Definitions using #define                      */
+     52          /*********************************************************************/
+     53          //Fixme
+     54          //#define Pwr_Fail_Is_Reset_Condition() false
+     55          
+     56          
+     57          #define rl_ignition_to_awake rl_play_to_awake
+     58          
+     59          #define rl_write_timer(x, y)      (rl_timer[x] = y)
+     60          #define rl_read_timer(x)          (rl_timer[x])
+     61          #define rl_timer_running(x)       (rl_timer[x] > OS_Time())
+     62          
+     63          #define rl_set_current_state(state)    (rl_data = state)
+     64          #define rl_get_current_state()         (rl_data)
+     65          
+     66          #define rl_remain_idle(x)                 ((x > 0) ? (OS_Time() <= x) : 1)
+     67          
+     68          #define rl_wait_finish_awake_sequence_hook()             
+     69          #define rl_regulator_outputs_ok()	     true
+     70          #define rl_awake_to_idle_hook()
+     71          #define rl_idle_to_awake_hook()
+     72          #define rl_awake_to_play_hook()                                       
+     73          #define rl_wait_to_go_idle_hook()                                      
+     74          #define rl_other_task_cleanup_complete() TRUE
+     75          
+     76          #define partial_terminating_tasks         all_terminating_tasks
+     77          #define ALL_TERMINATING_TASKS             (Num_Elems(all_terminating_tasks))    
+     78          
+     79          #define RL_GPRS_START_DELAY (2000)
+     80          
+     81          #define MIN_TO_TICKS    (60000)
+     82          #define MIN_TO_SEC    (60)
+     83          #define SEC_TO_TICKS    (1000)
+     84          
+     85          // time in seconds
+     86          #define ENV_TEST_SLEEP_TIME (1200)
+     87          
+     88          // time in ms
+     89          #define ENV_TEST_WAKE_TIME (60000)
+     90          
+     91          /*********************************************************************/
+     92          /* Enumerations and Structures and Typedefs                          */
+     93          /*********************************************************************/
+     94          
+     95          typedef enum rl_current_state_tag
+     96          {
+     97             RL_CS_IDLE,
+     98             RL_CS_AWAKE,
+     99             RL_CS_PLAY,
+    100             MAX_RL_CURRENT_STATES
+    101          } rl_current_state_t;
+    102          
+    103          enum
+    104          {
+    105             AWAKE_DELAY_TIMER,
+    106             REG_OFF_DELAY_TIMER,
+    107             WAIT_TO_STOP_TIMER,
+    108             PF_DELAY_TIMER,
+    109             NUM_RL_TIMERS
+    110          };
+    111          
+    112          /*********************************************************************/
+    113          /* Function Prototypes for Private Functions with File Level Scope   */
+    114          /*********************************************************************/
+    115          //user define
+    116          static bool rl_wake_up(void);
+    117          static void rl_finish_awake_sequence_hook (void);
+    118          static void rl_configure_idle_hook (void);
+    119          static void rl_check (void);
+    120          static void rl_emergency_shutdown(void);
+    121          //building block
+    122          static void rl_idle_to_awake(void);
+    123          static void rl_play_to_awake(void);
+    124          static void rl_cs_awake(void);
+    125          static void rl_cs_play(void);
+    126          static void rl_awake_to_idle(void);
+    127          static void rl_cs_idle(void);
+    128          static void rl_wait_for_tasks_to_suspend(void);
+    129          static void rl_check_wake_up(void);
+    130          static void rl_low_voltage (void);
+    131          static void rl_awake_to_play(void);
+    132          static void rl_go_sleep(void);
+    133          
+    134          static void RL_Start_GPRS(void);
+    135          static void RL_Start_GPS(void);
+    136          static void rl_rtc_config(void);
+    137          //static void rl_exti_config(void);
+    138          static uint8_t rl_get_low_batt_sleep(void);
+    139          
+    140          /*===========================================================================*\
+    141           * Global and Const Variable Defining Definitions / Initializations
+    142          \*===========================================================================*/
+    143          static uint16_t acc_on_abs_volt=0;
+    144          static uint16_t acc_off_abs_volt=0;
+    145          static uint8_t acc_status=0;
+    146          
+    147          /*********************************************************************/
+    148          /* Static Variables and Const Variables With File Level Scope        */
+    149          /*********************************************************************/
+    150          static rl_current_state_t rl_data ;
+    151          static bool rl_wake_up_requested;
+    152          
+    153          static Tick_Type rl_timer[NUM_RL_TIMERS];
+    154          
+    155          static bool rl_is_amp_muted;
+    156          
+    157          static bool rl_gps_pwr_up = false;
+    158          static bool rl_first_go_sleep=true;
+    159          
+    160          static const void_fptr rl_current_state[MAX_RL_CURRENT_STATES] = 
+    161          {
+    162             rl_cs_idle,
+    163             rl_cs_awake,
+    164          //   rl_cs_play
+    165          };
+    166          
+    167          /* add/subtract tasks which terminate/don't terminate here - */
+    168          /*static const Task_Type all_terminating_tasks[] =         
+    169          {
+    170              OS_IOT_TASK,
+    171          };*/
+    172          
+    173          __no_init uint32_t rtc_timeout;
+    174          __no_init bool can_interrupt_disable;
+    175          __no_init uint8_t low_batt_sleep;
+    176          /*********************************************************************/
+    177          /* Add User defined functions                                        */
+    178          /*********************************************************************/
+    179          /*********************************************************************/
+    180          /* Global Function Definitions                                       */
+    181          /*********************************************************************/
+    182          /**********************************************************************
+    183          *    Function: rl_not_awake_IO
+    184          *
+    185          *  Parameters: none
+    186          *
+    187          *     Returns: none
+    188          *
+    189          * Description: This routine handles any specific action in 
+    190          *              preparation for I/O idle configuration.
+    191          *
+    192          **********************************************************************/
+    193          static void rl_not_awake_IO(void)
+    194          {
+    195             /* 1. set all port type to I/O */
+    196             /* 2. set all port mode to input/output */    
+    197          //3:  Push-pull output mode, output speed is 50 MHz 
+    198          //4:  floating Input mode
+    199          	/* PA0--15  */   						
+    200          	GPIOA->CRL=0X44444444;	/*4444 4444 , all input*/
+    201          	GPIOA->CRH=0X44441441;	/*4444 1441 , all input, except PA8, PA11 */
+    202          	GPIOA->ODR=0X00000000;  /* all output pin input, except PA8, PA11 */
+    203          
+    204          //	/* PB0--15  */
+    205          	GPIOB->CRL=0X44444444;	/*4444 4141 ,all input, except PB0,PB2 */
+    206          	GPIOB->CRH=0X44444444;	/*4444 4444 ,all input */
+    207          	GPIOB->ODR=0X00000000;  /* all output pin input: except PB0, PB2 low*/
+    208          
+    209          //	/* PC0--15  */
+    210          	GPIOC->CRL=0X44444411;	/*4444 4111 ,all input, except PC0,PC1*/
+    211          	GPIOC->CRH=0X44444444;	/*4444 4444, all input */
+    212          	GPIOC->ODR=0X00000000; /* all output pin input: except PC0,PC1 low */
+    213          
+    214          //	/* PD2  */
+    215          	GPIOD->CRL=0X44444444;     /* PD2 input mode */
+    216          	GPIOD->CRH=0X44444444;
+    217          	GPIOD->ODR=0X00000000;    /* PD2 input */
+    218          
+    219          
+    220          }
+    221          
+    222          /**********************************************************************
+    223          *
+    224          *    Function: rl_configure_idle
+    225          *
+    226          *  Parameters: none
+    227          *
+    228          *     Returns: none
+    229          *
+    230          * Description: executes all configurations needed for idle mode
+    231          *
+    232          **********************************************************************/
+    233          static void rl_configure_idle_hook (void)
+    234          {
+    235          
+    236          }
+    237          
+    238          /**********************************************************************
+    239          *    Function: rl_configure_micro_for_idle
+    240          *
+    241          *  Parameters: none
+    242          *
+    243          *     Returns: none
+    244          *
+    245          * Description: Intended to perform necessary steps to put micro into
+    246          *              idle mode.
+    247          *
+    248          **********************************************************************/
+    249          
+    250          static void rl_configure_micro_for_idle(void)
+    251          {
+    252             	ADC_DeInit(ADC1);
+    253          
+    254          	Micro_Go_Sleep();
+    255          }
+    256          
+    257          /**********************************************************************
+    258          *    Function: rl_begin_awake_sequence_hook
+    259          *  Parameters: none
+    260          *     Returns: none
+    261          * Description: hook function for RL_Begin_Awake_Sequence()
+    262          **********************************************************************/
+    263          static void rl_finish_awake_sequence_hook (void)
+    264          {
+    265          //	#ifdef USE_DEBUG
+    266          //	uint8_t wakeup_source;
+    267          //	wakeup_source = Sys_Get_Wakeup_Src_Flags();
+    268          //	if(!Cold_Start())
+    269          //    		DEBUG_PRINT1(DEBUG_HIGH,"[SYSTEM]:Wake Up SRC:%x\n\r",wakeup_source);
+    270          //	#endif
+    271          //	rl_gps_pwr_up = false;//init
+    272          //	if(!Sys_Is_RTC_Deep_Wakeup())
+    273          	{
+    274             	    rl_gps_pwr_up = true;
+    275          
+    276                 	RL_Start_GPS();
+    277                 	{
+    278                      DEBUG_PRINT0(DEBUG_MEDIUM,"[RELAYS]Start GPRS 2\n\r");
+    279                      Sys_Clear_2G_Wakeup_Flag();
+    280                      TMR_Start_Timer(GPRS_START_TIMER, RL_GPRS_START_DELAY, RL_Start_GPRS);	
+    281                 	}
+    282              }
+    283          }
+    284          
+    285          static void rl_get_config(void)
+    286          {
+    287              Config_t config_data;
+    288              Get_config_data(&config_data);
+    289              if (config_data.structData.ignition_on_absolute_voltage != 0)
+    290              {
+    291                  acc_on_abs_volt=config_data.structData.ignition_on_absolute_voltage;
+    292              }
+    293              if (config_data.structData.ignition_off_absolute_voltage != 0)
+    294              {
+    295                  acc_off_abs_volt=config_data.structData.ignition_off_absolute_voltage;
+    296              }
+    297          }
+    298          
+    299          /**********************************************************************
+    300           *    Function: Relays_Task
+    301           *
+    302           *  Parameters: none
+    303           *
+    304           *     Returns: none
+    305           *
+    306           * Description: Entry point for the relays task.
+    307           *
+    308           *********************************************************************/
+    309          
+    310          void Relays_Task(void *pvParameters)
+    311          {
+    312              rl_current_state_t old_current_state;
+    313              uint32_t wake_time=0;
+    314              #ifdef USE_DEBUG
+    315              DEBUG_PRINT0(DEBUG_MEDIUM,"[Relays]Relays task started!\r\n");
+    316              #endif
+    317              rl_idle_to_awake();
+    318          
+    319          //    sFLASH_Init();
+    320          //    Load_Param();
+    321          //    rl_get_config();
+    322          
+    323              FOREVER
+    324              {
+    325                  OS_Wait_Resource(RES_RELAYS, MAX_RL_WAIT_TIME);  /* wait for semaphore or timeout */
+    326          
+    327                  /* do all other checks first */
+    328                  rl_check();
+    329          
+    330                  do
+    331                  {
+    332                      if (MAX_RL_CURRENT_STATES > rl_get_current_state())
+    333                      {
+    334                          old_current_state = rl_get_current_state();
+    335                          (*rl_current_state[rl_get_current_state()])();
+    336                      }
+    337                      else
+    338                      {
+    339                          /* current state index is currupted, fix it! */
+    340                          old_current_state = MAX_RL_CURRENT_STATES;/* force state machine to run again */
+    341                      }
+    342                  } while (old_current_state != rl_get_current_state());
+    343              }
+    344          }
+    345          /**********************************************************************
+    346          *
+    347          *    Function: RL_Set_Pwr_Fail_Detected
+    348          *
+    349          *  Parameters: status true/false
+    350          *
+    351          *     Returns: none
+    352          *
+    353          * Description: informs Relays that powerfail  voltage range is
+    354          *              entered or exited
+    355          *
+    356          **********************************************************************/
+    357          void RL_Set_Pwr_Fail_Detected(bool status)
+    358          {
+    359              UNUSED_PARAM(status);
+    360          
+    361              /* trigger RELAYS task when powerfail status is updated */
+    362              OS_Release_Resource(RES_RELAYS);
+    363          }
+    364          
+    365          /**********************************************************************
+    366           *    Function: rl_wake_up
+    367           *  Parameters: none
+    368           *     Returns: none
+    369           * Description: Intended to contain any obd specific information which
+    370           *              would cause the obd to wake up (such as the SOS/CAN Bus
+    371           *              waking up).
+    372           **********************************************************************/
+    373          
+    374          static bool rl_wake_up(void)
+    375          {
+    376              bool    wake_up = false;
+    377              uint8_t wake_up_flags=0;
+    378          
+    379              /* always check wake up sources !!! */
+    380              /* remember any wake up request immediatelly */
+    381              wake_up_flags = Sys_Get_Wakeup_Src_Flags();
+    382          
+    383              /* Check ACC signal status, if on, restart the system */
+    384              if (ACC_Signal_GetCurrentSignalLevel())
+    385              {
+    386                rl_wake_up_requested = true;
+    387              }
+    388              
+    389              #if 0
+    390              /* only if battery voltage is okay execute possible wake up sources !!! */
+    391              if (Pwr_Fail_Is_Reset_Condition())  
+    392              {
+    393                  /* This input will be asserted low whenever the low battery voltage warning 
+    394                  condition (BATT<= 6.0V ||(BATT>= 28 V) is detected.*/
+    395          
+    396                  /* when powerfail timer started check if expired then obd must stay off */
+    397                  if (!rl_timer_running(WAIT_TO_STOP_TIMER))
+    398                  {
+    399                      if (wake_up_flags)
+    400                      {
+    401                          rl_wake_up_requested = true;
+    402                      }
+    403                      else
+    404                      {
+    405                          rl_wake_up_requested = false;
+    406                          rl_not_awake_IO();
+    407                          /* do NOT start REG_OFF_DELAY_TIMER here as this would prevent
+    408                             the uC from going to STOP mode !!! [HPO, 25.May2009] */
+    409                      }
+    410                  }
+    411                  else
+    412                  {
+    413                      /* save wake up reason as long as WAIT_TO_STOP_TIMER not expired */
+    414                      if (wake_up_flags)
+    415                      {
+    416                          rl_wake_up_requested = true;
+    417                      }
+    418                  }
+    419              }
+    420              else
+    421              #endif
+    422              {
+    423                  /* but wake up earliest when REG_OFF timer is expired */
+    424                  if (!rl_timer_running(REG_OFF_DELAY_TIMER))
+    425                  {
+    426                      /* process any wake up request only after REG_OFF timer expired ! */
+    427                      wake_up = rl_wake_up_requested || (wake_up_flags > 0x00);
+    428                      if(wake_up)
+    429                      {
+    430                          rl_wake_up_requested = 0;
+    431                          wake_up_flags = 0;
+    432                      }
+    433                  }
+    434              }
+    435              return( wake_up );
+    436          }
+    437          
+    438          static void RL_Start_GPRS(void)
+    439          {
+    440              /**********2G start sequence*************/
+    441              /*Enable  PA.11(4V_2G-CTRL), It is power supply of 2G module*/
+    442              IO_4V_CTRL_OUT(Bit_SET);
+    443           
+    444              /*delay 100ms for power stable*/
+    445              rl_delay_without_schedule(100);
+    446              {
+    447                  OS_Activate_Task(OS_IOT_TASK); 	
+    448              }
+    449          }
+    450          
+    451          static void RL_Start_GPS(void)
+    452          {
+    453              /**********GPS start sequence*************/
+    454              /*Enable PB.00 MCU_3V3-GPS_EN*/
+    455              IO_3V3_GPS_EN_OUT(Bit_SET);
+    456              /*delay 25ms for power stable*/
+    457              rl_delay_without_schedule(25);
+    458              {
+    459                  OS_Activate_Task(OS_GPS_TASK); 
+    460              }
+    461          }
+    462          
+    463          /**********************************************************************
+    464           *    Function: RL_Begin_Awake_Sequence
+    465           *  Parameters: none
+    466           *     Returns: none
+    467           * Description: Performs initial steps to move obd to awake state - 
+    468           *              namely, turns the regulator on
+    469           *********************************************************************/
+    470          
+    471          void RL_Begin_Awake_Sequence(void)
+    472          {
+    473          
+    474          }
+    475          
+    476          /**********************************************************************
+    477           *    Function: RL_Finish_Awake_Sequence
+    478           *
+    479           *  Parameters: none
+    480           *
+    481           *     Returns: none
+    482           *
+    483           * Description: Performs any further steps to move obd to awake state -
+    484           *              namely, wait for the regulator to power up
+    485           *
+    486           *********************************************************************/
+    487          
+    488          void RL_Finish_Awake_Sequence(void)
+    489          {
+    490              /* the AWAKE_DELAY_TIMER was loaded in RL_Begin_Awake_Sequence; */
+    491              /* wait until it expires before proceeding but do not give up   */
+    492              rl_write_timer(AWAKE_DELAY_TIMER, OS_Time() + REG_ON_TIME);
+    493          
+    494              while (rl_timer_running(AWAKE_DELAY_TIMER))
+    495              {    
+    496                  /* do powerfail monitoring */
+    497                  if (Pwr_Fail_Is_Reset_Condition())
+    498                  {
+    499                     /* shut voltage off and go to idle */
+    500                      rl_emergency_shutdown();
+    501                  }
+    502                  else if(Pwr_Fail_AD_get_Voltage() < 1150)
+    503                  {
+    504                      if(1 == rl_get_low_batt_sleep())//recover from low battery force sleep
+    505                      {
+    506                          if(false == Sys_Get_Standby_Req_Flag())
+    507                          {
+    508                              RL_Force_Sleep();//Not yet, so force sleep again right now
+    509                          }
+    510                      }
+    511                  }
+    512                  else
+    513                  {
+    514                      rl_set_low_batt_sleep(0);//battery recovery, go ahead
+    515                  }
+    516          
+    517                  Enable_Interrupts();                      // in case WTNCS is corrupt
+    518                  Feed_Dog();                               // make sure we have full watchdog timeout
+    519              }
+    520          }
+    521          
+    522          /*********************************************************************/
+    523          /* Local Function Definitions                                        */
+    524          /*********************************************************************/
+    525          /**********************************************************************
+    526          *    Function: rl_check
+    527          *  Parameters: none
+    528          *     Returns: void
+    529          * Description: this is a hook up function from the RL_Task,
+    530          *              call here all other functions that need to be executed every
+    531          *              task run, if not needed it can be removed by using a empty macro
+    532          **********************************************************************/
+    533          static void rl_check (void)
+    534          {
+    535              /*            */
+    536            if (Pwr_Fail_Is_Reset_Condition())
+    537            {
+    538              /* power voltage is too high, reset the system */
+    539              DEBUG_PRINT0(DEBUG_HIGH,"[RELAY]:Battery over voltage, restarting!!!\n\r");
+    540              OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BATTERY_FAULT, 2));
+    541              
+    542              rl_reset();
+    543            }
+    544            else if (Pwr_Fail_Is_Shutdown())
+    545            {
+    546              /* shut voltage off and go standby
+    547              * only extenal voltage up can wake up */
+    548              
+    549              DEBUG_PRINT0(DEBUG_HIGH,"[RELAY]:Battery low, Force Sleeping in 15s!!!\n\r");
+    550              OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BATTERY_FAULT, 1));				
+    551              
+    552              OS_Sleep(15000);//15 seconds for sending battery low warning
+    553              
+    554              rl_set_low_batt_sleep(1);
+    555              RL_Force_Sleep();   // go to standby, and wait external voltage regain
+    556              
+    557            }
+    558              else 
+    559              {
+    560                /* do nothing */
+    561              }
+    562             
+    563            
+    564            /* check powerfail-reset: voltage range that allows reset */
+    565              /* check restart request flag that allows reset           */
+    566          //    if (Pwr_Fail_Is_Reset_Condition())
+    567          //    {
+    568          //        /* shut voltage off and go to idle */
+    569          //        rl_emergency_shutdown();        /* record the state before obd off when  power  became bad */
+    570          //    }
+    571          //    else if(Periodic_Get_Low_Volt_Cnt() > 20)//low volt for 20s in any state
+    572          //    {
+    573          //        DEBUG_PRINT0(DEBUG_HIGH,"[SYSTEM]:Battery low, Force Sleep!!!\n\r");
+    574          //        OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BATTERY_FAULT, 1));				
+    575          //
+    576          //        OS_Sleep(15000);//15 seconds for sending battery low warning
+    577          //
+    578          //        rl_set_low_batt_sleep(1);
+    579          //        RL_Force_Sleep();
+    580          //    }
+    581          //    else if(PS_Play_On())
+    582          //    {
+    583          //        /* check for good battery voltage */
+    584          //        if (rl_is_amp_muted)
+    585          //        {
+    586          //            /* check if battery voltage is good */
+    587          //            if (Pwr_Fail_Is_Voltage_Good())
+    588          //            {
+    589          //                rl_is_amp_muted = false;
+    590          //            }
+    591          //        }
+    592          //        else
+    593          //        {
+    594          //            /* check if battery voltage is not good */
+    595          //            if (!Pwr_Fail_Is_Voltage_Good())
+    596          //            {
+    597          //                rl_is_amp_muted = true;
+    598          //               //should inform that voltage is not good,tbd
+    599          //            }
+    600          //        }
+    601          //    }
+    602          }
+    603          
+    604          /**********************************************************************
+    605           *    Function: rl_idle_to_awake
+    606           *
+    607           *  Parameters: none
+    608           *
+    609           *     Returns: none
+    610           *
+    611           * Description: Performs action to move obd from idle to awake
+    612           *
+    613           *********************************************************************/
+    614          
+    615          static void rl_idle_to_awake(void)
+    616          {
+    617             rl_finish_awake_sequence_hook();
+    618             rl_set_current_state(RL_CS_AWAKE);
+    619          }
+    620          
+    621          /**********************************************************************
+    622           *    Function: rl_play_to_awake
+    623           *  Parameters: none
+    624           *     Returns: none
+    625           * Description: Performs action to move obd from play to awake
+    626           *********************************************************************/
+    627          
+    628          static void rl_play_to_awake(void)
+    629          {
+    630            rl_set_current_state(RL_CS_AWAKE);
+    631          }
+    632          
+    633          /**********************************************************************
+    634           *    Function: rl_cs_awake
+    635           *  Parameters: none
+    636           *     Returns: none
+    637           * Description: Performs regulator and bridge support for awake state.
+    638           *********************************************************************/
+    639          static void rl_cs_awake(void)
+    640          {
+    641          //    uint16_t vol_ext=Pwr_Fail_Get_Voltage();
+    642          //
+    643          //    uint16_t vol_int=Pwr_Fail_Get_Int_Voltage();
+    644            
+    645              if (!PS_Awake())
+    646              {
+    647                  if(!Sys_Get_Standby_Req_Flag())
+    648                  {
+    649                      Sys_Clear_Wakeup_Src_Flags();
+    650                  }
+    651                  else
+    652                  {
+    653                      Sys_Clear_Standby_Req_Flag();
+    654                  }
+    655                  
+    656                  rl_awake_to_idle();        
+    657              }
+    658          //    else if (PS_Play_On())
+    659          //    {
+    660          //        rl_awake_to_play();
+    661          //    }
+    662              else /* refresh rl_cs_awake */
+    663              {
+    664              }
+    665          //    
+    666          }
+    667          
+    668          /**********************************************************************
+    669          *    Function: rl_awake_to_play
+    670          *  Parameters: none
+    671          *     Returns: none
+    672          * Description: Performs action to move obd from awake to play
+    673          *********************************************************************/
+    674          //static void rl_awake_to_play (void)
+    675          //{ 
+    676          //    if(false == rl_gps_pwr_up)
+    677          //    {
+    678          //        rl_gps_pwr_up = true;
+    679          //        RL_Start_GPS();
+    680          //        if(Cold_Start())
+    681          //       	{
+    682          //            DEBUG_PRINT0(DEBUG_MEDIUM,"[RELAYS]Start GPRS\n\r");
+    683          //            Sys_Clear_2G_Wakeup_Flag();
+    684          //            TMR_Start_Timer(GPRS_START_TIMER, RL_GPRS_START_DELAY, RL_Start_GPRS);
+    685          //        }
+    686          //    }
+    687          //    rl_set_current_state(RL_CS_PLAY);
+    688          //}
+    689          
+    690          /**********************************************************************
+    691           *    Function: rl_cs_play
+    692           *  Parameters: none
+    693           *     Returns: none
+    694           * Description: Performs regulator and bridge support for play state.
+    695           **********************************************************************/
+    696          
+    697          //static void rl_cs_play(void)
+    698          //{
+    699          //    if (!PS_Play_On())
+    700          //    {
+    701          //        rl_play_to_awake();
+    702          //    }
+    703          //    else /* refresh rl_cs_play */
+    704          //    {
+    705          //    }	   
+    706          //}
+    707          
+    708          /**********************************************************************
+    709           *    Function: rl_awake_to_idle
+    710           *  Parameters: none
+    711           *     Returns: none
+    712           * Description: Performs action to move obd from wake to idle
+    713           *********************************************************************/
+    714          static void rl_awake_to_idle(void)
+    715          {
+    716              Config_t config_data;
+    717              uint32_t sleep_time=0;
+    718              uint8_t activate_status=Get_Activation_Status();
+    719          
+    720              Get_config_data(&config_data);
+    721          
+    722              #ifdef USE_DEBUG
+    723                  DEBUG_PRINT0(DEBUG_HIGH,"[SYSTEM]:Sleeping...\n\r");
+    724              #endif
+    725          
+    726              {
+    727                  // set 3G module to sleep mode
+    728                  GPRS_Module_GoSleep();
+    729          
+    730                  OS_Sleep(1000);
+    731              }
+    732              // Save data to flash
+    733              Save_Param();
+    734              OS_Sleep(STBY_OFF_WAIT_TICKS);
+    735          
+    736              Sys_Clear_Wakeup_Src_Flags();
+    737              Sys_Clear_Standby_Req_Flag();
+    738          
+    739              IO_3V3_GPS_EN_OUT(Bit_RESET);
+    740              IO_4V_CTRL_OUT(Bit_RESET);
+    741              IO_MCU_LED1_CTL_OUT(Bit_SET);
+    742              IO_MCU_LED2_CTL_OUT(Bit_SET);
+    743              IO_CHARGE_CTL(Bit_RESET);
+    744          
+    745              rl_awake_to_idle_hook();
+    746          
+    747              rl_wait_for_tasks_to_suspend();
+    748          
+    749              OS_Sleep(STBY_OFF_WAIT_TICKS);
+    750          
+    751              Sensors_crash_reset();
+    752          
+    753              MDG_Clear_Mode();
+    754          
+    755              OS_Clr_Start_Flag();  //
+    756          
+    757              rl_not_awake_IO();
+    758          
+    759              if (Sys_Get_Int_battery_Flag())
+    760              {
+    761                // Set sleep wakeup time, 24 hours
+    762                rl_set_rtc_timeout(PS_RTC_DEEP_STANDBY_TICK);
+    763                /* Configure RTC clock source and prescaler */
+    764                rl_rtc_config();   
+    765              }
+    766              
+    767          //    rl_exti_config();
+    768          
+    769              rl_set_current_state(RL_CS_IDLE);
+    770              //Micro_Go_Sleep();
+    771          }
+    772          
+    773          /**********************************************************************
+    774           *    Function: rl_cs_idle
+    775           *  Parameters: none
+    776           *     Returns: none
+    777           * Description: Performs regulator support for idle state.
+    778           *********************************************************************/
+    779          static void rl_cs_idle(void)
+    780          {
+    781              Tick_Type idle_time = 0;
+    782             
+    783              while(rl_remain_idle(idle_time) 
+    784                    && (!Sys_Get_Wakeup_Src_Flags()))
+    785              {
+    786                  /*executes all configurations needed for idle mode*/
+    787                  rl_check_wake_up();
+    788                  rl_configure_idle_hook();
+    789                  Feed_Dog();
+    790                  Enable_Interrupts();
+    791                  rl_configure_micro_for_idle();
+    792              }
+    793               
+    794              /* After wake up from sleep mode, go to here and warm restart */
+    795               rl_check_wake_up();
+    796          }
+    797          
+    798          /**********************************************************************
+    799          *
+    800          *    Function: rl_delay
+    801          *
+    802          *  Parameters: none
+    803          *
+    804          *     Returns: none
+    805          *
+    806          * Description: indicate that power supply for awake AP is ready
+    807          *
+    808          *********************************************************************/
+    809          void rl_delay_without_schedule(Tick_Type ms)
+    810          {
+    811              rl_write_timer(AWAKE_DELAY_TIMER, OS_Time() + ms);
+    812          
+    813              while (rl_timer_running(AWAKE_DELAY_TIMER))
+    814              {
+    815                  Enable_Interrupts();                      // in case WTNCS is corrupt
+    816                  Feed_Dog();                               // make sure we have full watchdog timeout
+    817              }
+    818          }
+    819          
+    820          /**********************************************************************
+    821          *    Function: RL_In_Idle
+    822          *  Parameters: none
+    823          *     Returns: whether or not relays is in the idle state
+    824          * Description: Accessor to determine if relays is in the idle state
+    825          *
+    826          *********************************************************************/
+    827          bool RL_In_Idle (void)
+    828          {
+    829              return(RL_CS_IDLE == rl_get_current_state());
+    830          }
+    831          
+    832          /**********************************************************************
+    833          *    Function: RL_In_Play
+    834          *  Parameters: none
+    835          *     Returns: whether or not relays is in the play state
+    836          * Description: Accessor to determine if relays is in the play state
+    837          *
+    838          *********************************************************************/
+    839          //bool RL_In_Play (void)
+    840          //{
+    841          //    return(RL_CS_PLAY == rl_get_current_state());
+    842          //}
+    843          
+    844          /**********************************************************************
+    845           *    Function: rl_wait_for_tasks_to_suspend
+    846           *  Parameters: none
+    847           *     Returns: none
+    848           * Description: Sends out GO_IDLE message and waits for appropriate tasks
+    849           *              to receive message and suspend.  Has a timeout value and
+    850           *              will return E_OK or E_TIMEOUT depending on whether all
+    851           *              tasks suspended in the appropriate time or not.
+    852           *
+    853           **********************************************************************/
+    854          static void rl_wait_for_tasks_to_suspend(void)
+    855          {
+    856              int     awake_to_idle_increments = 0;
+    857              Status_Type suspend_error;
+    858          
+    859              do
+    860              {
+    861                  rl_check_wake_up();
+    862          
+    863                  /* We need to make sure all tasks which are supposed to be suspended are indeed   */
+    864                  /* suspended before proceeding to the idle loop.  We also need to make sure we do */
+    865                  /* not hold up going to idle for tasks which do not suspend (e.g., OS_IDLE_TASK,  */
+    866                  /* OS_RELAYS).  Only those tasks with a while (PS_Running()) loop will suspend.   */
+    867          
+    868                  suspend_error = E_OK;  /* assume we are cleaned up until proven otherwise in below test */
+    869                  if (!rl_other_task_cleanup_complete())
+    870                  {
+    871                      suspend_error = E_TIMEOUT;
+    872                  }
+    873                  if (E_TIMEOUT == suspend_error)
+    874                  {
+    875                      if (!(awake_to_idle_increments % NUM_INCREMENTS_TO_RESEND_IDLE_MSG))
+    876                      {
+    877          
+    878                      }
+    879                      OS_Sleep(AWAKE_TO_IDLE_INCREMENT_TICKS);
+    880                  }//50ms * 10 = 500ms timer for all_terminating_tasks(current is 3g task) to finish current cycle(OTA packet decoding? dataflash writing? ).
+    881              
+    882              } while ((E_TIMEOUT == suspend_error) && (++awake_to_idle_increments < NUM_INCREMENTS_TO_FORCE_IDLE));
+    883              if (!awake_to_idle_increments)
+    884              {
+    885                  /* every task which should have suspended already was, send out one GO_IDLE     */
+    886                  /* for tasks which do not suspend so that they are aware that we are idle       */
+    887                  /* (otherwise would have been notified non-suspending tasks in above for loop). */
+    888                
+    889                
+    890                  OS_Send_Message(OS_PSYNC_TASK, PS_EVT_GO_IDLE);
+    891              }
+    892          }
+    893          
+    894          /**********************************************************************
+    895           *    Function: rl_check_wake_up
+    896           *
+    897           *  Parameters: none
+    898           *
+    899           *     Returns: none
+    900           *
+    901           * Description: This function determines whether or not the obd 
+    902           *              should wake up from an idle state.  If the obd needs
+    903           *              to wake up, this function will call Restart() and NOT
+    904           *              return to the caller.
+    905           *
+    906           *********************************************************************/
+    907          
+    908          static void rl_check_wake_up(void)
+    909          {
+    910              if (rl_wake_up())
+    911              {
+    912                  SY_Warm_Start();
+    913              }
+    914          }
+    915           
+    916          
+    917          /**********************************************************************
+    918          *
+    919          *    Function: rl_low_voltage
+    920          *
+    921          *  Parameters: none
+    922          *
+    923          *     Returns: none
+    924          *
+    925          * Description: Performs action for staying in low voltage mode.
+    926          *              As long as 3V3 Main is not stable, we stay in while loop.
+    927          *              After 1 sec, system is immediatelly shut down.
+    928          *              When leaving power-fail state, Cold Start will be
+    929          *              performed.
+    930          *
+    931          *********************************************************************/
+    932          static void rl_low_voltage (void)
+    933          {
+    934          
+    935          }
+    936          /**********************************************************************
+    937          *
+    938          *    Function: rl_full_awake_on
+    939          *
+    940          *  Parameters: none
+    941          *
+    942          *     Returns: none
+    943          *
+    944          * Description: indicate that power supply for awake AP is ready
+    945          *
+    946          *********************************************************************/
+    947          bool rl_full_awake_on(void)
+    948          {
+    949              return(rl_data > RL_CS_IDLE);
+    950          }
+    951          /**********************************************************************
+    952          *
+    953          *    Function: RL_Enter_Powerfail
+    954          *
+    955          *  Parameters: none
+    956          *
+    957          *     Returns: none
+    958          *
+    959          * Description: Set the relays to the powerfail state
+    960          *
+    961          *
+    962          *********************************************************************/
+    963          extern void RL_Enter_Powerfail(bool low_voltage)
+    964          {
+    965              if(low_voltage)
+    966              {
+    967                  rl_low_voltage();
+    968              }
+    969              else
+    970              {
+    971          
+    972              }
+    973          }
+    974          
+    975          /**********************************************************************
+    976          *
+    977          *    Function: rl_emergency_shutdown
+    978          *
+    979          *  Parameters: none
+    980          *
+    981          *     Returns: none
+    982          *
+    983          * Description: Performs action for staying in powerfail reset mode.
+    984          *             As long as the battery sense line is low (Vbatt < 6.0V)
+    985          *             we stay in a while loop. 
+    986          *             If the battery sense line goes up again (Vbatt > 6.5V)
+    987          *             a warm start is done.
+    988          *
+    989          *********************************************************************/
+    990          static void rl_emergency_shutdown(void)
+    991          {
+    992              if (PS_IDLE==PS_Get_Current_State())
+    993                  return;
+    994              PS_Set_Idle();
+    995          #if 0
+    996              rl_awake_to_idle();
+    997          #endif
+    998              rl_write_timer(PF_DELAY_TIMER, OS_Time() + (MSec_To_Ticks(180000)));
+    999              /*wait 5mins for recovery, then give up and go idle*/
+   1000              while (rl_timer_running(PF_DELAY_TIMER))
+   1001              {
+   1002                  Feed_Dog();                               // make sure we have full watchdog timeout
+   1003                  Enable_Interrupts();                      // in case WTNCS is corrupt
+   1004                  Halt();
+   1005              }
+   1006          }
+   1007          /**********************************************************************
+   1008          *
+   1009          *    Function: RL_Force_Sleep
+   1010          *
+   1011          *  Parameters: none
+   1012          *
+   1013          *     Returns: none
+   1014          *
+   1015          * Description:Force sleep in case CAN bus is always active,disable CAN wake up interrupt
+   1016          *
+   1017          *********************************************************************/
+   1018          void RL_Force_Sleep(void)
+   1019          {
+   1020              Sys_Clear_Wakeup_Src_Flags();
+   1021              Sys_Req_Enter_Deep_Standby();   	
+   1022          }
+   1023          
+   1024          /**
+   1025            * @brief  Configures RTC clock source and prescaler.
+   1026            * @param  None
+   1027            * @retval None
+   1028            */
+   1029          static void rl_rtc_config(void)
+   1030          {
+   1031              NVIC_InitTypeDef  NVIC_InitStructure;
+   1032              EXTI_InitTypeDef  EXTI_InitStructure;
+   1033              
+   1034              /* Configure EXTI Line17(RTC Alarm) to generate an interrupt on rising edge */
+   1035              EXTI_ClearITPendingBit(EXTI_Line17);
+   1036              EXTI_InitStructure.EXTI_Line = EXTI_Line17;
+   1037              EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   1038              EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   1039              EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   1040              EXTI_Init(&EXTI_InitStructure);
+   1041              
+   1042              
+   1043              /* 2 bits for Preemption Priority and 2 bits for Sub Priority */
+   1044          
+   1045              NVIC_InitStructure.NVIC_IRQChannel = RTCAlarm_IRQn;
+   1046              NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+   1047              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+   1048              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+   1049              NVIC_Init(&NVIC_InitStructure);
+   1050          
+   1051              /* Enable PWR and BKP clocks */
+   1052              RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+   1053          
+   1054              /* Allow access to BKP Domain */
+   1055              PWR_BackupAccessCmd(ENABLE);
+   1056          
+   1057              /* Enable the LSE OSC */
+   1058              RCC_LSICmd(ENABLE);
+   1059              /* Wait till LSE is ready */
+   1060              /* Select the RTC Clock Source */
+   1061              RCC_LSEConfig(RCC_LSE_ON);
+   1062              while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
+   1063              {}
+   1064          
+   1065              RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+   1066              /* Enable RTC Clock */
+   1067              RCC_RTCCLKCmd(ENABLE);
+   1068              /* Wait for RTC registers synchronization */
+   1069              RTC_WaitForSynchro();
+   1070          
+   1071              /* Set RTC prescaler: set RTC period to 1sec */
+   1072              RTC_SetPrescaler(32767);
+   1073          
+   1074              /* Wait until last write operation on RTC registers has finished */
+   1075              RTC_WaitForLastTask();
+   1076          
+   1077              /* Enable the RTC Second */
+   1078          
+   1079              /* Enable the RTC Alarm interrupt */
+   1080              RTC_ITConfig(RTC_IT_ALR, ENABLE);
+   1081          
+   1082              /* Wait until last write operation on RTC registers has finished */
+   1083              RTC_WaitForLastTask();
+   1084          
+   1085              /* Alarm time */
+   1086              RTC_SetAlarm(RTC_GetCounter()+ rl_get_rtc_timeout());
+   1087          
+   1088              /* Wait until last write operation on RTC registers has finished */
+   1089              RTC_WaitForLastTask();
+   1090          }
+   1091          
+   1092          void rl_rtc_disable(void)
+   1093          {
+   1094            NVIC_InitTypeDef  NVIC_InitStructure;
+   1095            EXTI_InitTypeDef EXTI_InitStructure;
+   1096          
+   1097            /* Configure EXTI Line17(RTC Alarm) to generate an interrupt on rising edge */
+   1098            EXTI_ClearITPendingBit(EXTI_Line17);
+   1099            EXTI_InitStructure.EXTI_Line = EXTI_Line17;
+   1100            EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   1101            EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   1102            EXTI_InitStructure.EXTI_LineCmd = DISABLE;
+   1103            EXTI_Init(&EXTI_InitStructure);
+   1104            
+   1105            /* 2 bits for Preemption Priority and 2 bits for Sub Priority */
+   1106          
+   1107            NVIC_InitStructure.NVIC_IRQChannel = RTCAlarm_IRQn;
+   1108            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+   1109            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+   1110            NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+   1111            NVIC_Init(&NVIC_InitStructure);
+   1112          }
+   1113          //
+   1114          ///**
+   1115          //  * @brief  Configures EXTI Lines.
+   1116          //  * @param  None
+   1117          //  * @retval None
+   1118          //  */
+   1119          //static void rl_exti_config(void)
+   1120          //{
+   1121          //    EXTI_InitTypeDef    EXTI_InitStructure;
+   1122          //    NVIC_InitTypeDef    NVIC_InitStructure; 
+   1123          //    
+   1124          //    /* Configure EXTI Line17(RTC Alarm) to generate an interrupt on rising edge */
+   1125          //    EXTI_ClearITPendingBit(EXTI_Line17);
+   1126          //    EXTI_InitStructure.EXTI_Line = EXTI_Line17;
+   1127          //    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   1128          //    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   1129          //    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   1130          //    EXTI_Init(&EXTI_InitStructure);
+   1131          //    
+   1132          //    /* moved from no_io routine */
+   1133          //       /* 3. configure interrupts */
+   1134          //    /* PA0-Wakeup pin for EXTI0 */
+   1135          //    GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource0);
+   1136          //    EXTI_InitStructure.EXTI_Line = EXTI_Line0;
+   1137          //    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   1138          //    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+   1139          //    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   1140          //    EXTI_Init(&EXTI_InitStructure);
+   1141          //    NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
+   1142          //    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+   1143          //    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+   1144          //    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+   1145          //    NVIC_Init(&NVIC_InitStructure);
+   1146          //
+   1147          //    /* ACC */
+   1148          //    GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource2);
+   1149          //    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+   1150          //    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   1151          ////    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   1152          //    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;      /*  */
+   1153          //    
+   1154          //    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   1155          //    EXTI_Init(&EXTI_InitStructure);
+   1156          //    NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
+   1157          //    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+   1158          //    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+   1159          //    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+   1160          //    NVIC_Init(&NVIC_InitStructure);
+   1161          //
+   1162          //    /* RING */
+   1163          //    EXTI_InitStructure.EXTI_Line = EXTI_Line6;
+   1164          //    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   1165          //    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   1166          //    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   1167          //    EXTI_Init(&EXTI_InitStructure);
+   1168          //   
+   1169          //    /* Accel */
+   1170          //    EXTI_InitStructure.EXTI_Line = EXTI_Line8;
+   1171          //    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   1172          //    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+   1173          //    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   1174          //    EXTI_Init(&EXTI_InitStructure);
+   1175          //    NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+   1176          //    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+   1177          //    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+   1178          //    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+   1179          //    NVIC_Init(&NVIC_InitStructure);
+   1180          //}
+   1181          
+   1182          /**
+   1183            * @brief  Get rtc_timeout value.
+   1184            * @param  None
+   1185            * @retval None
+   1186            */
+   1187          uint32_t rl_get_rtc_timeout(void)
+   1188          {
+   1189              return rtc_timeout;
+   1190          }
+   1191          
+   1192          /**
+   1193            * @brief  Set rtc_timeout value.
+   1194            * @param  None
+   1195            * @retval None
+   1196            */
+   1197          void rl_set_rtc_timeout(uint32_t value)
+   1198          {
+   1199              rtc_timeout = value;
+   1200          }
+   1201          
+   1202          /**
+   1203            * @brief  Get low_batt_sleep value.
+   1204            * @param  None
+   1205            * @retval None
+   1206            */
+   1207          static uint8_t rl_get_low_batt_sleep(void)
+   1208          {
+   1209              return low_batt_sleep;
+   1210          }
+   1211          
+   1212          /**
+   1213            * @brief  Set low_batt_sleep value.
+   1214            * @param  None
+   1215            * @retval None
+   1216            */
+   1217          void rl_set_low_batt_sleep(uint8_t value)
+   1218          {
+   1219              low_batt_sleep = value;
+   1220          }
+   1221          
+   1222          void rl_reset()
+   1223          {
+   1224              Save_Param();
+   1225              SY_Cold_Start();
+   1226          }
+   1227          
+   1228          static void rl_go_sleep(void)
+   1229          {
+   1230              if ((rl_first_go_sleep) && (0==Get_Last_GPS_uploaded()))
+   1231              {
+   1232                  rl_first_go_sleep=false;
+   1233                  DEBUG_PRINT0(DEBUG_MEDIUM,"[RELAYS] wait more, start sleep timer\n\r");
+   1234              }
+   1235              else
+   1236              {
+   1237                  DEBUG_PRINT0(DEBUG_MEDIUM,"[RELAYS] Go to Sleep\n\r");
+   1238                  rl_emergency_shutdown();
+   1239              }
+   1240          }
+   1241          
+   1242          extern uint8_t rl_get_acc_status(void)
+   1243          {
+   1244              return acc_status;
+   1245          }
+   1246          
+   1247          extern void rl_set_acc_status(uint8_t status)
+   1248          {
+   1249              acc_status=status;
+   1250          }
+   1251          
+   1252          /**********************************************************************
+   1253           *                                                                     
+   1254           * REVISION RECORDS                                                    
+   1255           *                                                                     
+   1256           *********************************************************************/
+   1257          /*********************************************************************/
+   1258          /*
+   1259           *
+   1260           *********************************************************************/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   RL_Begin_Awake_Sequence
+       8   RL_Enter_Powerfail
+         8   -> rl_low_voltage
+       8   RL_Finish_Awake_Sequence
+         8   -> IWDG_ReloadCounter
+         8   -> Pwr_Fail_AD_get_Voltage
+         8   -> Pwr_Fail_Is_Reset_Condition
+         8   -> RL_Force_Sleep
+         8   -> Sys_Get_Standby_Req_Flag
+         8   -> rl_emergency_shutdown
+         8   -> rl_get_low_batt_sleep
+         8   -> rl_set_low_batt_sleep
+         8   -> vPortClearInterruptMask
+         8   -> xTaskGetTickCountFromISR
+       8   RL_Force_Sleep
+         8   -> Sys_Clear_Wakeup_Src_Flags
+         8   -> Sys_Req_Enter_Deep_Standby
+       0   RL_In_Idle
+       8   RL_Set_Pwr_Fail_Detected
+         8   -> OS_Release_Resource
+       8   RL_Start_GPRS
+         8   -> GPIO_WriteBit
+         8   -> OS_Activate_Task
+         8   -> rl_delay_without_schedule
+       8   RL_Start_GPS
+         8   -> GPIO_WriteBit
+         8   -> OS_Activate_Task
+         8   -> rl_delay_without_schedule
+       8   Relays_Task
+         8   -- Indirect call
+         8   -> OS_Wait_Resource
+         8   -> printf
+         8   -> rl_check
+         8   -> rl_idle_to_awake
+      80   rl_awake_to_idle
+        80   -> GPIO_WriteBit
+        80   -> GPRS_Module_GoSleep
+        80   -> Get_Activation_Status
+        80   -> Get_config_data
+        80   -> MDG_Clear_Mode
+        80   -> OS_Clr_Start_Flag
+        80   -> OS_Sleep
+        80   -> Save_Param
+        80   -> Sensors_crash_reset
+        80   -> Sys_Clear_Standby_Req_Flag
+        80   -> Sys_Clear_Wakeup_Src_Flags
+        80   -> Sys_Get_Int_battery_Flag
+        80   -> printf
+        80   -> rl_not_awake_IO
+        80   -> rl_rtc_config
+        80   -> rl_set_rtc_timeout
+        80   -> rl_wait_for_tasks_to_suspend
+       8   rl_check
+         8   -> Build_Message
+         8   -> OS_Send_Message
+         8   -> OS_Sleep
+         8   -> Pwr_Fail_Is_Reset_Condition
+         8   -> Pwr_Fail_Is_Shutdown
+         8   -> RL_Force_Sleep
+         8   -> printf
+         8   -> rl_reset
+         8   -> rl_set_low_batt_sleep
+       8   rl_check_wake_up
+         8   -> Restart
+         8   -> rl_wake_up
+       0   rl_configure_idle_hook
+       8   rl_configure_micro_for_idle
+         8   -> ADC_DeInit
+         8   -> Micro_Go_Sleep
+       8   rl_cs_awake
+         8   -> PS_Awake
+         8   -> Sys_Clear_Standby_Req_Flag
+         8   -> Sys_Clear_Wakeup_Src_Flags
+         8   -> Sys_Get_Standby_Req_Flag
+         8   -> rl_awake_to_idle
+       8   rl_cs_idle
+         8   -> IWDG_ReloadCounter
+         8   -> Sys_Get_Wakeup_Src_Flags
+         8   -> rl_check_wake_up
+         8   -> rl_configure_idle_hook
+         8   -> rl_configure_micro_for_idle
+         8   -> vPortClearInterruptMask
+         8   -> xTaskGetTickCountFromISR
+       8   rl_delay_without_schedule
+         8   -> IWDG_ReloadCounter
+         8   -> vPortClearInterruptMask
+         8   -> xTaskGetTickCountFromISR
+       8   rl_emergency_shutdown
+         8   -> IWDG_ReloadCounter
+         8   -> PS_Get_Current_State
+         8   -> PS_Set_Idle
+         8   -> vPortClearInterruptMask
+         8   -> xTaskGetTickCountFromISR
+       8   rl_finish_awake_sequence_hook
+         8   -> RL_Start_GPS
+         8   -> Sys_Clear_2G_Wakeup_Flag
+         8   -> TMR_Start_Timer
+         8   -> printf
+       0   rl_full_awake_on
+       0   rl_get_acc_status
+       0   rl_get_low_batt_sleep
+       0   rl_get_rtc_timeout
+       8   rl_idle_to_awake
+         8   -> rl_finish_awake_sequence_hook
+       0   rl_low_voltage
+       0   rl_not_awake_IO
+       8   rl_reset
+         8   -> Restart
+         8   -> Save_Param
+      24   rl_rtc_config
+        24   -> EXTI_ClearITPendingBit
+        24   -> EXTI_Init
+        24   -> NVIC_Init
+        24   -> PWR_BackupAccessCmd
+        24   -> RCC_APB1PeriphClockCmd
+        24   -> RCC_GetFlagStatus
+        24   -> RCC_LSEConfig
+        24   -> RCC_LSICmd
+        24   -> RCC_RTCCLKCmd
+        24   -> RCC_RTCCLKConfig
+        24   -> RTC_GetCounter
+        24   -> RTC_ITConfig
+        24   -> RTC_SetAlarm
+        24   -> RTC_SetPrescaler
+        24   -> RTC_WaitForLastTask
+        24   -> RTC_WaitForSynchro
+        24   -> rl_get_rtc_timeout
+      16   rl_rtc_disable
+        16   -> EXTI_ClearITPendingBit
+        16   -> EXTI_Init
+        16   -> NVIC_Init
+       0   rl_set_acc_status
+       0   rl_set_low_batt_sleep
+       0   rl_set_rtc_timeout
+      16   rl_wait_for_tasks_to_suspend
+        16   -> OS_Send_Message
+        16   -> OS_Sleep
+        16   -> rl_check_wake_up
+      16   rl_wake_up
+        16   -> ACC_Signal_GetCurrentSignalLevel
+        16   -> Sys_Get_Wakeup_Src_Flags
+        16   -> xTaskGetTickCountFromISR
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable20
+       4  ??DataTable20_1
+       4  ??DataTable20_10
+       4  ??DataTable20_11
+       4  ??DataTable20_12
+       4  ??DataTable20_13
+       4  ??DataTable20_14
+       4  ??DataTable20_15
+       4  ??DataTable20_16
+       4  ??DataTable20_17
+       4  ??DataTable20_18
+       4  ??DataTable20_19
+       4  ??DataTable20_2
+       4  ??DataTable20_20
+       4  ??DataTable20_21
+       4  ??DataTable20_22
+       4  ??DataTable20_23
+       4  ??DataTable20_24
+       4  ??DataTable20_25
+       4  ??DataTable20_26
+       4  ??DataTable20_27
+       4  ??DataTable20_28
+       4  ??DataTable20_3
+       4  ??DataTable20_4
+       4  ??DataTable20_5
+       4  ??DataTable20_6
+       4  ??DataTable20_7
+       4  ??DataTable20_8
+       4  ??DataTable20_9
+      24  ?_0
+      32  ?_1
+      48  ?_2
+      48  ?_3
+      24  ?_4
+       2  RL_Begin_Awake_Sequence
+      12  RL_Enter_Powerfail
+      96  RL_Finish_Awake_Sequence
+      12  RL_Force_Sleep
+      18  RL_In_Idle
+      10  RL_Set_Pwr_Fail_Detected
+      30  RL_Start_GPRS
+      30  RL_Start_GPS
+      78  Relays_Task
+       1  acc_status
+       4  can_interrupt_disable
+       1  low_batt_sleep
+     162  rl_awake_to_idle
+      92  rl_check
+      18  rl_check_wake_up
+       2  rl_configure_idle_hook
+      16  rl_configure_micro_for_idle
+      34  rl_cs_awake
+      68  rl_cs_idle
+      12  rl_current_state
+       1  rl_data
+      40  rl_delay_without_schedule
+      64  rl_emergency_shutdown
+      42  rl_finish_awake_sequence_hook
+      18  rl_full_awake_on
+       6  rl_get_acc_status
+       6  rl_get_low_batt_sleep
+       6  rl_get_rtc_timeout
+       4  rl_gps_pwr_up
+      14  rl_idle_to_awake
+       2  rl_low_voltage
+     114  rl_not_awake_IO
+      14  rl_reset
+     174  rl_rtc_config
+      72  rl_rtc_disable
+       6  rl_set_acc_status
+       6  rl_set_low_batt_sleep
+       6  rl_set_rtc_timeout
+      16  rl_timer
+      50  rl_wait_for_tasks_to_suspend
+      84  rl_wake_up
+       4  rl_wake_up_requested
+       4  rtc_timeout
+
+ 
+    26 bytes in section .bss
+     9 bytes in section .noinit
+   188 bytes in section .rodata
+ 1 520 bytes in section .text
+ 
+ 1 520 bytes of CODE  memory
+   188 bytes of CONST memory
+    35 bytes of DATA  memory
+
+Errors: none
+Warnings: 11

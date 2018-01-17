@@ -1,0 +1,267 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:31
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\str_lib.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\str_lib.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\str_lib.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\str_lib.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\common\str_lib.c
+      1          #include <stdlib.h>
+      2          #include "standard.h"
+      3          #include "str_lib.h"
+      4          
+      5          #define COMMA_CH  0x2C //","
+      6          
+      7          
+      8          uint8_t str_float_split(uint8_t *data,uint8_t len,uint8_t *data_before_point,uint8_t *data_after_point)
+      9          {
+     10          	uint8_t i=0;
+     11          	uint32_t int_before_point=0;
+     12          	uint32_t int_after_point=0;
+     13          	uint8_t *p=data;
+     14          	uint8_t point_pos=0;
+     15          	if (len==0)
+     16          		return 0;
+     17          	for(i=0;i<len;i++)
+     18          	{
+     19                  if(*p=='.')
+     20          		{
+     21          			point_pos=i;
+     22          			break;
+     23          		}
+     24          		p++;
+     25          		int_before_point=int_before_point*10+*p-'0';
+     26          	}
+     27          	p++;
+     28          	for(i=point_pos+1;i<len;i++)
+     29          	{
+     30          		int_after_point=int_after_point*10+*p-'0';
+     31          	}
+     32          	return 1;
+     33          }
+     34          
+     35          uint16_t DECtoStr(uint8_t *dest,uint8_t *src,uint16_t len)
+     36          {
+     37              uint16_t cnt = 0;
+     38              uint32_t tmp_total = 0;
+     39              uint8_t i;
+     40              uint8_t tmp_data[10];
+     41              uint8_t dec_len = 0;
+     42          /*    if (len > (TCOM_TX_BUF_SIZE - 10)/2)
+     43              {
+     44                  len = (TCOM_TX_BUF_SIZE - 10)/2;
+     45              }*/
+     46              while(cnt < len)
+     47              {
+     48                  tmp_total += (*src << (cnt*8));
+     49                  src++;
+     50                  cnt++;
+     51              }
+     52              for (i=0; tmp_total>0; i++)
+     53              {
+     54                  tmp_data[i] = tmp_total%10;
+     55                  tmp_total = tmp_total/10;
+     56                  dec_len++;
+     57              }
+     58              cnt = dec_len;
+     59              for (i=0; dec_len>0; i++)
+     60              {
+     61                  *(dest+i) = tmp_data[dec_len-1]+'0';
+     62                  dec_len--;
+     63              }
+     64              return cnt;
+     65          }
+     66          
+     67          // Convert two byte string to hex
+     68          uint8_t StrtoHex(uint8_t *data)
+     69          {
+     70             uint8_t ret = 0;
+     71          
+     72             if ((*(data) >= 'a') && (*(data) <= 'f'))
+     73             {
+     74                 ret = ((*data - 'a'+10)*16);
+     75             }
+     76             else
+     77             {
+     78                 ret = (*data > '9') ? ((*data - 'A'+10)*16): ((*data - '0')*16); //high
+     79             }
+     80             if ((*(data+1) >= 'a') && (*(data+1) <= 'f'))
+     81             {
+     82                 ret += ((*(data+1) - 'a'+10));
+     83             }
+     84             else
+     85             {
+     86                 ret +=  (*(data+1) > '9') ? (*(data+1) - 'A'+10): (*(data+1) - '0'); //low
+     87             }
+     88          
+     89             return ret;
+     90          }
+     91          
+     92          // Convert string to decimal, not greater than uint32
+     93          uint32_t StrtoDec(uint8_t *data, uint8_t len)
+     94          {
+     95             uint32_t ret = 0;
+     96             uint8_t i = 0;
+     97          
+     98             for(i=0;i<len;i++)
+     99             {
+    100                  ret=ret*10 + *(data+i)-'0';
+    101             }
+    102             return ret;
+    103          }
+    104          
+    105          /*******************************************************************************
+    106          *    Function:  Get_Next_Data_Before_Comma
+    107          *
+    108          *  Parameters:  Tx Message
+    109          *     Returns:  Status
+    110          * Description:  Get_Next_Data_Before_Comma
+    111          *******************************************************************************/
+    112          uint8_t Get_Next_Data_Len_Before_Comma(uint8_t * rx_buf)
+    113          {
+    114              uint8_t len = 0;
+    115                  
+    116              while((*rx_buf != COMMA_CH) &&(*rx_buf != 0))
+    117              {
+    118                  rx_buf++;
+    119          
+    120                  if(len == 0xFF)
+    121          	   break;//break out 
+    122          
+    123                  len++;
+    124              }
+    125              return len;
+    126          }
+    127          
+    128          /*******************************************************************************
+    129          *    Function:  Get_Filed_Data_Pointer
+    130          *
+    131          *  Parameters:  Tx Message
+    132          *     Returns:  Status
+    133          * Description:  Get_Filed_Data_Pointer
+    134          *******************************************************************************/
+    135          uint8_t* Get_Filed_Data_Pointer(uint8_t* rx_buf, uint8_t field)
+    136          {
+    137              uint8_t field_no= 0;
+    138              uint8_t i = 0;
+    139              while(*rx_buf)
+    140              {
+    141                  if(field_no == field)
+    142                  {
+    143                      break;
+    144                  }
+    145                  
+    146                  if(COMMA_CH== *rx_buf)
+    147                  {
+    148                      field_no++;
+    149                  }
+    150                  rx_buf++;
+    151                  if(i == 0xFF)
+    152          	   break;//break out
+    153          
+    154                  i++;
+    155              }
+    156          
+    157              return rx_buf;
+    158          }
+    159          
+    160          uint8_t Is_Leap_Year(uint16_t year)
+    161          {
+    162              if(year%4==0) //必须能被4整除
+    163              {
+    164                  if(year%100==0)
+    165                  {
+    166                      if(year%400==0)return 1;//如果以00结尾,还要能被400整除         
+    167                      else return 0;  
+    168                  } else {
+    169                      return 1;
+    170                  }
+    171              } else {
+    172                  return 0;
+    173              }
+    174          }
+    175          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      28   DECtoStr
+       8   Get_Filed_Data_Pointer
+       0   Get_Next_Data_Len_Before_Comma
+       0   Is_Leap_Year
+       8   StrtoDec
+       0   StrtoHex
+      16   str_float_split
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+     116  DECtoStr
+      48  Get_Filed_Data_Pointer
+      32  Get_Next_Data_Len_Before_Comma
+      66  Is_Leap_Year
+      42  StrtoDec
+      84  StrtoHex
+      94  str_float_split
+
+ 
+ 482 bytes in section .text
+ 
+ 482 bytes of CODE memory
+
+Errors: none
+Warnings: none

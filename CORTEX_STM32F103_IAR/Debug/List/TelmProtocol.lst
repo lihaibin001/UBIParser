@@ -1,0 +1,2584 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:32
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\TelmProtocol.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\TelmProtocol.c
+#        -D VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\TelmProtocol.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\TelmProtocol.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\TelmProtocol.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          /**********************************************************************
+     16           * Include files                                                       
+     17           *********************************************************************/
+     18          #include "standard.h"
+     19          #include "TelmProtocol.h"
+     20          #include "GPRS.h"
+     21          #include "ATProtocol.h"
+     22          #include "ATApp.h"
+     23          #include <stdio.h>
+     24          
+     25          #include "gps.h"
+     26          //#include "Gsensor.h"
+     27          #include "crc_ccitt.h"
+     28          
+     29          #define USE_DEBUG
+     30          #include "Debug.h"
+     31          
+     32          /******************************************************************************
+     33          * Constant and Macro Definitions using #define
+     34          *****************************************************************************/
+     35          /* length definition */
+     36          #define	TELM_INFO_LEN_ACK			(3)
+     37          
+     38          //#define	TELM_INFO_LEN_DATALK			(2)
+     39          
+     40          #define	TELM_INFO_LEN_DEV		(34)
+     41          #define	TELM_INFO_LEN_DRIVE		(26)
+     42          #define	TELM_INFO_LEN_OTA		(13)
+     43          #define TELM_INFO_LEN_BATT (2)
+     44          #define TELM_INFO_LEN_SIM (8)
+     45          #define TELM_INFO_LEN_REMOVAL (20)
+     46          #define TELM_INFO_LEN_GPS_FIX (2)
+     47          #define TELM_INFO_LEN_TRIP (25)
+     48          #define TELM_INFO_LEN_CRASH (6)
+     49          #define TELM_INFO_LEN_DRIVING_BHV (6)
+     50          #define TELM_INFO_LEN_SENSOR (35)
+     51          #define TELM_INFO_LEN_DASHBOARD (3)
+     52          #define TELM_INFO_LEN_TOWING (24)
+     53          
+     54          #define TELM_COMM_LEN_DATA_MAX		(7)
+     55          //#define	TELM_COMM_LEN_HEAD			(TELM_INFO_LEN_VIN + TELM_INFO_LEN_UTC + 2) //
+     56          
+     57          /*DES padding value*/
+     58          #define TELM_INFO_DES_PACK_LEN	    (8)
+     59          #define TELM_INFO_CS_LEN	        (2)
+     60          #define TELM_INFO_PADDING			(0x55)
+     61          
+     62          #define	TELM_ACK_RCV_OK				(0x30)
+     63          #define	TELM_ACK_RCV_NG				(0x31)
+     64          #define	TELM_ACK_EXE_OK				(0x32)
+     65          #define	TELM_ACK_EXE_NG				(0x33)
+     66          
+     67          #define	TELM_INFO_ID_DEV			(0x03)
+     68          #define	TELM_INFO_ID_CONFIG			(0x04)
+     69          #define	TELM_INFO_ID_PWR			(0x05)
+     70          #define	TELM_INFO_ID_ACTIVATE		(0x06)
+     71          #define	TELM_INFO_ID_GPS			(0x07)
+     72          #define	TELM_INFO_ID_RESET			(0x08)
+     73          #define	TELM_INFO_ID_CELLPOS		(0x09)
+     74          #define	TELM_INFO_ID_TOWING		    (0x2C)
+     75          #define	TELM_INFO_ID_REMOVAL		(0x2D)
+     76          #define	TELM_INFO_ID_GPS_FIX		(0x2E)
+     77          #define	TELM_INFO_ID_DASHBOARD		(0x33)
+     78          #define	TELM_INFO_ID_TRIPSUM		(0x3D)
+     79          #define	TELM_INFO_ID_SIM    		(0x40)
+     80          #define	TELM_INFO_ID_OTA    		(0x43)
+     81          #define	TELM_INFO_ID_CRASH    		(0x47)
+     82          #define	TELM_INFO_ID_DRVBHV    		(0x48)
+     83          #define	TELM_INFO_ID_SENSOR    		(0x49)
+     84          #define	TELM_INFO_ID_ERROR    		(0x63)
+     85          
+     86          #define	TELM_COMM_ID_OTA			(0x43)
+     87          #define	TELM_COMM_ID_DEV			(0x03)
+     88          #define	TELM_COMM_ID_CONFIG			(0x04)
+     89          #define	TELM_COMM_ID_BATT			(0x05)
+     90          #define	TELM_COMM_ID_ACTIVATE		(0x06)
+     91          #define	TELM_COMM_ID_GPS			(0x07)
+     92          #define	TELM_COMM_ID_RESET			(0x08)
+     93          
+     94          #define	TELM_INFO_CMD_REQ           (0x01)
+     95          #define	TELM_INFO_CMD_RESP          (0x02)
+     96          #define	TELM_INFO_CMD_EXEC          (0x04)
+     97          
+     98          #define CONFIG_ID_DEV           		(0x01)
+     99          #define CONFIG_ID_ACC           		(0x02)
+    100          #define CONFIG_ID_WAKE          		(0x03)
+    101          #define CONFIG_ID_CRASH         		(0x04)
+    102          #define CONFIG_ID_DRIVE         		(0x05)
+    103          #define CONFIG_ID_GPS           		(0x06)
+    104          #define CONFIG_ID_LOG           		(0x07)
+    105          #define CONFIG_ID_SLEEP         		(0x08)
+    106          #define CONFIG_ID_BATT          		(0x09)
+    107          #define CONFIG_ID_THEFT   			    (0x0A)
+    108          #define CONFIG_ID_TRACKING    		 	(0x0B)
+    109          #define CONFIG_ID_NETWORK      			(0x0C)
+    110          #define CONFIG_IP_WAKEUP_REGULARLY		(0x0D)  /*2917/2/14 LiHaibin add*/
+    111          
+    112          #define OTA_MAX_LEN (258048)
+    113          
+    114          #define MAX_SUPPORTED_PID_PER_PACK (26)
+    115          
+    116          #define SPEED_DETECT_INTERVAL (6) //3S is 6 times.
+    117          #define GPS_UPLOAD_MIN_INTERVAL (3)
+    118          
+    119          #define GPS_UPLOAD_BUFFER_MAX (7)
+    120          #define MAX_BACKUP_GPS_ONE_PACK (7)
+    121          
+    122          #define MAX_GSENSOR_DATA_LEN (192)
+    123          #define MAX_HIGH_G_LEN (96)
+    124          
+    125          #define MAX_EXCEPT_RECORD_BACKUP (70)
+    126          
+    127          #define THEFT_DETECT_VOLT_LOW (115)
+    128          #define TELM_GTIMES_UPLOAD_LIMIT (5)
+    129          
+    130          #define HEADER_STX (0x55)
+    131          #define HEADER_IMEI_FLAG    (1<<7)
+    132          #define HEADER_TS_FLAG      (1<<6)
+    133          #define HEADER_MSGTTL_FLAG  (1<<5)
+    134          #define HEADER_VER          (0x7<<2)
+    135          #define HEADER_CHK_FLAG     (1<<1)
+    136          
+    137          #define MAX_BACKUP_GPS_UPLOAD_NUM (5)
+    138          
+    139          #define RESET_BIT_CONFIG    (1<<4)
+    140          #define RESET_BIT_SENSOR    (1<<3)
+    141          #define RESET_BIT_GSM       (1<<2)
+    142          #define RESET_BIT_GPS       (1<<1)
+    143          #define RESET_BIT_MCU       (0x1)
+    144          
+    145          
+    146          /*********************************************************************/
+    147          /* Enumerations and Structures and Typedefs                          */
+    148          /*********************************************************************/
+    149          /* protocol define */
+    150          
+    151          
+    152          /* Device info */
+    153          typedef union Telm_data_dev_tag
+    154          {
+    155          	uint8_t byte[TELM_INFO_LEN_DEV];
+    156          	struct {
+    157          		uint8_t imei[8];
+    158          		uint8_t dev_type;
+    159          		uint8_t hw_ver[4];
+    160          		uint8_t prtocol_ver;
+    161          		uint8_t sw_ver[4];
+    162          		uint8_t lac[2];
+    163          		uint8_t cell_id[2];
+    164          		uint8_t csq;
+    165          		uint8_t netreg;
+    166          		uint8_t phone_type[10];
+    167          	} structData;
+    168          } Telm_Data_Dev;
+    169          
+    170          /* Drive info */
+    171          typedef union Telm_data_gps_tag
+    172          {
+    173          	uint8_t byte[TELM_INFO_LEN_DRIVE];
+    174          	struct {
+    175                  uint8_t timestamp[4];
+    176          		uint8_t latitude[4];
+    177          		uint8_t longitude[4];
+    178          		uint8_t altitude[4];
+    179                  uint8_t valid_flag;
+    180                  uint8_t cog[2];
+    181                  uint8_t speed;
+    182                  uint8_t used_sat_num;
+    183                  uint8_t pdop;
+    184                  uint8_t lac[2];
+    185                  uint8_t cell_id[2];
+    186          	} structData;
+    187          } Telm_Data_GPS;
+    188          
+    189          /* Exception */
+    190          
+    191          /* OTA command */
+    192          typedef union Telm_data_ota_tag
+    193          {
+    194          	uint8_t byte[TELM_INFO_LEN_OTA];
+    195          	struct {
+    196                  uint8_t ota_status;
+    197                  uint8_t target_ver[4];
+    198                  uint8_t download_index[4];
+    199                  uint8_t download_bytes[4];
+    200          	} structData;
+    201          } Telm_Data_Ota;
+    202          
+    203          /* OTA check */
+    204          
+    205          
+    206          typedef union Telm_data_batt_tag
+    207          {
+    208          	uint8_t byte[TELM_INFO_LEN_BATT];
+    209          	struct {
+    210                      uint8_t power_status;
+    211                      uint8_t voltage;
+    212          	} structData;
+    213          }Telm_Data_Batt;
+    214          
+    215          typedef union Telm_data_trip_tag
+    216          {
+    217          	uint8_t byte[TELM_INFO_LEN_TRIP];
+    218          	struct {
+    219                  uint8_t trip_status;
+    220                  uint8_t trip_start_time[4];
+    221                  uint8_t trip_start_odo[4];
+    222                  uint8_t trip_mileage[4];
+    223                  uint8_t avg_speed;
+    224                  uint8_t trip_end_time[4];
+    225                  uint8_t trip_end_odo[4];
+    226                  uint8_t accel_num;
+    227                  uint8_t brake_num;
+    228                  uint8_t fturn_num;
+    229          	} structData;
+    230          }Telm_Data_Trip;
+    231          
+    232          typedef union Telm_data_crash_tag
+    233          {
+    234          	uint8_t byte[TELM_INFO_LEN_CRASH];
+    235          	struct {
+    236                  uint8_t crash_id;
+    237                  uint8_t crash_time[4];
+    238                  uint8_t crash_gps_num;
+    239          	} structData;
+    240          }Telm_Data_Crash;
+    241          
+    242          typedef union Telm_data_driving_bhv_tag
+    243          {
+    244          	uint8_t byte[TELM_INFO_LEN_DRIVING_BHV];
+    245          	struct {
+    246                  uint8_t bhv_time[4];
+    247                  uint8_t bhv_gps_num;
+    248          	} structData;
+    249          }Telm_Data_Driving_Bhv;
+    250          
+    251          typedef union Telm_data_sensor_tag
+    252          {
+    253          	uint8_t byte[TELM_INFO_LEN_SENSOR];
+    254          	struct {
+    255                  uint8_t sensor_type;
+    256                  uint8_t timestamp[4];
+    257          		uint8_t latitude[4];
+    258          		uint8_t longitude[4];
+    259          		uint8_t altitude[4];
+    260                  uint8_t valid_flag;
+    261                  uint8_t cog[2];
+    262                  uint8_t speed;
+    263                  uint8_t used_sat_num;
+    264                  uint8_t pdop;
+    265                  uint8_t lac[2];
+    266                  uint8_t cell_id[2];
+    267                  uint8_t capture_time[4];
+    268                  uint8_t capture_duration;
+    269                  uint8_t package_num;
+    270                  uint8_t sensor_setting;
+    271          	} structData;
+    272          }Telm_Data_Sensor;
+    273          
+    274          typedef union Telm_data_dashboard_tag
+    275          {
+    276          	uint8_t byte[TELM_INFO_LEN_DASHBOARD];
+    277          	struct {
+    278                  uint8_t acc_status;
+    279                  uint8_t window;
+    280                  uint8_t door;
+    281          	} structData;
+    282          }Telm_Data_Dashboard;
+    283          
+    284          typedef union Telm_data_removal_tag
+    285          {
+    286          	uint8_t byte[TELM_INFO_LEN_REMOVAL];
+    287          	struct {
+    288                  uint8_t timestamp[4];
+    289                  uint8_t latitude[4];
+    290                  uint8_t longitude[4];
+    291                  uint8_t altitude[4];
+    292                  uint8_t valid;
+    293                  uint8_t external_voltage[2];
+    294                  uint8_t internal_voltage;
+    295          	} structData;
+    296          }Telm_Data_Removal;
+    297          
+    298          typedef union Telm_data_gps_fix_tag
+    299          {
+    300          	uint8_t byte[TELM_INFO_LEN_GPS_FIX];
+    301          	struct {
+    302                  uint8_t fix_time[2];
+    303          	} structData;
+    304          }Telm_Data_GPS_Fix;
+    305          
+    306          typedef union Telm_data_towing_tag
+    307          {
+    308          	uint8_t byte[TELM_INFO_LEN_TOWING];
+    309          	struct {
+    310                  uint8_t timestamp[4];
+    311                  uint8_t latitude[4];
+    312                  uint8_t longitude[4];
+    313                  uint8_t altitude[4];
+    314                  uint8_t valid;
+    315                  uint8_t heading[2];
+    316                  uint8_t speed;
+    317                  uint8_t lac[2];
+    318                  uint8_t cell_id[2];
+    319          	} structData;
+    320          }Telm_Data_Towing;
+    321          
+    322          
+    323          /* Server Command Head */
+    324          typedef struct Telm_command_normal_struct_tag
+    325          {
+    326             uint8_t devId[TELM_INFO_LEN_DEVID];
+    327             uint8_t server_utc_time[TELM_INFO_LEN_UTC];
+    328             uint8_t cmdID;
+    329             uint8_t cmdLen;
+    330             uint8_t byte[TELM_COMM_LEN_DATA_MAX];
+    331          } Telm_Command_Normal_Struct;
+    332          
+    333          /* Server Command */
+    334          typedef union Telm_command_normal_tag
+    335          {
+    336          	Telm_Command_Normal_Struct	normal;
+    337          } Telm_Command;
+    338          
+    339          /* telmatics info encode function type */
+    340          typedef uint16_t (*Telm_Info_Encode_Fun)(Telm_Upload_Info const *uploadInfo, uint8_t multiple, uint8_t *const encoded, uint16_t bufSize);
+    341          
+    342          typedef struct InitFlag_Sct_tag
+    343          {
+    344              uint8_t init_flag[4];
+    345          }InitFlag_Sct_t;
+    346          
+    347          typedef struct Gps_Backup_Ctrl_tag
+    348          {
+    349              uint8_t store_pos;
+    350              uint8_t read_pos;
+    351          }Gps_Backup_Ctrl_t;
+    352          
+    353          
+    354          typedef struct Car_Status_Except_tag
+    355          {
+    356              uint8_t upload;
+    357              uint8_t status;
+    358          }Car_Status_Except_t;
+    359          
+    360          
+    361          /**********************************************************************
+    362           * Function Prototypes for Private Functions with File Level Scope
+    363           *********************************************************************/
+    364          /* preprocess for recieved data */
+    365          static uint16_t prvTelmProt_Decode_Remap(uint8_t * const buf,uint16_t* len);
+    366          static uint16_t	prvTelmProt_getPackageLen(uint8_t *data,uint16_t len);
+    367          /* sequence control of protocol level */
+    368          static void prvTelmProt_Return_Result(bool result);
+    369          /* function of encode */
+    370          static uint16_t prvTelmProt_Encode(Telm_Upload_Info_Request const* uploadReq, Telm_Upload_Info const * uploadInfo, uint8_t * const data, uint16_t bufSize);
+    371          static uint8_t prvTelmProt_Encode_Header(Telm_Upload_Info const * uploadInfo, uint8_t* const encoded, uint16_t len);
+    372          static uint8_t prvTelmProt_Encode_Chk(uint8_t *checksum, uint8_t *const encoded, uint16_t size);
+    373          
+    374          static uint16_t prvTelmProt_Encode_Dev(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    375          static uint16_t prvTelmProt_Encode_Drive_Behavior(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    376          static uint16_t prvTelmProt_Encode_GPS(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    377          static uint16_t prvTelmProt_Encode_Get_OTA(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    378          static uint16_t prvTelmProt_Encode_Backup_GPS(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    379          static uint16_t prvTelmProt_Encode_Ota_Check(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    380          static uint16_t prvTelmProt_Encode_Cell_Loc(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    381          static uint16_t prvTelmProt_Encode_Batt(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    382          static uint16_t prvTelmProt_Encode_Trip(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    383          static uint16_t prvTelmProt_Encode_Towing(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    384          static uint16_t prvTelmProt_Encode_Activation(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    385          static uint16_t prvTelmProt_Encode_Sim(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    386          static uint16_t prvTelmProt_Encode_Removal(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    387          static uint16_t prvTelmProt_Encode_Config(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    388          static uint16_t prvTelmProt_Encode_GPS_Fix(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    389          static uint16_t prvTelmProt_Encode_Crash(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    390          static uint16_t prvTelmProt_Encode_Sensor(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    391          static uint16_t prvTelmProt_Encode_Dashboard(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize);
+    392          
+    393          static uint16_t prvTelmProt_Encode_Remap(uint8_t * const buff,uint16_t len, uint16_t bufSize);
+    394          #ifdef TCOM_DATA_DES_ENCDEC
+    395          static uint8_t prvTelmProt_DES_EncPadding(uint8_t * const buf,const uint8_t len);
+    396          static void prvTelmProt_DES_Dec(uint8_t * const buf,const uint16_t len);
+    397          #endif
+    398          /* function of decode */
+    399          static bool prvTelmProt_parse_header(uint8_t const * const data, uint8_t *service_data, uint16_t *data_len);
+    400          static void prvTelmProt_DecodeAndHandleCmd(uint8_t *data, uint16_t len);
+    401          static void prvTelmProt_DecodeAndHandleAck(uint8_t *data);
+    402          static bool prvTelmProt_Decode_Command(uint8_t const * const data, uint16_t len, Telm_Rcvd_Command * const decoded);
+    403          static void prvTelmProt_commandAckSend(AT_Cmd_Res res);
+    404          static void Update_OTAHeader(void);
+    405          
+    406          static void TelmProt_Get_Travel_Summary(Telm_Data_Trip *data);
+    407          
+    408          /**********************************************************************
+    409           * Variables with File Level Scope
+    410           *********************************************************************/
+    411          /* variable to store hdr of last command which is needed 
+    412          	to send back the ack to server  */
+    413          static uint8_t  telm_last_hdr;
+    414          static uint8_t	ipData[TCP_TX_MAX_LEN];
+    415          static uint16_t	dataLen;
+    416          static Telm_Rcvd_Command telm_last_command;
+    417          static uint8_t vehicle_speed = 0;
+    418          
+    419          static uint8_t speed_buf[10];
+    420          uint8_t speed_buf_start = 0;
+    421          uint8_t speed_buf_tail = 0;
+    422          static uint8_t speed_abnormal[3];
+    423          
+    424          #ifdef TCOM_DATA_DES_ENCDEC
+    425          uint8_t enc_data[8];
+    426          uint8_t enc_cipher_data[8];
+    427          uint8_t enc_dencrypt_data[8];
+    428          uint8_t enc_key_made; // If the byte is 1: it means the enc key has made ok.
+    429          uint8_t enc_key_56bits[56];
+    430          uint8_t enc_sub_keys[16][48];
+    431          #endif
+    432          
+    433          
+    434          static OTAHdr_Sct_t ota_header_info;
+    435          
+    436          __no_init uint8_t car_battery_status ; /* 0=normal, 1=car battery low,2=warning message is sent*/
+    437          
+    438          static uint16_t config_upload_id=1;
+    439          static uint8_t ota_packet_flag = 0;
+    440          
+    441          /**********************************************************************
+    442           * Private variable with File Level Scope
+    443           *********************************************************************/
+    444          Telm_Upload_Info			lastInfo;
+    445          
+    446          static const Telm_Info_Encode_Fun telm_info_encode_table[] =
+    447          {
+    448              prvTelmProt_Encode_Dev,       /* Device information 					*/
+    449              prvTelmProt_Encode_Drive_Behavior,       /* Drive Behavior information 					*/
+    450              prvTelmProt_Encode_Get_OTA, /* OTA request */
+    451              prvTelmProt_Encode_Ota_Check, /* OTA check trigger */
+    452              prvTelmProt_Encode_GPS,       /* GPS information 					*/
+    453              prvTelmProt_Encode_Backup_GPS,       /* Backup GPS information 					*/
+    454              prvTelmProt_Encode_Trip, /* Travel summary message */
+    455              prvTelmProt_Encode_Cell_Loc, /* Cell location data message */
+    456              prvTelmProt_Encode_Batt, /* Sleep battery data message */
+    457          	prvTelmProt_Encode_Towing,	/* Towing data 					*/
+    458              prvTelmProt_Encode_Activation, /* Activation status */
+    459              prvTelmProt_Encode_Sim, /* SIM imsi */
+    460              prvTelmProt_Encode_Removal, /* Remove alarm */
+    461              prvTelmProt_Encode_Config, /* Config data */
+    462              prvTelmProt_Encode_GPS_Fix, /* GPS first fix time */
+    463              prvTelmProt_Encode_Crash, /* Crash information 		*/
+    464              prvTelmProt_Encode_Sensor, /* Sensor data		*/
+    465              prvTelmProt_Encode_Dashboard, /* Acc status		*/
+    466          };
+    467          
+    468          /*******************************************************************************
+    469          *    Function: vTelmProt_UploadInfo
+    470          *
+    471          *  Parameters: Telm_Upload_Info_Request : data upload request
+    472          *  Parameters: Telm_Upload_Info : data to upload
+    473          *     Returns: true:start send process, false: decode error, do not upload data.
+    474          * Description: interface for telematics app to send the upload command
+    475          *******************************************************************************/
+    476          extern bool vTelmProt_UploadInfo(Telm_Upload_Info_Request const * const req,Telm_Upload_Info const * const info)
+    477          {
+    478              /* clear last sent data */
+    479              memset(ipData, 0x00, sizeof(ipData));
+    480              dataLen = 0;
+    481              /* encode information to byte array according to protocol */
+    482              dataLen = prvTelmProt_Encode(req,info,ipData,TCP_TX_MAX_LEN);
+    483              /* send data by tcp/ip to server */
+    484          
+    485              /*Encoded data check*/
+    486              if (dataLen > TCP_TX_MAX_LEN)
+    487              {
+    488                  DEBUG_PRINT1(DEBUG_HIGH, "[2G]: Exceed max send length [%d]!\n\r", dataLen);
+    489                  return false;
+    490              }
+    491              else if (dataLen == 0)
+    492              {
+    493                  DEBUG_PRINT0(DEBUG_HIGH,"[2G]: empty message sent!\n\r");
+    494                  return false;
+    495              }
+    496              else
+    497              {
+    498                  vATApp_IPSEND_Excute(ipData,dataLen, NULL);
+    499              }
+    500              return true;
+    501          }
+    502          
+    503          /*******************************************************************************
+    504           *    Function: vTelmProt_informData
+    505           *
+    506           *  Parameters: uint8_t : recieved data
+    507           *  Parameters: len : length of recieved data
+    508           *     Returns: None
+    509           * Description: interface for network tranciever modual to inform the arrival of
+    510           *				new data
+    511           *******************************************************************************/
+    512          extern void	vTelmProt_informData(uint8_t const *data, uint16_t len)
+    513          {
+    514              uint16_t dataLen;
+    515              uint8_t srv_data[1100];
+    516              if (false == prvTelmProt_parse_header(data, srv_data, &len))
+    517                  return;
+    518          
+    519              while (len > 0)
+    520              {
+    521                  /*Get the current packet from the received buffer*/
+    522                  dataLen = prvTelmProt_getPackageLen(srv_data, len);
+    523                      /* handle command package SERVER_REQ_CMD*/
+    524          //            dataLen = prvTelmProt_Decode_Remap((uint8_t *)data, &len);
+    525                  prvTelmProt_DecodeAndHandleCmd(srv_data,dataLen-1);
+    526                  /* Buffer change to the start of the next packet in recieved data */
+    527                  data += dataLen;
+    528                  len -= dataLen;
+    529              }
+    530          }
+    531          
+    532          /*******************************************************************************
+    533           *    Function:  prvTelmProt_Decode_Remap
+    534           *
+    535           *  Parameters:  uint8_t * const:buffer to remap
+    536           *  Parameters:  uint8_t :length to remap
+    537           *  Parameters:  uint8_t :max length of buffer
+    538           *     Returns:  None
+    539           * Description:  
+    540           *******************************************************************************/
+    541          static uint16_t prvTelmProt_Decode_Remap(uint8_t * const buf,uint16_t *len)
+    542          {
+    543              uint16_t i = 0;
+    544              return i;
+    545          }
+    546          
+    547          /*******************************************************************************
+    548           *    Function: prvTelmProt_getPackageLen
+    549           *
+    550           *  Parameters: uint8_t : recieved data
+    551           *  Parameters: len : length of recieved data
+    552           *     Returns: None
+    553           * Description: calculate the length of recieved package by searching 0x1C
+    554           *******************************************************************************/
+    555          static uint16_t	prvTelmProt_getPackageLen(uint8_t *data, uint16_t len)
+    556          {
+    557              uint16_t ret = 0;
+    558              uint8_t ext_bit=*(data+2)&0x1;
+    559              if (ext_bit)
+    560              {
+    561                  ret = (*(data+2)>>1) + (*(data+3)<<7);
+    562                  ret+=4;
+    563              }
+    564              else
+    565              {
+    566                  ret = (*(data+2)>>1);
+    567                  ret+=3;
+    568              }
+    569          
+    570              return ret;
+    571          }
+    572          
+    573          void Clear_OTASector(void)
+    574          {
+    575              sFLASH_EraseSector(OTA_LIVE_HEADER_ADDR);
+    576          }
+    577          
+    578          void Load_OTAHeader(void)
+    579          {
+    580              sFLASH_ReadBuffer(ota_header_info.byte, OTA_LIVE_HEADER_ADDR, sizeof(ota_header_info));
+    581          }
+    582          
+    583          static void Update_OTAHeader(void)
+    584          {
+    585              Clear_OTASector();
+    586              sFLASH_WriteBuffer(ota_header_info.byte, OTA_LIVE_HEADER_ADDR, sizeof(ota_header_info));
+    587          }
+    588          
+    589          static void prvTelmProt_ParseConfig(uint8_t *data, uint16_t len)
+    590          {
+    591              uint8_t config_ver[2];
+    592              uint16_t config_id=(*(data+2)<<8)+(*(data+3));
+    593              uint8_t new_config_flag=0;
+    594              static Config_t cfg;
+    595              Get_config_data(&cfg);
+    596              config_ver[0]=*data;
+    597              config_ver[1]=(*(data+1));
+    598              DEBUG_PRINT0(DEBUG_MEDIUM,"[IOT]: Get Configure info!\n\r");
+    599              // check config id
+    600              if ((cfg.structData.config_ver[0]!= config_ver[0]) || (cfg.structData.config_ver[1]!= config_ver[1]))
+    601              {
+    602                  DEBUG_PRINT0(DEBUG_MEDIUM,"[IOT]: New config version!\n\r");
+    603                  new_config_flag=1;
+    604                  cfg.structData.config_ver[0]=config_ver[0];
+    605                  cfg.structData.config_ver[1]=config_ver[1];
+    606              }
+    607              switch(config_id)
+    608              {
+    609                  case CONFIG_ID_DEV:
+    610                      break;
+    611                  case CONFIG_ID_ACC:
+    612                      break;
+    613                  case CONFIG_ID_WAKE:
+    614                      if (len<7)
+    615                          return;
+    616                      cfg.structData.wakeup_lasting_time[0]=*(data+4);
+    617                      cfg.structData.wakeup_lasting_time[1]=*(data+5);
+    618                      cfg.structData.data_resend_times=*(data+6);
+    619                      break;
+    620                  case CONFIG_ID_CRASH:
+    621                      break;
+    622                  case CONFIG_ID_DRIVE:
+    623                      break;
+    624                  case CONFIG_ID_GPS:
+    625                      if (len<9)
+    626                          return;
+    627                      cfg.structData.GPS_upload_interval=*(data+4);
+    628                      cfg.structData.GPS_record_mileage[0]=*(data+5);
+    629                      cfg.structData.GPS_record_mileage[1]=*(data+6);
+    630                      cfg.structData.GPS_record_interval=*(data+7);
+    631                      cfg.structData.GPS_record_turning=*(data+8);
+    632                      break;
+    633                  case CONFIG_ID_LOG:
+    634                      break;
+    635                  case CONFIG_ID_SLEEP:
+    636                      if (len<7)
+    637                          return;
+    638                      cfg.structData.sleep_time[0]=*(data+4);
+    639                      cfg.structData.sleep_time[1]=*(data+5);
+    640                      cfg.structData.network_fail_sleep_time=*(data+6);
+    641                      break;
+    642                  case CONFIG_ID_BATT:
+    643                      if (len<6)
+    644                          return;
+    645                      cfg.structData.external_low_voltage_threshold=*(data+4);
+    646                      cfg.structData.internal_low_voltage_threshold=*(data+5);
+    647                      break;
+    648                  case CONFIG_ID_THEFT:
+    649                      break;
+    650                  case CONFIG_ID_TRACKING:
+    651                      if (len<8)
+    652                          return;
+    653                      cfg.structData.tracking_mode_on_time[0]=*(data+4);
+    654                      cfg.structData.tracking_mode_on_time[1]=*(data+5);
+    655                      cfg.structData.tracking_mode_sleep_time[0]=*(data+6);
+    656                      cfg.structData.tracking_mode_sleep_time[1]=*(data+7);
+    657                      break;
+    658                  case CONFIG_ID_NETWORK:
+    659                      if (len<42)
+    660                          return;
+    661                      cfg.structData.network_connection_retain_time=*(data+4);
+    662                      memcpy(cfg.structData.network_connection_port,data+5,2);
+    663                      memcpy(cfg.structData.network_connection_IP,data+7,16);
+    664                      memcpy(cfg.structData.network_connection_APN,data+23,20);
+    665                      break;
+    666          		/******************
+    667          		 * 2017/2/14
+    668          		 * LiHaibin modify
+    669          		 * Add wake up regularly mode*/
+    670                  case CONFIG_IP_WAKEUP_REGULARLY:
+    671                  	if(len < 3){
+    672                  		return;
+    673                  	}
+    674          			if(((uint32_t)(*(data + 5) & 0x000000FF ) <= 23) && \
+    675          					((uint32_t)(*(data + 6) & 0x000000FF) <= 59))
+    676                      { //verify time format
+    677          				//time legitimacy
+    678          	        	cfg.structData.wakeup_type = *(data + 4); //extract wake up mode
+    679          	        	cfg.structData.wakeup_timeHour = *(data + 5); //extract wake up time hour value.
+    680          	        	cfg.structData.wakeup_timeMinute = *(data + 6);
+    681          			}
+    682          
+    683                  	break;
+    684                  default:
+    685                      break;
+    686              }
+    687              // set config
+    688              if (new_config_flag)
+    689              {
+    690                  Set_Config(cfg);
+    691              }
+    692          }
+    693          
+    694          static void prvTelmProt_ParseConfigReq(uint8_t *data, uint16_t len)
+    695          {
+    696              if (len >=2)
+    697              {
+    698                  uint16_t config_id=(*(data)<<8)+(*(data+1));
+    699                  config_upload_id=config_id;
+    700                  OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_CONFIG_UPLOAD, 1));
+    701              }
+    702          }
+    703          
+    704          static void prvTelmProt_ParseOTA(uint8_t *data, uint16_t length)
+    705          {
+    706              uint16_t total_num = 0;
+    707              uint16_t cur_num = 0;
+    708              uint32_t data_len = 0;
+    709              uint32_t i=0;
+    710              uint32_t checksum = 0;
+    711              uint32_t tmp_checksum = 0;
+    712              uint8_t  ota_ctl=0;
+    713              uint8_t target_ver[4];
+    714              uint32_t total_bytes = 0;
+    715          
+    716              uint16_t tmp_num;
+    717              //uint16_t tmp_total;
+    718          
+    719              ota_ctl=*(data);
+    720              memcpy(target_ver, data+1, 4);
+    721              total_bytes = (*(data+5)<<24)+(*(data+6)<<16)+(*(data+7)<<8)+(*(data+8));
+    722              total_num = (*(data+9)<<8) + (*(data+10));
+    723              cur_num = (*(data+11)<<8) + (*(data+12));
+    724              data_len = (*(data+13)<<8) + (*(data+14));
+    725              DEBUG_PRINT1(DEBUG_MEDIUM,"[2G]: OTA package num [%d]!\n\r", cur_num);
+    726              TelmProt_Set_New_OTA(0);
+    727              tmp_num = (ota_header_info.structData.ota_current_package_index[0]<<8) + (ota_header_info.structData.ota_current_package_index[1]);
+    728              if ((tmp_num + 1 != cur_num) && (0 != cur_num))
+    729              {//the packet is must the (current +1), or 0.
+    730                  DEBUG_PRINT1(DEBUG_HIGH, "[2G]: OTA package num is not the expected num [%d] , discard the packet!\n\r",tmp_num + 1);
+    731                  return;
+    732              }
+    733              else if(cur_num > total_num)
+    734              {//the packet num is must less than total.
+    735                  DEBUG_PRINT1(DEBUG_HIGH, "[2G]: OTA package num is exceed total num [%d] , discard the packet!\n\r",total_num);
+    736                  return;
+    737              }
+    738              //Get the ota data length.
+    739              uint32_t len = (ota_header_info.structData.ota_downloaded_bytes[0] << 24) +
+    740                             (ota_header_info.structData.ota_downloaded_bytes[1] << 16) +
+    741                             (ota_header_info.structData.ota_downloaded_bytes[2] << 8) +
+    742                             (ota_header_info.structData.ota_downloaded_bytes[3] << 0);
+    743          
+    744              if (total_num > 0)
+    745              {
+    746          //        if ((ota_header_info.structData.ota_start[0] == (START_OTA_FLAG & 0xff)) && 
+    747          //            (ota_header_info.structData.ota_start[1] == ((START_OTA_FLAG>>8) & 0xff)))
+    748                  if ((ota_ctl != OTA_FLAG_START) || (cur_num > 0))
+    749                  {
+    750                      if (cur_num == 0)
+    751                      {//Packet 0: start to download( ota_start is not set), or resume download( ota_start is set)
+    752                          ota_header_info.structData.ota_ctrl=OTA_FLAG_START;
+    753                          ota_header_info.structData.ota_total_package[0]=(total_num>>8) & 0xff;
+    754                          ota_header_info.structData.ota_total_package[1]=(total_num) & 0xff;
+    755                          if ((ota_header_info.structData.ota_target_ver[0] != target_ver[0]) ||
+    756                              ota_header_info.structData.ota_target_ver[1] != target_ver[1])
+    757                          {
+    758          //                    ota_header_info.structData.ota_start[0] = 0;
+    759          //                    ota_header_info.structData.ota_start[1] = 0;
+    760                              ota_header_info.structData.ota_ctrl=OTA_FLAG_END;
+    761                              Clear_OTASector();
+    762                              return;
+    763          //                    goto __OTA_RESTART;
+    764                          }
+    765                          GPRS_Set_FMUpgrade_state(1);
+    766                          return;
+    767                      }
+    768                      else if (cur_num == total_num)
+    769                      {//Packet sum: Only checksum, no flash data.Compare the checksum to check the entire download data.
+    770                          uint8_t flash_data;
+    771                          uint32_t flash_checksum = 0;
+    772                          ota_header_info.structData.ota_ctrl = ota_ctl;
+    773          
+    774                          if (data_len<2)
+    775                              return;
+    776                          if (data_len > 2)
+    777                          {
+    778                              tmp_checksum = 0;
+    779                              tmp_checksum = crc_ccitt(tmp_checksum,(data+15),data_len);
+    780                              flash_checksum = (*(data+15+data_len)<<8) + *(data+15+data_len+1);
+    781                              len += (data_len);
+    782                              sFLASH_WriteBuffer(data+15,OTA_DATA_ADDR+len-(data_len),data_len);
+    783                              OS_Sleep(MSec_To_Ticks(100));
+    784                              sFLASH_ReadBuffer(data+15,OTA_DATA_ADDR+len-(data_len),data_len);
+    785                              checksum = 0;
+    786                              checksum = crc_ccitt(checksum,(data+15),data_len);
+    787                              if (checksum != tmp_checksum)
+    788                              {
+    789                                  DEBUG_PRINT2(DEBUG_HIGH,"[Upgrade]:Wrong checksum, restart [%x,%x]!\n\r",checksum,tmp_checksum);
+    790                                  ota_header_info.structData.ota_ctrl=OTA_FLAG_END;
+    791                                  Clear_OTASector();
+    792                                  return;
+    793          //                        goto __OTA_RESTART;
+    794                              }
+    795                              else
+    796                              {                  
+    797                                  ota_header_info.structData.ota_downloaded_bytes[3] = len & 0xff;
+    798                                  ota_header_info.structData.ota_downloaded_bytes[2] = (len>>8) & 0xff;
+    799                                  ota_header_info.structData.ota_downloaded_bytes[1] = (len>>16) & 0xff;
+    800                                  ota_header_info.structData.ota_downloaded_bytes[0] = (len>>24) & 0xff;                    
+    801                              }
+    802                              DEBUG_PRINT1(DEBUG_MEDIUM,"[2G]: OTA datalen [%x]\n\r", len);
+    803                          }
+    804                          Update_OTAHeader();
+    805          
+    806          //                flash_checksum = (*(data+15+data_len-2)<<8) + *(data+15+data_len-1);
+    807                          tmp_checksum = 0x0;
+    808                          for (i=0;i<total_bytes;i++)
+    809                          {
+    810                              sFLASH_ReadBuffer(&flash_data, OTA_DATA_ADDR+i, 1);
+    811                              tmp_checksum = crc_xmodem(tmp_checksum,&flash_data,1);
+    812                              if( 0 == i%1000)
+    813                                  Feed_Dog();
+    814                          }
+    815                          if (flash_checksum != tmp_checksum)
+    816                          {
+    817                              DEBUG_PRINT2(DEBUG_HIGH, "[OTA] Flash checksum error! [server:%x,flash:%x]\n\r",flash_checksum,tmp_checksum);
+    818          //                    ota_header_info.structData.ota_start[0] = 0;
+    819          //                    ota_header_info.structData.ota_start[1] = 0;
+    820                              ota_header_info.structData.ota_ctrl=OTA_FLAG_END;
+    821                              Clear_OTASector();
+    822                              return;
+    823          //                    goto __OTA_RESTART;
+    824                          }
+    825          
+    826          //                sFLASH_WriteBuffer(ota_header_info.byte, OTA_HEADER_ADDR, sizeof(ota_header_info));
+    827          //                OS_Sleep(MSec_To_Ticks(1000));
+    828          //                sFLASH_ReadBuffer(ota_header_info.byte, OTA_HEADER_ADDR, sizeof(ota_header_info));
+    829          //                Clear_OTASector();
+    830          //                sFLASH_EraseSector(GPS_BACKUP_ADDR);
+    831                          DEBUG_PRINT1(DEBUG_HIGH,"[Upgrade]:Finished ! CS = [%x]\n\r", flash_checksum);
+    832                          OS_Sleep(MSec_To_Ticks(1000));
+    833                          SY_Cold_Start();
+    834                          return; //just in case,the cold start has not been executed!
+    835                      }
+    836                      else
+    837                      {//Packet xx: flash data packet.Save the data in spi flash and verify flash data .
+    838                          ota_header_info.structData.ota_ctrl = ota_ctl;
+    839                          ota_header_info.structData.ota_total_package[1] = total_num & 0xff;
+    840                          ota_header_info.structData.ota_total_package[0] = (total_num>>8) & 0xff;
+    841                          ota_header_info.structData.ota_current_package_index[1] = cur_num & 0xff;
+    842                          ota_header_info.structData.ota_current_package_index[0] = (cur_num>>8) & 0xff;
+    843                          memcpy(ota_header_info.structData.ota_target_ver, data+1, 4);
+    844          
+    845                          tmp_checksum = 0;
+    846                          tmp_checksum = crc_ccitt(tmp_checksum,(data+15),data_len);
+    847          
+    848                          len += data_len;
+    849                          if (len > OTA_MAX_LEN)
+    850                          {
+    851                              DEBUG_PRINT1(DEBUG_HIGH, "[2G]: OTA exceed max length [%x]\n\r",len);
+    852                              GPRS_Set_FMUpgrade_state(0);
+    853                              return;
+    854                          }
+    855          
+    856                          if (data_len > 0)
+    857                          {
+    858                              sFLASH_WriteBuffer(data+15,OTA_DATA_ADDR+len-data_len,data_len);
+    859                              OS_Sleep(MSec_To_Ticks(100));
+    860                              sFLASH_ReadBuffer(data+15,OTA_DATA_ADDR+len-data_len,data_len);
+    861                              checksum = 0;
+    862                              checksum = crc_ccitt(checksum,(data+15),data_len);
+    863                              if (checksum != tmp_checksum)
+    864                              {
+    865                                  DEBUG_PRINT2(DEBUG_HIGH,"[Upgrade]:Wrong checksum, restart [%x,%x]!\n\r",checksum,tmp_checksum);
+    866                                  ota_header_info.structData.ota_ctrl=OTA_FLAG_END;
+    867                                  Clear_OTASector();
+    868                                  return;
+    869          //                        goto __OTA_RESTART;
+    870                              }
+    871                              else
+    872                              {
+    873                                  ota_header_info.structData.ota_downloaded_bytes[3] = len & 0xff;
+    874                                  ota_header_info.structData.ota_downloaded_bytes[2] = (len>>8) & 0xff;
+    875                                  ota_header_info.structData.ota_downloaded_bytes[1] = (len>>16) & 0xff;
+    876                                  ota_header_info.structData.ota_downloaded_bytes[0] = (len>>24) & 0xff;
+    877                              }
+    878                              DEBUG_PRINT1(DEBUG_MEDIUM,"[2G]: OTA datalen [%x]\n\r", len);
+    879                          }
+    880                          Update_OTAHeader();
+    881                          GPRS_Set_FMUpgrade_state(1);
+    882                          OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_OTA, 1));
+    883                      }
+    884                  }
+    885                  else
+    886                  {
+    887          //            __OTA_RESTART:
+    888                      if (cur_num != 0)
+    889                      {
+    890                          GPRS_Set_FMUpgrade_state(0);
+    891                          vATApp_Restart_OTA_Check();
+    892                          //vTelmApp_uploadData(TELM_SEC_EVT_OTACHECK, NULL);
+    893                          return;
+    894                      }
+    895                      else
+    896                      {
+    897                          if (memcmp(target_ver,ota_header_info.structData.ota_target_ver,4)==0)
+    898                          {
+    899                              GPRS_Set_FMUpgrade_state(1);
+    900                              OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_OTA, 1));
+    901                              return;
+    902                          }
+    903                      }
+    904          
+    905                      ota_header_info.structData.ota_ctrl = OTA_FLAG_START;
+    906                      ota_header_info.structData.ota_total_package[0] = (total_num>>8) & 0xff;
+    907                      ota_header_info.structData.ota_total_package[1] = (total_num) & 0xff;
+    908                      ota_header_info.structData.ota_current_package_index[0] = (cur_num>>8) & 0xff;
+    909                      ota_header_info.structData.ota_current_package_index[1] = (cur_num) & 0xff;
+    910                      memcpy(ota_header_info.structData.ota_target_ver, target_ver, 4);
+    911          
+    912                      ota_header_info.structData.ota_total_bytes[0] = (total_bytes>>24) & 0xff;
+    913                      ota_header_info.structData.ota_total_bytes[1] = (total_bytes>>16) & 0xff;
+    914                      ota_header_info.structData.ota_total_bytes[2] = (total_bytes>>8) & 0xff;
+    915                      ota_header_info.structData.ota_total_bytes[3] = total_bytes & 0xff;
+    916          
+    917                      ota_header_info.structData.ota_downloaded_bytes[3] = data_len & 0xff;
+    918                      ota_header_info.structData.ota_downloaded_bytes[2] = (data_len>>8) & 0xff;
+    919                      ota_header_info.structData.ota_downloaded_bytes[1] = (data_len>>16) & 0xff;
+    920                      ota_header_info.structData.ota_downloaded_bytes[0] = (data_len>>24) & 0xff;
+    921          
+    922                      for(i=0;i<0x40;i++)
+    923                      {
+    924                          sFLASH_EraseSector(OTA_DATA_ADDR+i*0x1000);
+    925                      }
+    926                      if (data_len > 0)
+    927                      {
+    928                          sFLASH_WriteBuffer(data+15, OTA_DATA_ADDR, data_len);
+    929                      }
+    930                      Update_OTAHeader();
+    931                      GPRS_Set_FMUpgrade_state(1);
+    932                      OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_OTA, 1));
+    933                  }
+    934              }
+    935          }
+    936          
+    937          static void prvTelmProt_ParseActivate(uint8_t *data, uint16_t len)
+    938          {
+    939              uint8_t old_stat=Get_Activation_Status();
+    940              if (len < 1)
+    941                  return;
+    942              Set_Activation_Status(*data);
+    943              if (*data != old_stat)
+    944              {
+    945                  rl_reset();
+    946              }
+    947          }
+    948          
+    949          static void prvTelmProt_ParseReset(uint8_t *data, uint16_t len)
+    950          {
+    951              if (len<1)
+    952                  return;
+    953              if (*data & RESET_BIT_SENSOR)
+    954              {
+    955                  //nothing to do
+    956              }
+    957              if (*data & RESET_BIT_GSM)
+    958              {
+    959                  //nothing to do
+    960              }
+    961              if (*data & RESET_BIT_GPS)
+    962              {
+    963                  //nothing to do
+    964              }
+    965              if (*data & RESET_BIT_MCU)
+    966              {
+    967                  rl_reset();
+    968              }
+    969              if (*data & RESET_BIT_CONFIG)
+    970              {
+    971                  Reset_default_config();
+    972              }
+    973          }
+    974          
+    975          static void prvTelmProt_ParseData(uint8_t *data, uint16_t len)
+    976          {
+    977              uint16_t service_id = ((*data)<<2)+((*(data+1)>>6) & 0x3);
+    978              uint8_t cmd_type = (*(data+1)>>1) & 0x1f;
+    979              uint8_t len_ext = *(data+2) & 0x1;
+    980              uint16_t data_ptr = 0;
+    981              uint16_t msg_len = 0;
+    982          
+    983              if (len_ext==0)
+    984              {
+    985                  data_ptr=3;
+    986                  msg_len=*(data+2)>>1;
+    987              }
+    988              else
+    989              {
+    990                  data_ptr=4;
+    991                  msg_len=(*(data+2)>>1)+(*(data+3)<<7);
+    992              }
+    993              switch(service_id)
+    994              {
+    995                  case TELM_COMM_ID_DEV:
+    996                      if (cmd_type == TELM_INFO_CMD_REQ)
+    997                      {
+    998                          OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_DEV_UPLOAD, 1));
+    999                      }
+   1000                      break;
+   1001                  case TELM_COMM_ID_BATT:
+   1002                      if (cmd_type == TELM_INFO_CMD_REQ)
+   1003                      {
+   1004                          OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BATT_UPLOAD, 1));
+   1005                      }
+   1006                      break;
+   1007                  case TELM_COMM_ID_OTA:
+   1008                      if (cmd_type == TELM_INFO_CMD_EXEC)
+   1009                      {
+   1010                          prvTelmProt_ParseOTA(data+data_ptr, msg_len);
+   1011                      }
+   1012                      break;
+   1013                  case TELM_COMM_ID_CONFIG:
+   1014                      if (cmd_type == TELM_INFO_CMD_EXEC)
+   1015                      {
+   1016                          prvTelmProt_ParseConfig(data+data_ptr, msg_len);
+   1017                      }
+   1018                      else if (cmd_type == TELM_INFO_CMD_REQ)
+   1019                      {
+   1020                          // send event to upload config data
+   1021                          prvTelmProt_ParseConfigReq(data+data_ptr, msg_len);
+   1022                      }
+   1023                      break;
+   1024                  case TELM_COMM_ID_ACTIVATE:
+   1025                      if (cmd_type == TELM_INFO_CMD_EXEC)
+   1026                      {
+   1027                          prvTelmProt_ParseActivate(data+data_ptr, msg_len);
+   1028                      }
+   1029                      break;
+   1030                  case TELM_COMM_ID_GPS:
+   1031                      if (cmd_type == TELM_INFO_CMD_REQ)
+   1032                      {
+   1033                          // send event to upload GPS
+   1034                          OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_GPS_UPLOAD, 1));
+   1035                      }
+   1036                      break;
+   1037                  case TELM_COMM_ID_RESET:
+   1038                      prvTelmProt_ParseReset(data+data_ptr, msg_len);
+   1039                      break;
+   1040                  default:
+   1041                      break;
+   1042              }
+   1043          }
+   1044          
+   1045          /*******************************************************************************
+   1046          *    Function: prvTelmProt_Return_Result
+   1047          *
+   1048          *  Parameters: bool : result of executing command
+   1049          *     Returns: None
+   1050          * Description: send result of command result to server
+   1051          *******************************************************************************/
+   1052          static void prvTelmProt_Return_Result(bool result)
+   1053          {
+   1054          }
+   1055          
+   1056          /*******************************************************************************
+   1057          *    Function: prvTelmProt_Encode
+   1058          *
+   1059          *  Parameters: Telm_Upload_Info_Request const*:uploading request
+   1060          *  Parameters: Telm_Upload_Info const*:information to upload
+   1061          *     Returns: None
+   1062          * Description: check if there is upload request in the queue and send it
+   1063          *******************************************************************************/
+   1064          static uint16_t prvTelmProt_Encode(Telm_Upload_Info_Request const* uploadReq, Telm_Upload_Info const * uploadInfo, uint8_t * const data, uint16_t bufSize)
+   1065          {
+   1066              uint16_t ptn = 0;
+   1067              uint16_t offset = 0;
+   1068              uint8_t infoIndex = 0;//init index is 0
+   1069              uint16_t tmp_ptn=0;
+   1070              uint8_t tmp_data[TCP_TX_MAX_LEN];
+   1071              uint8_t multiple=0;
+   1072              uint8_t header_len=0;
+   1073          
+   1074          //    DEBUG_PRINT1(DEBUG_MEDIUM,"EVT %d\n\r",uploadReq->evt);
+   1075              /* encode each type of infomation according to protocol */
+   1076              for (infoIndex = 0; infoIndex < TELM_INFO_IN_PACK_MAX_NUM; infoIndex++)
+   1077              {
+   1078                  uint8_t encode_index = uploadReq->reqTable[uploadReq->evt][infoIndex];
+   1079                  multiple=1;
+   1080          //        DEBUG_PRINT1(DEBUG_MEDIUM,"encode %d\n\r",encode_index);
+   1081                  if (encode_index == TELM_INFO_NONE)
+   1082                      break;
+   1083                  if ((encode_index != TELM_INFO_NONE) && (tmp_ptn < bufSize))
+   1084                  {
+   1085                      // Set last encode frame to multiple 0
+   1086                      if ((uploadReq->reqTable[uploadReq->evt][infoIndex+1] == TELM_INFO_NONE) || ((infoIndex+1)>= TELM_INFO_IN_PACK_MAX_NUM))
+   1087                      {
+   1088                          multiple=0;
+   1089                      }
+   1090                      offset = telm_info_encode_table[encode_index-1](uploadInfo,multiple,&tmp_data[tmp_ptn],bufSize - tmp_ptn);
+   1091                      if (offset == 0)
+   1092                      {
+   1093                          DEBUG_PRINT0(DEBUG_HIGH,"[2G]:Encode empty message!\n\r");
+   1094                          return 0;
+   1095                      }
+   1096                      switch(encode_index)
+   1097                      {
+   1098                          case TELM_INFO_DEV:
+   1099                              DEBUG_PRINT0(DEBUG_MEDIUM,"[2G]:Device info sent[mid 3]\n\r");
+   1100                          break;
+   1101                          case TELM_INFO_DRIVE_BHV:
+   1102                              DEBUG_PRINT0(DEBUG_MEDIUM,"[2G]:Exception msg sent[mid 72]\n\r");
+   1103                          break;
+   1104                          case TELM_INFO_OTA:
+   1105                              DEBUG_PRINT0(DEBUG_MEDIUM,"[2G]:OTA request sent[mid 67]\n\r");
+   1106                          break;
+   1107                          case TELM_INFO_OTA_CHECK:
+   1108                              DEBUG_PRINT0(DEBUG_MEDIUM,"[2G]:[mid 67]\n\r");
+   1109                              break;
+   1110                          default:
+   1111                          break;
+   1112                      }
+   1113                      /* add whole CRC */
+   1114                      tmp_ptn += offset;
+   1115                  }
+   1116              }
+   1117              header_len=prvTelmProt_Encode_Header(uploadInfo,data,tmp_ptn);
+   1118              memcpy(data+header_len,tmp_data,tmp_ptn);
+   1119          
+   1120              ptn=tmp_ptn+header_len;
+   1121              prvTelmProt_Encode_Chk(data+ptn,data,ptn);
+   1122              ptn+=1;
+   1123              return ptn;
+   1124          }
+   1125          
+   1126          static uint8_t prvTelmProt_Encode_Chk(uint8_t *checksum, uint8_t *const encoded, uint16_t size)
+   1127          {
+   1128              uint16_t i=0;
+   1129              uint8_t checksum_tmp=0;
+   1130              for (i=0;i<size;i++)
+   1131              {
+   1132                  checksum_tmp=checksum_tmp ^ *(encoded+i);
+   1133              }
+   1134              *checksum=checksum_tmp;
+   1135              return 1;
+   1136          }
+   1137          
+   1138          static uint16_t prvTelmProt_Encode_Dev(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1139          {
+   1140              Telm_Data_Dev* pDev = (Telm_Data_Dev *)(encoded+3);
+   1141          //    uint8_t	i = 0;
+   1142              /* checksum is not included in TELM_INFO_LEN_BODY,so plus 2 */
+   1143              uint16_t ret = TELM_INFO_LEN_DEV + 3;
+   1144              int8_t *hw_ver;
+   1145              int8_t *sw_ver;
+   1146              hw_ver=SY_Hwid();
+   1147              sw_ver=SY_Swid();
+   1148          
+   1149              *encoded = (TELM_INFO_ID_DEV>>2)&0xff;
+   1150              *(encoded+1) = ((TELM_INFO_ID_DEV<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1151              *(encoded+2) = (TELM_INFO_LEN_DEV<<1)&0xff;
+   1152              if (ret <= bufSize)
+   1153              {
+   1154          //        uint32_t hw_ver_tmp=(hw_ver[3]-'0')*10+(hw_ver[1]-'0');
+   1155          //        uint32_t sw_ver_tmp=(sw_ver[15]-'0')*10+(sw_ver[14]-'0');
+   1156                  pDev->structData.hw_ver[0] = '0';
+   1157                  pDev->structData.hw_ver[1] = '0';
+   1158                  pDev->structData.hw_ver[2] = hw_ver[1];
+   1159                  pDev->structData.hw_ver[3] = hw_ver[3];
+   1160                  pDev->structData.sw_ver[0] = sw_ver[7];
+   1161                  pDev->structData.sw_ver[1] = sw_ver[8];
+   1162                  pDev->structData.sw_ver[2] = sw_ver[14];
+   1163                  pDev->structData.sw_ver[3] = sw_ver[15];
+   1164                  pDev->structData.dev_type=1;
+   1165          
+   1166                  memset(pDev->structData.phone_type,0,10);
+   1167                  ATProt_Get_Loc(pDev->structData.lac,pDev->structData.cell_id);
+   1168                  pDev->structData.csq=pcATProt_getRSSI();
+   1169                  pDev->structData.netreg=ATProt_Get_Netreg();
+   1170                  ATProt_Get_Imei(pDev->structData.imei);
+   1171          #ifdef EV_TEST_DATA
+   1172                  {
+   1173                      Self_Diag_T result;
+   1174                      diag_get_result(&result);
+   1175                      pDev->structData.cell_id[0]=0;
+   1176                      pDev->structData.cell_id[1]=result.temp;
+   1177          //            memcpy(pDev->structData.cell_id, result.temp, 2);
+   1178                  }
+   1179          #endif
+   1180              }
+   1181              else
+   1182              {
+   1183                  ret = bufSize;
+   1184              }
+   1185              return ret;
+   1186          }
+   1187          
+   1188          static uint16_t prvTelmProt_Encode_GPS(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1189          {
+   1190          	Telm_Data_GPS* pDrive = (Telm_Data_GPS*)(encoded+5);
+   1191              static gps_data_t gpsInfo;
+   1192              vGps_Get_Gps_Info(&gpsInfo);
+   1193          
+   1194          	/* ID and length, so plus 3 */
+   1195          	uint16_t ret = TELM_INFO_LEN_DRIVE + 5;
+   1196              *encoded = (TELM_INFO_ID_GPS>>2)&0xff;
+   1197              *(encoded+1) = ((TELM_INFO_ID_GPS<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1198              *(encoded+2) = ((TELM_INFO_LEN_DRIVE+2)<<1)&0xff;
+   1199              *(encoded+3) = 0x00;
+   1200              *(encoded+4) = 0x01;
+   1201          	if (ret <= bufSize)
+   1202          	{
+   1203                  uint32_t timestamp=sys_get_cur_sec_offset();
+   1204                  uint16_t speed = (gpsInfo.speed[0]<<8)+gpsInfo.speed[1];
+   1205                  if (!gpsInfo.valid)
+   1206                  {
+   1207          //            timestamp=RTC_GetCounter();
+   1208                      uint8_t clk_tmp[14];
+   1209                      if (0!=ATProt_Get_Clock(clk_tmp))
+   1210                      {
+   1211                          timestamp=sys_get_sec_offset(clk_tmp);
+   1212                      }
+   1213                  }
+   1214          //        DEBUG_PRINT2(DEBUG_MEDIUM,"[GPS Encode][%d.%d]\n\r",timestamp,gpsInfo.valid);
+   1215                  pDrive->structData.timestamp[0]=(timestamp>>24) & 0xff;
+   1216                  pDrive->structData.timestamp[1]=(timestamp>>16) & 0xff;
+   1217                  pDrive->structData.timestamp[2]=(timestamp>>8) & 0xff;
+   1218                  pDrive->structData.timestamp[3]=(timestamp) & 0xff;
+   1219                  memcpy(pDrive->structData.longitude,gpsInfo.longitude,4);
+   1220                  memcpy(pDrive->structData.latitude,gpsInfo.latitude,4);
+   1221                  memcpy(pDrive->structData.altitude,gpsInfo.altitude,4);
+   1222                  pDrive->structData.used_sat_num=gpsInfo.gnss_sat_info.used_sat_num + gpsInfo.bd_sat_info.used_sat_num;
+   1223                  if (false==gpsInfo.valid)
+   1224                      pDrive->structData.valid_flag=0;
+   1225                  else
+   1226                      pDrive->structData.valid_flag=1;
+   1227                  memcpy(pDrive->structData.cog,gpsInfo.cog,2);
+   1228                  if (speed<=255)
+   1229                      pDrive->structData.speed=speed;
+   1230                  else
+   1231                      pDrive->structData.speed=255;
+   1232                  pDrive->structData.pdop=gpsInfo.pdop[1];
+   1233                  ATProt_Get_Loc(pDrive->structData.lac,pDrive->structData.cell_id);
+   1234                  Set_Last_GPS_uploader(1);
+   1235              }
+   1236              else
+   1237              {
+   1238                  ret = bufSize;
+   1239              }
+   1240          
+   1241              return ret;
+   1242          }
+   1243          
+   1244          static uint16_t prvTelmProt_Encode_Drive_Behavior(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1245          {
+   1246              uint16_t ret = 4;
+   1247              uint16_t encode_len=0;;
+   1248              *encoded = (TELM_INFO_ID_DRVBHV>>2)&0xff;
+   1249              *(encoded+1) = ((TELM_INFO_ID_DRVBHV<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1250              encode_len=get_dbe_data(encoded+4,600);
+   1251              ret += encode_len;
+   1252              *(encoded+2) = ((encode_len<<1)&0xff);
+   1253              *(encoded+3) = (encode_len>>7)&0xff;
+   1254              
+   1255              return ret;
+   1256          }
+   1257          
+   1258          static uint16_t prvTelmProt_Encode_Get_OTA(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1259          {
+   1260              Telm_Data_Ota *pOta = (Telm_Data_Ota*)(encoded+3);
+   1261          	uint16_t ret = TELM_INFO_LEN_OTA + 3;
+   1262          //    OTAHdr_Sct_t ota_header;
+   1263          //    Get_OTA_Info(&ota_header);
+   1264          
+   1265          	if (ret <= bufSize)
+   1266          	{
+   1267                  uint32_t package_number = (ota_header_info.structData.ota_current_package_index[0] << 8)+
+   1268                          (ota_header_info.structData.ota_current_package_index[1]);
+   1269                  *encoded = (TELM_INFO_ID_OTA>>2)&0xff;
+   1270                  *(encoded+1) = ((TELM_INFO_ID_OTA<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1271                  *(encoded+2) = (TELM_INFO_LEN_OTA<<1)&0xff;
+   1272                  package_number+=1;
+   1273                  pOta->structData.ota_status=ota_header_info.structData.ota_ctrl;
+   1274                  memcpy(pOta->structData.target_ver,ota_header_info.structData.ota_target_ver,4);
+   1275                  pOta->structData.download_index[0]=package_number>>24;
+   1276                  pOta->structData.download_index[1]=package_number>>16;
+   1277                  pOta->structData.download_index[2]=package_number>>8;
+   1278                  pOta->structData.download_index[3]=package_number & 0xff;
+   1279                  memcpy(pOta->structData.download_bytes,ota_header_info.structData.ota_downloaded_bytes,4);
+   1280          	}
+   1281          	else
+   1282          	{
+   1283          		ret = bufSize;
+   1284          	}
+   1285          	return ret;
+   1286          }
+   1287          
+   1288          static uint16_t prvTelmProt_Encode_Backup_GPS(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1289          {
+   1290              static gps_data_t gpsInfo;
+   1291              static uint8_t upload_num=0;
+   1292              static uint8_t upload_size=0;
+   1293              static uint8_t gps_data_tmp[MAX_BACKUP_GPS_UPLOAD_NUM*sizeof(Telm_Data_GPS)];
+   1294          
+   1295          	/* ID and length, so plus 2 */
+   1296          	uint16_t ret = TELM_INFO_LEN_DRIVE + 5;
+   1297              vGps_Get_Gps_Info(&gpsInfo);
+   1298              *encoded = (TELM_INFO_ID_GPS>>2)&0xff;
+   1299              *(encoded+1) = ((TELM_INFO_ID_GPS<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1300              if (MAX_BACKUP_GPS_UPLOAD_NUM < Get_GPS_Data_Total_Number())
+   1301              {
+   1302                  upload_num=MAX_BACKUP_GPS_UPLOAD_NUM;
+   1303              }
+   1304              else
+   1305              {
+   1306                  upload_num=Get_GPS_Data_Total_Number();
+   1307              }
+   1308          	if (ret <= bufSize)
+   1309          	{
+   1310                  upload_num=Read_GPS_Data(gps_data_tmp,upload_num);
+   1311                  if (upload_num==0)
+   1312                      return 0;
+   1313                  else if (upload_num>MAX_BACKUP_GPS_UPLOAD_NUM)
+   1314                      upload_num=MAX_BACKUP_GPS_UPLOAD_NUM;
+   1315                  Set_GPS_Data_Next_Read_Pointer(upload_num);
+   1316                  upload_size=(upload_num*sizeof(Telm_Data_GPS));
+   1317                  // upload number not greater than 5
+   1318                  if (upload_size>127)
+   1319                  {
+   1320                      *(encoded+2) = (((upload_size+2)<<1)&0xff) | 0x01;
+   1321                      *(encoded+3) = ((upload_size+2)>>7)&0xff;
+   1322                      *(encoded+4) = 0x00;
+   1323                      *(encoded+5) = upload_num;
+   1324                      ret=upload_size+6;
+   1325                      memcpy(encoded+6,gps_data_tmp,upload_size);
+   1326                  }
+   1327                  else
+   1328                  {
+   1329                      *(encoded+2) = ((upload_size+2)<<1)&0xff;
+   1330                      *(encoded+3) = 0x00;
+   1331                      *(encoded+4) = upload_num;
+   1332                      ret=upload_size+5;
+   1333                      memcpy(encoded+5,gps_data_tmp,upload_size);
+   1334                  }
+   1335              }
+   1336              else
+   1337              {
+   1338                  ret = bufSize;
+   1339              }
+   1340          
+   1341              return ret;
+   1342          }
+   1343          
+   1344          static uint16_t prvTelmProt_Encode_Ota_Check(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1345          {
+   1346          	uint16_t ret = 0;
+   1347          
+   1348          	return ret;
+   1349          }
+   1350          
+   1351          static uint16_t prvTelmProt_Encode_Cell_Loc(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1352          {
+   1353              uint16_t ret=0;
+   1354              return ret;
+   1355          }
+   1356          
+   1357          static uint16_t prvTelmProt_Encode_Batt(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1358          {
+   1359          	Telm_Data_Batt* pBatt = (Telm_Data_Batt *)(encoded+3);
+   1360          
+   1361          	/* checksum is not included in TELM_INFO_LEN_BODY,so plus 2 */
+   1362          	uint16_t ret = TELM_INFO_LEN_BATT + 3;
+   1363              *encoded = (TELM_INFO_ID_PWR>>2)&0xff;
+   1364              *(encoded+1) = ((TELM_INFO_ID_PWR<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1365              *(encoded+2) = (TELM_INFO_LEN_BATT<<1)&0xff;
+   1366          
+   1367          	if (ret <= bufSize)
+   1368          	{
+   1369                  Self_Diag_T result;
+   1370                  diag_get_result(&result);
+   1371                  pBatt->structData.power_status = 2;
+   1372                  pBatt->structData.voltage = result.int_voltage/10;
+   1373          	}
+   1374          	else
+   1375          	{
+   1376          		ret = bufSize;
+   1377          	}
+   1378          
+   1379          	return ret;
+   1380          }
+   1381          
+   1382          static uint16_t prvTelmProt_Encode_Trip(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1383          {
+   1384          	/* checksum is not included in TELM_INFO_LEN,so plus 2 */
+   1385          	uint16_t ret = TELM_INFO_LEN_TRIP + 3;
+   1386              Telm_Data_Trip *pTrip=(Telm_Data_Trip *)(encoded+3);
+   1387              *encoded = (TELM_INFO_ID_TRIPSUM>>2)&0xff;
+   1388              *(encoded+1) = ((TELM_INFO_ID_TRIPSUM<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1389              *(encoded+2) = (TELM_INFO_LEN_TRIP<<1)&0xff;
+   1390              // calculate trip info
+   1391              get_trip_data(pTrip->byte);
+   1392          
+   1393          	return ret;
+   1394          }
+   1395          
+   1396          static uint16_t prvTelmProt_Encode_Towing(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1397          {
+   1398          	uint16_t ret = TELM_INFO_LEN_TOWING + 3;
+   1399              Telm_Data_Towing *pData=(Telm_Data_Towing *)(encoded+3);
+   1400              static gps_data_t gpsInfo;
+   1401              vGps_Get_Gps_Info(&gpsInfo);
+   1402          
+   1403              *encoded = (TELM_INFO_ID_TOWING>>2)&0xff;
+   1404              *(encoded+1) = ((TELM_INFO_ID_TOWING<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1405              *(encoded+2) = (TELM_INFO_LEN_TOWING<<1)&0xff;
+   1406          
+   1407          	if (ret <= bufSize)
+   1408          	{
+   1409                  uint32_t timestamp=sys_get_cur_sec_offset();
+   1410                  uint16_t speed = (gpsInfo.speed[0]<<8)+gpsInfo.speed[1];
+   1411                  if (!gpsInfo.valid)
+   1412                  {
+   1413                      uint8_t clk_tmp[14];
+   1414                      if (0!=ATProt_Get_Clock(clk_tmp))
+   1415                      {
+   1416                          timestamp=sys_get_sec_offset(clk_tmp);
+   1417                      }
+   1418                  }
+   1419                  pData->structData.timestamp[0]=(timestamp>>24) & 0xff;
+   1420                  pData->structData.timestamp[1]=(timestamp>>16) & 0xff;
+   1421                  pData->structData.timestamp[2]=(timestamp>>8) & 0xff;
+   1422                  pData->structData.timestamp[3]=(timestamp) & 0xff;
+   1423                  memcpy(pData->structData.longitude,gpsInfo.longitude,4);
+   1424                  memcpy(pData->structData.latitude,gpsInfo.latitude,4);
+   1425                  memcpy(pData->structData.altitude,gpsInfo.altitude,4);
+   1426                  if (false==gpsInfo.valid)
+   1427                      pData->structData.valid=0;
+   1428                  else
+   1429                      pData->structData.valid=1;
+   1430                  memcpy(pData->structData.heading,gpsInfo.cog,2);
+   1431                  if (speed<=255)
+   1432                      pData->structData.speed=speed;
+   1433                  else
+   1434                      pData->structData.speed=255;
+   1435                  ATProt_Get_Loc(pData->structData.lac,pData->structData.cell_id);
+   1436              }
+   1437          
+   1438              return ret;
+   1439          }
+   1440          
+   1441          static uint16_t prvTelmProt_Encode_Activation(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1442          {
+   1443          	uint16_t ret = 4;
+   1444              *encoded = (TELM_INFO_ID_ACTIVATE>>2)&0xff;
+   1445              *(encoded+1) = ((TELM_INFO_ID_ACTIVATE<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1446              *(encoded+2) = (1<<1)&0xff;
+   1447              *(encoded+3) = Get_Activation_Status();
+   1448              return ret;
+   1449          }
+   1450          
+   1451          static uint16_t prvTelmProt_Encode_Sim(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1452          {
+   1453          	uint16_t ret = 11;
+   1454              *encoded = (TELM_INFO_ID_SIM>>2)&0xff;
+   1455              *(encoded+1) = ((TELM_INFO_ID_SIM<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1456              *(encoded+2) = (TELM_INFO_LEN_SIM<<1)&0xff;
+   1457          
+   1458              ATProt_Get_Imsi(encoded+3);
+   1459              return ret;
+   1460          }
+   1461          
+   1462          static uint16_t prvTelmProt_Encode_Removal(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1463          {
+   1464              uint16_t ret = TELM_INFO_LEN_REMOVAL+3;
+   1465              Telm_Data_Removal *pData=(Telm_Data_Removal *)(encoded+3);
+   1466              static gps_data_t gpsInfo;
+   1467              vGps_Get_Gps_Info(&gpsInfo);
+   1468          
+   1469              *encoded = (TELM_INFO_ID_REMOVAL>>2)&0xff;
+   1470              *(encoded+1) = ((TELM_INFO_ID_REMOVAL<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1471              *(encoded+2) = (TELM_INFO_LEN_REMOVAL<<1)&0xff;
+   1472          
+   1473          //    ATProt_Get_Imsi(encoded+3);
+   1474          	if (ret <= bufSize)
+   1475          	{
+   1476                  uint32_t timestamp=sys_get_cur_sec_offset();
+   1477                  Self_Diag_T result;
+   1478                  diag_get_result(&result);
+   1479                  if (!gpsInfo.valid)
+   1480                      timestamp=RTC_GetCounter();
+   1481                  pData->structData.timestamp[0]=(timestamp>>24) & 0xff;
+   1482                  pData->structData.timestamp[1]=(timestamp>>16) & 0xff;
+   1483                  pData->structData.timestamp[2]=(timestamp>>8) & 0xff;
+   1484                  pData->structData.timestamp[3]=(timestamp) & 0xff;
+   1485                  memcpy(pData->structData.longitude,gpsInfo.longitude,4);
+   1486                  memcpy(pData->structData.latitude,gpsInfo.latitude,4);
+   1487                  memcpy(pData->structData.altitude,gpsInfo.altitude,4);
+   1488                  if (!gpsInfo.valid)
+   1489                      pData->structData.valid=0;
+   1490                  else
+   1491                      pData->structData.valid=1;
+   1492                  pData->structData.external_voltage[0]=0;
+   1493                  pData->structData.external_voltage[1]=0;
+   1494                  pData->structData.internal_voltage=result.int_voltage/10;
+   1495              }
+   1496              else
+   1497              {
+   1498                  ret = bufSize;
+   1499              }
+   1500              return ret;
+   1501          }
+   1502          
+   1503          static uint16_t prvTelmProt_Encode_Config(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1504          {
+   1505              uint16_t ret=0;
+   1506              Config_t config_data;
+   1507              Get_config_data(&config_data);
+   1508          
+   1509              *encoded = (TELM_INFO_ID_CONFIG>>2)&0xff;
+   1510              *(encoded+1) = ((TELM_INFO_ID_CONFIG<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1511          
+   1512              switch(config_upload_id)
+   1513              {
+   1514                  case CONFIG_ID_DEV:
+   1515                      ret=8;
+   1516                      *(encoded+2) = (5<<1)&0xff;
+   1517                      *(encoded+3) = config_data.structData.config_ver[0];
+   1518                      *(encoded+4) = config_data.structData.config_ver[1];
+   1519                      *(encoded+5) = (CONFIG_ID_DEV>>8) & 0xff;
+   1520                      *(encoded+6) = (CONFIG_ID_DEV) & 0xff;
+   1521                      *(encoded+7) = Get_Activation_Status();
+   1522                      break;
+   1523                  case CONFIG_ID_ACC:
+   1524                      ret=14;
+   1525                      *(encoded+2) = (11<<1)&0xff;
+   1526                      *(encoded+3) = config_data.structData.config_ver[0];
+   1527                      *(encoded+4) = config_data.structData.config_ver[1];
+   1528                      *(encoded+5) = (CONFIG_ID_ACC>>8) & 0xff;
+   1529                      *(encoded+6) = (CONFIG_ID_ACC) & 0xff;
+   1530                      *(encoded+7) = config_data.structData.ignition_on_threshold_low;
+   1531                      *(encoded+8) = config_data.structData.ignition_on_threshold_high;
+   1532                      *(encoded+9) = config_data.structData.ignition_on_down_max;
+   1533                      *(encoded+10) = config_data.structData.ignition_on_rise_max;
+   1534                      *(encoded+11) = config_data.structData.ignition_off_down_max;
+   1535                      *(encoded+12) = config_data.structData.ignition_on_absolute_voltage;
+   1536                      *(encoded+13) = config_data.structData.ignition_off_absolute_voltage;
+   1537                      break;
+   1538                  case CONFIG_ID_WAKE:
+   1539                      ret=10;
+   1540                      *(encoded+2) = (7<<1)&0xff;
+   1541                      *(encoded+3) = config_data.structData.config_ver[0];
+   1542                      *(encoded+4) = config_data.structData.config_ver[1];
+   1543                      *(encoded+5) = (CONFIG_ID_WAKE>>8) & 0xff;
+   1544                      *(encoded+6) = (CONFIG_ID_WAKE) & 0xff;
+   1545                      *(encoded+7) = config_data.structData.wakeup_lasting_time[0];
+   1546                      *(encoded+8) = config_data.structData.wakeup_lasting_time[1];
+   1547                      *(encoded+9) = config_data.structData.data_resend_times;
+   1548                      break;
+   1549                  case CONFIG_ID_CRASH:
+   1550                      ret=17;
+   1551                      *(encoded+2) = (14<<1)&0xff;
+   1552                      *(encoded+3) = config_data.structData.config_ver[0];
+   1553                      *(encoded+4) = config_data.structData.config_ver[1];
+   1554                      *(encoded+5) = (CONFIG_ID_CRASH>>8) & 0xff;
+   1555                      *(encoded+6) = (CONFIG_ID_CRASH) & 0xff;
+   1556                      *(encoded+7) = 0;
+   1557                      *(encoded+8) = 0;
+   1558                      *(encoded+9) = 0;
+   1559                      *(encoded+10) = 0;
+   1560                      *(encoded+11) = 0;
+   1561                      *(encoded+12) = 0;
+   1562                      *(encoded+13) = 0;
+   1563                      *(encoded+14) = 0;
+   1564                      *(encoded+15) = 0;
+   1565                      *(encoded+16) = 0;
+   1566                      break;
+   1567                  case CONFIG_ID_DRIVE:
+   1568                      ret=21;
+   1569                      *(encoded+2) = (18<<1)&0xff;
+   1570                      *(encoded+3) = config_data.structData.config_ver[0];
+   1571                      *(encoded+4) = config_data.structData.config_ver[1];
+   1572                      *(encoded+5) = (CONFIG_ID_DRIVE>>8) & 0xff;
+   1573                      *(encoded+6) = (CONFIG_ID_DRIVE) & 0xff;
+   1574                      memset(encoded+7,0,14);
+   1575                      break;
+   1576                  case CONFIG_ID_GPS:
+   1577                      ret=12;
+   1578                      *(encoded+2) = (9<<1)&0xff;
+   1579                      *(encoded+3) = config_data.structData.config_ver[0];
+   1580                      *(encoded+4) = config_data.structData.config_ver[1];
+   1581                      *(encoded+5) = (CONFIG_ID_GPS>>8) & 0xff;
+   1582                      *(encoded+6) = (CONFIG_ID_GPS) & 0xff;
+   1583                      *(encoded+7) = config_data.structData.GPS_upload_interval;
+   1584                      *(encoded+8) = config_data.structData.GPS_record_mileage[0];
+   1585                      *(encoded+9) = config_data.structData.GPS_record_mileage[1];
+   1586                      *(encoded+10) = config_data.structData.GPS_record_interval;
+   1587                      *(encoded+11) = config_data.structData.GPS_record_turning;
+   1588                      break;
+   1589                  case CONFIG_ID_LOG:
+   1590                      ret=9;
+   1591                      *(encoded+2) = (11<<1)&0xff;
+   1592                      *(encoded+3) = config_data.structData.config_ver[0];
+   1593                      *(encoded+4) = config_data.structData.config_ver[1];
+   1594                      *(encoded+5) = (CONFIG_ID_LOG>>8) & 0xff;
+   1595                      *(encoded+6) = (CONFIG_ID_LOG) & 0xff;
+   1596                      *(encoded+7) = config_data.structData.log_max_upload_bytes[0];
+   1597                      *(encoded+8) = config_data.structData.log_max_upload_bytes[1];
+   1598                      break;
+   1599                  case CONFIG_ID_SLEEP:
+   1600                      ret=10;
+   1601                      *(encoded+2) = (11<<1)&0xff;
+   1602                      *(encoded+3) = config_data.structData.config_ver[0];
+   1603                      *(encoded+4) = config_data.structData.config_ver[1];
+   1604                      *(encoded+5) = (CONFIG_ID_SLEEP>>8) & 0xff;
+   1605                      *(encoded+6) = (CONFIG_ID_SLEEP) & 0xff;
+   1606                      *(encoded+7) = config_data.structData.sleep_time[0];
+   1607                      *(encoded+8) = config_data.structData.sleep_time[1];
+   1608                      *(encoded+9) = config_data.structData.network_fail_sleep_time;
+   1609                      break;
+   1610                  case CONFIG_ID_BATT:
+   1611                      ret=9;
+   1612                      *(encoded+2) = (6<<1)&0xff;
+   1613                      *(encoded+3) = config_data.structData.config_ver[0];
+   1614                      *(encoded+4) = config_data.structData.config_ver[1];
+   1615                      *(encoded+5) = (CONFIG_ID_BATT>>8) & 0xff;
+   1616                      *(encoded+6) = (CONFIG_ID_BATT) & 0xff;
+   1617                      *(encoded+7) = config_data.structData.external_low_voltage_threshold;
+   1618                      *(encoded+7) = config_data.structData.internal_low_voltage_threshold;
+   1619                      break;
+   1620                  case CONFIG_ID_THEFT:
+   1621                      ret=9;
+   1622                      *(encoded+2) = (6<<1)&0xff;
+   1623                      *(encoded+3) = config_data.structData.config_ver[0];
+   1624                      *(encoded+4) = config_data.structData.config_ver[1];
+   1625                      *(encoded+5) = (CONFIG_ID_THEFT>>8) & 0xff;
+   1626                      *(encoded+6) = (CONFIG_ID_THEFT) & 0xff;
+   1627                      *(encoded+7) = 0;
+   1628                      *(encoded+8) = 0;
+   1629                      break;
+   1630                  case CONFIG_ID_TRACKING:
+   1631                      ret=11;
+   1632                      *(encoded+2) = (8<<1)&0xff;
+   1633                      *(encoded+3) = config_data.structData.config_ver[0];
+   1634                      *(encoded+4) = config_data.structData.config_ver[1];
+   1635                      *(encoded+5) = (CONFIG_ID_TRACKING>>8) & 0xff;
+   1636                      *(encoded+6) = (CONFIG_ID_TRACKING) & 0xff;
+   1637                      *(encoded+7) = config_data.structData.tracking_mode_on_time[0];
+   1638                      *(encoded+8) = config_data.structData.tracking_mode_on_time[1];
+   1639                      *(encoded+9) = config_data.structData.tracking_mode_sleep_time[0];
+   1640                      *(encoded+10) = config_data.structData.tracking_mode_sleep_time[1];
+   1641                      break;
+   1642                  case CONFIG_ID_NETWORK:
+   1643                      ret=46;
+   1644                      *(encoded+2) = (11<<1)&0xff;
+   1645                      *(encoded+3) = config_data.structData.config_ver[0];
+   1646                      *(encoded+4) = config_data.structData.config_ver[1];
+   1647                      *(encoded+5) = (CONFIG_ID_NETWORK>>8) & 0xff;
+   1648                      *(encoded+6) = (CONFIG_ID_NETWORK) & 0xff;
+   1649                      *(encoded+7) = config_data.structData.network_connection_retain_time;
+   1650                      memcpy(encoded+8,config_data.structData.network_connection_port,2);
+   1651                      memcpy(encoded+10,config_data.structData.network_connection_IP,16);
+   1652                      memcpy(encoded+26,config_data.structData.network_connection_APN,20);
+   1653                      break;
+   1654                  default:
+   1655                      ret=0;
+   1656                      break;
+   1657              }
+   1658          
+   1659              return ret;
+   1660          }
+   1661          
+   1662          static uint16_t prvTelmProt_Encode_GPS_Fix(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1663          {
+   1664          	uint16_t ret = TELM_INFO_LEN_GPS_FIX+3;
+   1665              Telm_Data_GPS_Fix *pData=(Telm_Data_GPS_Fix *)(encoded+3);
+   1666          
+   1667              *encoded = (TELM_INFO_ID_GPS_FIX>>2)&0xff;
+   1668              *(encoded+1) = ((TELM_INFO_ID_GPS_FIX<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1669              *(encoded+2) = (TELM_INFO_LEN_GPS_FIX<<1)&0xff;
+   1670          
+   1671          	if (ret <= bufSize)
+   1672          	{
+   1673                  uint32_t first_fix_time=Periodic_Get_GPS_Fixed();
+   1674                  pData->structData.fix_time[0]=(first_fix_time>>8) & 0xff;
+   1675                  pData->structData.fix_time[1]=(first_fix_time) & 0xff;
+   1676              }
+   1677              else
+   1678              {
+   1679                  ret = bufSize;
+   1680              }
+   1681              return ret;
+   1682          }
+   1683          
+   1684          static uint16_t prvTelmProt_Encode_Crash(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1685          {
+   1686          	uint16_t ret = 0;
+   1687              uint16_t data_len=0;
+   1688              *encoded = (TELM_INFO_ID_CRASH>>2)&0xff;
+   1689              *(encoded+1) = ((TELM_INFO_ID_CRASH<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1690          
+   1691              // Crash data, sensor data list
+   1692              data_len=get_crash_data(encoded+3,800);
+   1693          
+   1694              *(encoded+2) = ((data_len<<1)&0xff);
+   1695          //    *(encoded+3) = (data_len>>7)&0xff;
+   1696              ret=4+data_len;
+   1697          
+   1698              return ret;
+   1699          }
+   1700          
+   1701          static uint16_t prvTelmProt_Encode_Sensor(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1702          {
+   1703          	uint16_t ret = TELM_INFO_LEN_SENSOR;
+   1704              uint16_t sensor_size=0;
+   1705              Telm_Data_Sensor *pSensor=(Telm_Data_Sensor *)(encoded+4);
+   1706              *encoded = (TELM_INFO_ID_SENSOR>>2)&0xff;
+   1707              *(encoded+1) = ((TELM_INFO_ID_SENSOR<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1708          
+   1709              sensor_size = get_sensor_data(encoded+4, 0, 200);
+   1710              ret=sensor_size+4;
+   1711              *(encoded+2) = (((sensor_size)<<1)&0xff) | 0x01;
+   1712              *(encoded+3) = ((sensor_size)>>7)&0xff;
+   1713              // Sensor data list
+   1714          
+   1715              return ret;
+   1716          }
+   1717          
+   1718          static uint16_t prvTelmProt_Encode_Dashboard(Telm_Upload_Info const * uploadInfo, uint8_t multiple, uint8_t* const encoded, uint16_t bufSize)
+   1719          {
+   1720          	uint16_t ret = TELM_INFO_LEN_DASHBOARD+3;
+   1721              Telm_Data_Dashboard *pdata=(Telm_Data_Dashboard *)(encoded+3);
+   1722              *encoded = (TELM_INFO_ID_SENSOR>>2)&0xff;
+   1723              *(encoded+1) = ((TELM_INFO_ID_SENSOR<<6)&0xff) | (TELM_INFO_CMD_RESP<<1) | (multiple & 0x1);
+   1724              *(encoded+2) = (TELM_INFO_LEN_DASHBOARD<<1)&0xff;
+   1725          
+   1726              pdata->structData.acc_status=rl_get_acc_status();
+   1727              pdata->structData.window=0;
+   1728              pdata->structData.door=0;
+   1729              return ret;
+   1730          }
+   1731          
+   1732          /*******************************************************************************
+   1733          *    Function:  prvTelmProt_Encode_Remap
+   1734          *
+   1735          *  Parameters:  uint8_t * const:buffer to remap
+   1736          *  Parameters:  uint8_t :length to remap
+   1737          *  Parameters:  uint8_t :max length of buffer
+   1738          *     Returns:  None
+   1739          * Description:  
+   1740          *******************************************************************************/
+   1741          static uint16_t prvTelmProt_Encode_Remap(uint8_t * const buf,uint16_t len, uint16_t bufSize)
+   1742          {
+   1743              uint16_t i = 0;
+   1744              uint16_t j = 0;
+   1745              uint8_t temp;
+   1746              uint8_t inserted = 0x00;
+   1747              for (i = 0; (i < len) && (len <= bufSize); i++)
+   1748              {
+   1749                  switch (buf[i])
+   1750                  {
+   1751                      /* 0x1C->0x1B,0x1E */
+   1752                      case 0x1C:
+   1753                          buf[i] = 0x1B;
+   1754                          inserted = 0x1E;
+   1755                          break;
+   1756                      /* 0x1B->0x1B,0x1D */
+   1757                      case 0x1B:
+   1758                          inserted = 0x1D;
+   1759                          break;
+   1760                      default:
+   1761                          break;
+   1762                  }
+   1763                  /* insert additional charator */
+   1764                  if (inserted != 0x00)
+   1765                  {
+   1766                      for (j = i + 1; j <= len; j++)
+   1767                      {
+   1768                          temp = buf[j];
+   1769                          buf[j] = inserted;
+   1770                          inserted = temp;
+   1771                      }
+   1772                      i++;
+   1773                      len++;
+   1774                      inserted = 0x00;
+   1775                  }
+   1776              }
+   1777              return len;
+   1778          }
+   1779          
+   1780          static uint8_t prvTelmProt_Encode_Header(Telm_Upload_Info const * uploadInfo, uint8_t* const encoded, uint16_t len)
+   1781          {
+   1782              // return encoded length
+   1783              uint8_t ret=0;
+   1784              uint8_t chk_len=0;
+   1785              uint8_t len_ext=0;
+   1786              *encoded=HEADER_STX;
+   1787          
+   1788              *(encoded+1)=0;
+   1789              if(uploadInfo->imei_flag)
+   1790              {
+   1791                  *(encoded+1) |= HEADER_IMEI_FLAG;
+   1792              }
+   1793              else
+   1794              {
+   1795                  *(encoded+1) &= ~HEADER_IMEI_FLAG;
+   1796              }
+   1797              if(uploadInfo->ts_flag)
+   1798              {
+   1799                  *(encoded+1) |= HEADER_TS_FLAG;
+   1800              }
+   1801              else
+   1802              {
+   1803                  *(encoded+1) &= ~HEADER_TS_FLAG;
+   1804              }
+   1805              if(uploadInfo->msgttl_flag)
+   1806              {
+   1807                  *(encoded+1) |= HEADER_MSGTTL_FLAG;
+   1808              }
+   1809              else
+   1810              {
+   1811                  *(encoded+1) &= ~HEADER_MSGTTL_FLAG;
+   1812              }
+   1813              if(uploadInfo->chk_flag)
+   1814              {
+   1815                  *(encoded+1) |= HEADER_CHK_FLAG;
+   1816              }
+   1817              else
+   1818              {
+   1819                  *(encoded+1) &= ~HEADER_CHK_FLAG;
+   1820              }
+   1821              *(encoded+1) |= (uploadInfo->ver<<2) & HEADER_VER;
+   1822              ret+=2;
+   1823          
+   1824              // If exceed max length, set to max length
+   1825              if (len>32740)
+   1826              {
+   1827                  len=32740;
+   1828              }
+   1829              // one or two byte encode
+   1830              if (len <= 113)
+   1831              {
+   1832          //        *(encoded+ret)=(len<<1) & 0xFE;
+   1833                  ret+=1;
+   1834                  len_ext=0;
+   1835              }
+   1836              else
+   1837              {
+   1838          //        *(encoded+ret)=(len<<1) & 0xFE;
+   1839          //        *(encoded+ret+1)=(len>>7) & 0xFF;
+   1840                  ret+=2;
+   1841                  len_ext=1;
+   1842              }
+   1843          
+   1844              *(encoded+ret)=0;
+   1845              *(encoded+ret)|=(uploadInfo->packet_type & 0x1) << 7;
+   1846              *(encoded+ret)|=(uploadInfo->ack_flag & 0x01) <<6;
+   1847              *(encoded+ret)|=(uploadInfo->trans_mode & 0x07) << 3;
+   1848              *(encoded+ret)|=(uploadInfo->priority & 0x07);
+   1849              ret++;
+   1850              *(encoded+ret)=uploadInfo->packet_id;
+   1851              ret++;
+   1852          
+   1853              if (uploadInfo->imei_flag)
+   1854              {
+   1855                  ATProt_Get_Imei(encoded+ret);        
+   1856                  ret+=8;
+   1857              }
+   1858              if (uploadInfo->ts_flag)
+   1859              {
+   1860                  memcpy(encoded+ret,uploadInfo->utcTime,4);
+   1861                  ret+=4;
+   1862              }
+   1863              if (uploadInfo->msgttl_flag)
+   1864              {
+   1865                  memcpy(encoded+ret,uploadInfo->msgttl,2);
+   1866                  ret+=2;
+   1867              }
+   1868              if(uploadInfo->chk_flag)
+   1869              {
+   1870                  chk_len=1;
+   1871              }
+   1872          
+   1873              if (0==len_ext)
+   1874              {
+   1875                  *(encoded+2)=((ret+len+chk_len-3)<<1) & 0xFE;
+   1876              }
+   1877              else
+   1878              {
+   1879                  *(encoded+2)=((ret+len+chk_len-4)<<1) & 0xFE;
+   1880                  *(encoded+2)|=1;
+   1881                  *(encoded+3)=((ret+len+chk_len-4)>>7) & 0xFF;
+   1882              }
+   1883              return ret;
+   1884          }
+   1885          
+   1886          #ifdef TCOM_DATA_DES_ENCDEC
+   1887          
+   1888          uint8_t prvTelmProt_DES_CheckKey(void);
+   1889          /*******************************************************************************
+   1890          *    Function:  prvTelmProt_DES_CheckKey
+   1891          *
+   1892          *  Parameters:  void
+   1893          *     Returns:  the key result
+   1894          * Description:  
+   1895          *******************************************************************************/
+   1896          uint8_t prvTelmProt_DES_CheckKey(void)
+   1897          {
+   1898             uint8_t i;
+   1899          //   uint8_t const *pImsi;
+   1900             char const *pImsi = "460100200300400";
+   1901             uint32_t int_Imsi;
+   1902             
+   1903             /*First check if the enc key has been made*/
+   1904             if (enc_key_made == 0)
+   1905             {
+   1906                /*Make enc-dec key*/
+   1907          
+   1908                /* Now we use fixed IMSI */
+   1909          #ifdef USE_SIMCARD_IMSI
+   1910                pImsi = pcATProt_getImsiData();
+   1911          #endif
+   1912                int_Imsi = (pImsi[6]-'0')*100000000 + (pImsi[7]-'0') * 10000000 + (pImsi[8]-'0') * 1000000 + \
+   1913                   (pImsi[9]-'0') * 100000 + (pImsi[10]-'0') * 10000 + (pImsi[11]-'0') * 1000 + (pImsi[12]-'0') * 100 +\
+   1914                   (pImsi[13]-'0') * 10 + (pImsi[14]-'0') ;
+   1915          
+   1916                memset(enc_key_56bits, 0, 26); // High 26 bit is 0
+   1917          
+   1918                for (i = 0 ; i < 30;i++) // i is from 0 to 29, 30bits
+   1919                {
+   1920                   enc_key_56bits[55- i] =  (uint8_t)int_Imsi & 1;
+   1921                   int_Imsi >>= 1;
+   1922                }      
+   1923             
+   1924                DES_MakeSubKeys_56bit(enc_key_56bits,enc_sub_keys);
+   1925          
+   1926                enc_key_made = 1;
+   1927             }
+   1928             return 1;
+   1929          }
+   1930          
+   1931          /*******************************************************************************
+   1932          *    Function:  prvTelmProt_DES_EncPadding
+   1933          *
+   1934          *  Parameters:  uint8_t * const:buffer to fill padding
+   1935          *  Parameters:  uint8_t len:the length before filling
+   1936          *     Returns:  the filling length
+   1937          * Description:  
+   1938          *******************************************************************************/
+   1939          static uint8_t prvTelmProt_DES_EncPadding(uint8_t * const buf,const uint8_t len)
+   1940          {
+   1941              uint8_t ori_len= len;
+   1942              uint8_t des_times = 0;
+   1943              uint8_t* pdes;
+   1944          
+   1945              /*First check if the des key is created*/
+   1946              prvTelmProt_DES_CheckKey();
+   1947             
+   1948              /*Second fill the paddings*/
+   1949              for (;ori_len%8 != 0;ori_len++)
+   1950              {
+   1951                  *(buf+ori_len) = TELM_INFO_PADDING;
+   1952              }
+   1953              /*Third do DES enc for each 8 bytes*/
+   1954              while (des_times < ori_len/8)
+   1955              {
+   1956                  pdes = buf+des_times * 8;
+   1957                  DES_EncryptBlock(pdes, enc_sub_keys, pdes);
+   1958                  des_times ++;
+   1959              }
+   1960          
+   1961              return (ori_len - len);
+   1962          }
+   1963          /*******************************************************************************
+   1964          *    Function:  prvTelmProt_DES_Dec
+   1965          *
+   1966          *  Parameters:  uint8_t * const:buffer to fill padding
+   1967          *  Parameters:  uint8_t len:the length before filling
+   1968          *     Returns:  void
+   1969          * Description:  
+   1970          *******************************************************************************/
+   1971          static void prvTelmProt_DES_Dec(uint8_t * const buf,const uint16_t len)
+   1972          {
+   1973              uint16_t des_times = 0;
+   1974              uint8_t* pdes;
+   1975          
+   1976              /*First check if the des key is created*/
+   1977              prvTelmProt_DES_CheckKey();
+   1978          
+   1979              /*Second do DES enc for each 8 bytes*/
+   1980              while (des_times < len/8)
+   1981              {
+   1982                  pdes = buf+des_times * 8;
+   1983                  DES_DecryptBlock(pdes, enc_sub_keys, pdes);
+   1984                  des_times ++;
+   1985              }
+   1986          }
+   1987          #endif
+   1988          
+   1989          static bool prvTelmProt_parse_header(uint8_t const * const data, uint8_t *service_data, uint16_t *data_len)
+   1990          {
+   1991              bool ret=false;
+   1992              uint8_t imei_flag=0;
+   1993              uint8_t ts_flag=0;
+   1994              uint8_t ttl_flag=0;
+   1995              uint8_t len_ext=0;
+   1996              uint8_t service_data_ptr=0;
+   1997              uint8_t ver=0;
+   1998              uint16_t total_len=0;
+   1999              if ((*data) != HEADER_STX)
+   2000                  return ret;
+   2001              imei_flag=*(data+1) & HEADER_IMEI_FLAG;
+   2002              ts_flag=*(data+1) & HEADER_TS_FLAG;
+   2003              ttl_flag=*(data+1) & HEADER_MSGTTL_FLAG;
+   2004              ver=(*(data+1) & HEADER_VER) >> 2;
+   2005              service_data_ptr+=2;
+   2006              len_ext=*(data+service_data_ptr) & 0x1;
+   2007              if (len_ext)
+   2008              {
+   2009                  total_len=(*(data+service_data_ptr) >> 1) + (*(data+service_data_ptr+1) << 7);
+   2010                  service_data_ptr+=2;
+   2011              }
+   2012              else
+   2013              {
+   2014                  total_len=(*(data+service_data_ptr) >> 1);
+   2015                  service_data_ptr+=1;
+   2016              }
+   2017              service_data_ptr+=2;
+   2018              total_len-=2;
+   2019          
+   2020              if (imei_flag)
+   2021              {
+   2022                  service_data_ptr+=8;
+   2023                  total_len-=8;
+   2024              }
+   2025              else
+   2026              {
+   2027              }
+   2028          
+   2029              if (ts_flag)
+   2030              {
+   2031                  service_data_ptr+=4;
+   2032                  total_len-=4;
+   2033              }
+   2034              else
+   2035              {
+   2036              }
+   2037          
+   2038              if (ttl_flag)
+   2039              {
+   2040                  service_data_ptr+=2;
+   2041                  total_len-=2;
+   2042              }
+   2043              else
+   2044              {
+   2045              }
+   2046          
+   2047              *data_len=total_len;
+   2048              memcpy(service_data, data+service_data_ptr, total_len);
+   2049              ret=true;
+   2050              return ret;
+   2051          }
+   2052          
+   2053          /*******************************************************************************
+   2054          *    Function: prvTelmProt_DecodeAndHandleAck
+   2055          *
+   2056          *  Parameters: uint8_t* const:decoded information
+   2057          *     Returns: none
+   2058          * Description: decode and inform App the ack
+   2059          *******************************************************************************/
+   2060          static void prvTelmProt_DecodeAndHandleAck(uint8_t *data)
+   2061          {
+   2062              TelmApp_Set_Server_Ack_State(true);
+   2063              // Check if last engine on/off message sent
+   2064              // If sent, clear last engine on/off message in buffer
+   2065          //    travel_start_backup_msg_cb();
+   2066          }
+   2067          
+   2068          /*******************************************************************************
+   2069          *    Function: prvTelmProt_DecodeAndHandleCmd
+   2070          *
+   2071          *  Parameters: uint8_t* const:decoded information
+   2072          *     Returns: none
+   2073          * Description: decode and inform App the command
+   2074          *******************************************************************************/
+   2075          static void prvTelmProt_DecodeAndHandleCmd(uint8_t *data,uint16_t len)
+   2076          {
+   2077          	bool decodeRes = false;
+   2078          	/* ack data */
+   2079          //	Telm_Data_Ack	telm_my_ack;
+   2080          //	callBack		afterAckSent;
+   2081          	/* clear last command data before decode */
+   2082          	memset(&telm_last_command, 0x00,sizeof(telm_last_command));
+   2083          
+   2084          	/* analyze command contents */
+   2085          	decodeRes = prvTelmProt_Decode_Command((uint8_t*)data,len,&telm_last_command);
+   2086          
+   2087          	/* prepare ack data:set result */
+   2088          	if (decodeRes == true)
+   2089          	{
+   2090          //		telm_my_ack.structData.result = TELM_ACK_RCV_OK;
+   2091          		/* if command is decoded correctly, execute it after ACK is sent back to server */
+   2092          //		afterAckSent = prvTelmProt_commandAckSend;
+   2093          	}
+   2094          	else
+   2095          	{
+   2096          //		telm_my_ack.structData.result = TELM_ACK_RCV_NG;
+   2097          		/* if command is decoded incorrectly, just sent NAK */
+   2098          //		afterAckSent = NULL;
+   2099          	}
+   2100          
+   2101          	/* return decode result as ACK */
+   2102          //    vATApp_IPSEND_Ack(telm_my_ack.byte,TELM_INFO_LEN_ACK, afterAckSent);
+   2103          }
+   2104          
+   2105          /*******************************************************************************
+   2106          *    Function: prvTelmProt_commandAckSend
+   2107          *
+   2108          *  Parameters: AT_Cmd_Res res:Ack send result
+   2109          *     Returns: none
+   2110          * Description: decode and inform App the command
+   2111          *******************************************************************************/
+   2112          static void prvTelmProt_commandAckSend(AT_Cmd_Res res)
+   2113          {
+   2114          	/* when command ack sent ok, execute command */
+   2115                  DEBUG_PRINT1(DEBUG_MEDIUM,"[2G] command ACK sent [%d]!\n\r", res);
+   2116          	if (res == true)
+   2117          	{
+   2118          		/* set command call back which is called to send 
+   2119          			result back to server when command is executed  */
+   2120          		telm_last_command.cmdExecuted = prvTelmProt_Return_Result;
+   2121          		/* notify app the command to execute */
+   2122          		vTelmApp_Inform_Received_Command(&telm_last_command);
+   2123          	}
+   2124              else
+   2125              {
+   2126          		vTelmApp_Inform_Received_Command(&telm_last_command);
+   2127              }
+   2128          }
+   2129          
+   2130          /*******************************************************************************
+   2131          *    Function: prvTelmProt_Decode_Command
+   2132          *
+   2133          *  Parameters: uint8_t* const:decoded information
+   2134          *     Returns: bool true:decode ok/false:decode ng
+   2135          * Description: encode data according to protocol
+   2136          *******************************************************************************/
+   2137          static bool prvTelmProt_Decode_Command(uint8_t const * const data,uint16_t len, Telm_Rcvd_Command * const decoded)
+   2138          {
+   2139              /* for test, we should get vin code from can modual */
+   2140              uint16_t i;
+   2141              uint16_t encdataLen;
+   2142          
+   2143              uint16_t checksum = 0;
+   2144              bool result = true;
+   2145          
+   2146              if ((decoded == NULL) || (data == NULL))
+   2147              {
+   2148                  return false;
+   2149              }
+   2150          
+   2151              prvTelmProt_ParseData((uint8_t *)data,len);
+   2152          
+   2153              return result;
+   2154          }
+   2155          
+   2156          uint8_t* Telm_Get_DEVID(void)
+   2157          {
+   2158              return lastInfo.devId;
+   2159          }
+   2160          
+   2161          void TelmProt_Set_New_OTA(uint8_t flag)
+   2162          {
+   2163              ota_packet_flag = flag;
+   2164          }
+   2165          
+   2166          uint8_t TelmProt_Is_New_OTA(void)
+   2167          {
+   2168              if(ota_packet_flag)
+   2169              {
+   2170                  ota_packet_flag--;
+   2171                  return 0;//0: Sending
+   2172              }
+   2173              else
+   2174              {
+   2175                  return 1;//1: can send next packet.
+   2176              }
+   2177          }
+   2178          
+   2179          void TelmProt_Sleep_NV_Write(void)
+   2180          {
+   2181          //    eng_on_off_ram_copy_to_nv();
+   2182          //    travel_start_ram_copy_to_nv();
+   2183          }
+   2184          
+   2185          // Save travel summary data
+   2186          void TelmProt_Travel_Summary_Record(void)
+   2187          {
+   2188          //    uint16_t rpm_max = 0;
+   2189          //    uint16_t rpm_now = 0;
+   2190          //    uint8_t speed_now = 0;
+   2191          //    uint8_t temp_now = 0;
+   2192          //    Dcm_DspPidType *current_pid_table = DspGetCurrentPidTable();
+   2193          //    rpm_max = (travel_summary.structData.rpm[0]<<8) + travel_summary.structData.rpm[1];
+   2194          //    speed_now = IF_VehSpeed_B;
+   2195          //    rpm_now = (IF_EngRPM_B1 << 8) + IF_EngRPM_B0;
+   2196          //    if (temp_now > travel_summary.structData.temp)
+   2197          //    {
+   2198          //        travel_summary.structData.temp = temp_now;
+   2199          //    }
+   2200          }
+   2201          
+   2202          // Clear travel summary data
+   2203          void TelmProt_Clear_Travel_Summary(void)
+   2204          {
+   2205          /*    travel_summary.structData.speed_utc[0] = 0xff;
+   2206              travel_summary.structData.speed_utc[1] = 0xff;
+   2207              travel_summary.structData.speed_utc[2] = 0xff;
+   2208              travel_summary.structData.speed_utc[3] = 0xff;
+   2209              travel_summary.structData.speed = 0;
+   2210              travel_summary.structData.rpm_utc[0] = 0xff;
+   2211              travel_summary.structData.rpm_utc[1] = 0xff;
+   2212              travel_summary.structData.rpm_utc[2] = 0xff;
+   2213              travel_summary.structData.rpm_utc[3] = 0xff;
+   2214              travel_summary.structData.rpm[0] = 0;
+   2215              travel_summary.structData.rpm[1] = 0;
+   2216              travel_summary.structData.temp_utc[0] = 0xff;
+   2217              travel_summary.structData.temp_utc[1] = 0xff;
+   2218              travel_summary.structData.temp_utc[2] = 0xff;
+   2219              travel_summary.structData.temp_utc[3] = 0xff;
+   2220              travel_summary.structData.temp = 0;*/
+   2221          }
+   2222          
+   2223          /*=======================================================================================*\
+   2224           * File Revision History
+   2225           *=======================================================================================
+   2226           *
+   2227          \*=======================================================================================*/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   Clear_OTASector
+         8   -> sFLASH_EraseSector
+       8   Load_OTAHeader
+         8   -> sFLASH_ReadBuffer
+       0   TelmProt_Clear_Travel_Summary
+       0   TelmProt_Is_New_OTA
+       0   TelmProt_Set_New_OTA
+       0   TelmProt_Sleep_NV_Write
+       0   TelmProt_Travel_Summary_Record
+       0   Telm_Get_DEVID
+       8   Update_OTAHeader
+         8   -> Clear_OTASector
+         8   -> sFLASH_WriteBuffer
+      16   prvTelmProt_DecodeAndHandleCmd
+        16   -> __aeabi_memset
+        16   -> prvTelmProt_Decode_Command
+       8   prvTelmProt_Decode_Command
+         8   -> prvTelmProt_ParseData
+    1040   prvTelmProt_Encode
+      1040   -- Indirect call
+      1040   -> __aeabi_memcpy
+      1040   -> printf
+      1040   -> prvTelmProt_Encode_Chk
+      1040   -> prvTelmProt_Encode_Header
+      16   prvTelmProt_Encode_Activation
+        16   -> Get_Activation_Status
+      24   prvTelmProt_Encode_Backup_GPS
+        24   -> Get_GPS_Data_Total_Number
+        24   -> Read_GPS_Data
+        24   -> Set_GPS_Data_Next_Read_Pointer
+        24   -> __aeabi_memcpy
+        24   -> vGps_Get_Gps_Info
+      24   prvTelmProt_Encode_Batt
+        24   -> diag_get_result
+       0   prvTelmProt_Encode_Cell_Loc
+      12   prvTelmProt_Encode_Chk
+      96   prvTelmProt_Encode_Config
+        96   -> Get_Activation_Status
+        96   -> Get_config_data
+        96   -> __aeabi_memcpy
+        96   -> __aeabi_memset
+       8   prvTelmProt_Encode_Crash
+         8   -> get_crash_data
+      16   prvTelmProt_Encode_Dashboard
+        16   -> rl_get_acc_status
+      32   prvTelmProt_Encode_Dev
+        32   -> ATProt_Get_Imei
+        32   -> ATProt_Get_Loc
+        32   -> ATProt_Get_Netreg
+        32   -> SY_Hwid
+        32   -> SY_Swid
+        32   -> __aeabi_memset
+        32   -> pcATProt_getRSSI
+      16   prvTelmProt_Encode_Drive_Behavior
+        16   -> get_dbe_data
+      40   prvTelmProt_Encode_GPS
+        40   -> ATProt_Get_Clock
+        40   -> ATProt_Get_Loc
+        40   -> Set_Last_GPS_uploader
+        40   -> __aeabi_memcpy
+        40   -> sys_get_cur_sec_offset
+        40   -> sys_get_sec_offset
+        40   -> vGps_Get_Gps_Info
+      16   prvTelmProt_Encode_GPS_Fix
+        16   -> Periodic_Get_GPS_Fixed
+      24   prvTelmProt_Encode_Get_OTA
+        24   -> __aeabi_memcpy
+      32   prvTelmProt_Encode_Header
+        32   -> ATProt_Get_Imei
+        32   -> __aeabi_memcpy
+       0   prvTelmProt_Encode_Ota_Check
+      40   prvTelmProt_Encode_Removal
+        40   -> RTC_GetCounter
+        40   -> __aeabi_memcpy
+        40   -> diag_get_result
+        40   -> sys_get_cur_sec_offset
+        40   -> vGps_Get_Gps_Info
+       8   prvTelmProt_Encode_Sensor
+         8   -> get_sensor_data
+       8   prvTelmProt_Encode_Sim
+         8   -> ATProt_Get_Imsi
+      40   prvTelmProt_Encode_Towing
+        40   -> ATProt_Get_Clock
+        40   -> ATProt_Get_Loc
+        40   -> __aeabi_memcpy
+        40   -> sys_get_cur_sec_offset
+        40   -> sys_get_sec_offset
+        40   -> vGps_Get_Gps_Info
+       8   prvTelmProt_Encode_Trip
+         8   -> get_trip_data
+      16   prvTelmProt_ParseActivate
+        16   -> Get_Activation_Status
+        16   -> Set_Activation_Status
+        16   -> rl_reset
+      96   prvTelmProt_ParseConfig
+        80   -> Get_config_data
+        80   -> Set_Config
+        80   -> __aeabi_memcpy
+        96   -> __aeabi_memcpy4
+        80   -> printf
+       8   prvTelmProt_ParseConfigReq
+         8   -> Build_Message
+         8   -> OS_Send_Message
+      16   prvTelmProt_ParseData
+        16   -> Build_Message
+        16   -> OS_Send_Message
+        16   -> prvTelmProt_ParseActivate
+        16   -> prvTelmProt_ParseConfig
+        16   -> prvTelmProt_ParseConfigReq
+        16   -> prvTelmProt_ParseOTA
+        16   -> prvTelmProt_ParseReset
+      40   prvTelmProt_ParseOTA
+        40   -> Build_Message
+        40   -> Clear_OTASector
+        40   -> GPRS_Set_FMUpgrade_state
+        40   -> IWDG_ReloadCounter
+        40   -> OS_Send_Message
+        40   -> OS_Sleep
+        40   -> Restart
+        40   -> TelmProt_Set_New_OTA
+        40   -> Update_OTAHeader
+        40   -> __aeabi_memcpy
+        40   -> crc_ccitt
+        40   -> crc_xmodem
+        40   -> memcmp
+        40   -> printf
+        40   -> sFLASH_EraseSector
+        40   -> sFLASH_ReadBuffer
+        40   -> sFLASH_WriteBuffer
+        40   -> vATApp_Restart_OTA_Check
+       8   prvTelmProt_ParseReset
+         8   -> Reset_default_config
+         8   -> rl_reset
+       0   prvTelmProt_getPackageLen
+      24   prvTelmProt_parse_header
+        24   -> __aeabi_memcpy
+      16   vTelmProt_UploadInfo
+        16   -> __aeabi_memset
+        16   -> printf
+        16   -> prvTelmProt_Encode
+        16   -> vATApp_IPSEND_Excute
+    1120   vTelmProt_informData
+      1120   -> prvTelmProt_DecodeAndHandleCmd
+      1120   -> prvTelmProt_getPackageLen
+      1120   -> prvTelmProt_parse_header
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable10
+       4  ??DataTable10_1
+       4  ??DataTable10_2
+       4  ??DataTable11
+       4  ??DataTable11_1
+       4  ??DataTable11_2
+       4  ??DataTable11_3
+       4  ??DataTable11_4
+       4  ??DataTable11_5
+       4  ??DataTable11_6
+       4  ??DataTable11_7
+       4  ??DataTable11_8
+       4  ??DataTable12
+       4  ??DataTable16
+       4  ??DataTable16_1
+       4  ??DataTable16_10
+       4  ??DataTable16_11
+       4  ??DataTable16_12
+       4  ??DataTable16_13
+       4  ??DataTable16_14
+       4  ??DataTable16_15
+       4  ??DataTable16_16
+       4  ??DataTable16_17
+       4  ??DataTable16_18
+       4  ??DataTable16_19
+       4  ??DataTable16_2
+       4  ??DataTable16_20
+       4  ??DataTable16_21
+       4  ??DataTable16_22
+       4  ??DataTable16_23
+       4  ??DataTable16_24
+       4  ??DataTable16_25
+       4  ??DataTable16_26
+       4  ??DataTable16_27
+       4  ??DataTable16_28
+       4  ??DataTable16_3
+       4  ??DataTable16_4
+       4  ??DataTable16_5
+       4  ??DataTable16_6
+       4  ??DataTable16_7
+       4  ??DataTable16_8
+       4  ??DataTable16_9
+       4  ??DataTable8
+       4  ??DataTable8_1
+       4  ??DataTable8_2
+       4  ??DataTable8_3
+       4  ??DataTable9
+       4  ??DataTable9_1
+       4  ??DataTable9_2
+       4  ??DataTable9_3
+      40  ?_0
+      28  ?_1
+      36  ?_10
+      36  ?_11
+      32  ?_12
+      32  ?_13
+      36  ?_14
+      32  ?_15
+      16  ?_16
+      32  ?_2
+      32  ?_3
+      32  ?_4
+      76  ?_5
+      72  ?_6
+      48  ?_7
+      28  ?_8
+      52  ?_9
+      12  Clear_OTASector
+      18  Load_OTAHeader
+       2  TelmProt_Clear_Travel_Summary
+      26  TelmProt_Is_New_OTA
+       6  TelmProt_Set_New_OTA
+       2  TelmProt_Sleep_NV_Write
+       2  TelmProt_Travel_Summary_Record
+       4  Telm_Get_DEVID
+      22  Update_OTAHeader
+       1  car_battery_status
+      76  cfg
+       2  config_upload_id
+       2  dataLen
+     120  gpsInfo
+     120  gpsInfo
+     120  gpsInfo
+     120  gpsInfo
+     132  gps_data_tmp
+    1000  ipData
+      36  lastInfo
+      36  ota_header_info
+       1  ota_packet_flag
+      34  prvTelmProt_DecodeAndHandleCmd
+      28  prvTelmProt_Decode_Command
+     344  prvTelmProt_Encode
+      36  prvTelmProt_Encode_Activation
+     288  prvTelmProt_Encode_Backup_GPS
+      68  prvTelmProt_Encode_Batt
+       6  prvTelmProt_Encode_Cell_Loc
+      38  prvTelmProt_Encode_Chk
+     716  prvTelmProt_Encode_Config
+      42  prvTelmProt_Encode_Crash
+      44  prvTelmProt_Encode_Dashboard
+     150  prvTelmProt_Encode_Dev
+      50  prvTelmProt_Encode_Drive_Behavior
+     286  prvTelmProt_Encode_GPS
+      56  prvTelmProt_Encode_GPS_Fix
+     108  prvTelmProt_Encode_Get_OTA
+     466  prvTelmProt_Encode_Header
+       6  prvTelmProt_Encode_Ota_Check
+     196  prvTelmProt_Encode_Removal
+      56  prvTelmProt_Encode_Sensor
+      34  prvTelmProt_Encode_Sim
+     236  prvTelmProt_Encode_Towing
+      34  prvTelmProt_Encode_Trip
+      38  prvTelmProt_ParseActivate
+     486  prvTelmProt_ParseConfig
+      40  prvTelmProt_ParseConfigReq
+     256  prvTelmProt_ParseData
+    1212  prvTelmProt_ParseOTA
+      32  prvTelmProt_ParseReset
+      48  prvTelmProt_getPackageLen
+     166  prvTelmProt_parse_header
+       1  speed_buf_start
+       1  speed_buf_tail
+      72  telm_info_encode_table
+      12  telm_last_command
+       1  upload_num
+       1  upload_size
+     124  vTelmProt_UploadInfo
+      78  vTelmProt_informData
+
+ 
+ 1 779 bytes in section .bss
+     2 bytes in section .data
+     1 byte  in section .noinit
+   732 bytes in section .rodata
+ 6 096 bytes in section .text
+ 
+ 6 096 bytes of CODE  memory
+   732 bytes of CONST memory
+ 1 782 bytes of DATA  memory
+
+Errors: none
+Warnings: 14

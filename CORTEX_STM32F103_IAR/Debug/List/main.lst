@@ -1,0 +1,576 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:24
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\main.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\main.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\main.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\main.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\common\main.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          /* Standard includes. */
+     16          #include <stdio.h>
+     17          
+     18          /* Scheduler includes. */
+     19          #include "FreeRTOS.h"
+     20          #include "task.h"
+     21          #include "queue.h"
+     22          
+     23          /* Library includes. */
+     24          //#include "stm32f10x_it.h"
+     25          
+     26          #include "standard.h"
+     27          #include "uart.h"
+     28          
+     29          #define USE_DEBUG
+     30          #include "Debug.h"
+     31          
+     32          /*===========================================================================*\
+     33           * Constant and Macro Definitions using #define
+     34          \*===========================================================================*/
+     35          
+     36          /*===========================================================================*\
+     37           * Enumerations and Structures and Typedefs
+     38          \*===========================================================================*/
+     39          
+     40          /*===========================================================================*\
+     41           * Global and Const Variable Defining Definitions / Initializations
+     42          \*===========================================================================*/
+     43          
+     44          /*===========================================================================*\
+     45           * Static Variables and Const Variables With File Level Scope
+     46          \*===========================================================================*/
+     47          
+     48          /*===========================================================================*\
+     49           * Function Prototypes for Private Functions with File Level Scope
+     50          \*===========================================================================*/
+     51          
+     52          static void mn_immediate_init(void);
+     53          static void mn_rcc_config(void);
+     54          static void mn_nvic_config(void);
+     55          static void mn_gpio_init(void);
+     56          static void mn_exti_config(void);
+     57          /*
+     58           * Retargets the C library printf function to the USART.
+     59           */
+     60          int fputc( int ch, FILE *f);
+     61          
+     62          /**********************************************************************
+     63           *    Function: mn_immediate_init
+     64           *  Parameters: void
+     65           *     Returns: void
+     66           * Description: Calls the initialize routines for various modules that
+     67           *              must be done on BEFORE beginning the power up sequence.
+     68           *
+     69           **********************************************************************/
+     70          
+     71          static void mn_immediate_init(void)
+     72          {
+     73              /* System Clocks Configuration */
+     74              mn_rcc_config();
+     75              /* NVIC configuration */
+     76              mn_nvic_config();
+     77              /* GPIO configuration */
+     78              mn_gpio_init();
+     79              /*For debug, to be removed*/
+     80              Uart_Initialize(UART_DEBUG_CHANNEL);
+     81              if(!Sys_Get_Standby_Req_Flag())
+     82              {
+     83                  /* Initialize watchdog */
+     84                  //IWDG_Init();
+     85              }
+     86              else
+     87              {
+     88                  DEBUG_PRINT0( DEBUG_HIGH, "[MAIN]:Deep Standby...\r\n");
+     89              }
+     90          
+     91              if (Cold_Start()) 
+     92              {
+     93                  Sys_Clear_Wakeup_Src_Flags();
+     94                  Sys_Clear_Standby_Req_Flag();
+     95          
+     96                  rl_set_rtc_timeout(0);
+     97                  rl_set_low_batt_sleep(0);
+     98              }
+     99          }
+    100          
+    101          /**********************************************************************
+    102           *    Function: mn_Initialize
+    103           *
+    104           *  Parameters: void
+    105           *
+    106           *     Returns: void
+    107           *
+    108           * Description: Calls the initialize routines for various modules.
+    109           *
+    110           *
+    111           **********************************************************************/
+    112          void mn_Initialize(void)
+    113          {
+    114          #ifdef USE_DEBUG
+    115              uint8_t i;
+    116              int8_t * swdate = SY_Sw_Version();
+    117          
+    118              if(Cold_Start()){
+    119                  DEBUG_PRINT0( DEBUG_MEDIUM, "[MAIN]:Software Version :");
+    120                  for(i = 0;i < 16;i++)
+    121                  {
+    122                       DEBUG_PRINT1( DEBUG_MEDIUM, "%c", swdate[i]);
+    123                  }
+    124                  DEBUG_PRINT0( DEBUG_MEDIUM, "\r\n");
+    125          
+    126                  swdate = SY_Sw_Date();
+    127                  DEBUG_PRINT0( DEBUG_HIGH, "[MAIN]:Software Date :");
+    128                  for(i = 0;i < 9;i++)
+    129                  {
+    130                      DEBUG_PRINT1( DEBUG_HIGH, "%c", swdate[i]);
+    131                  }
+    132                  DEBUG_PRINT0( DEBUG_HIGH, "\r\n");
+    133                  DEBUG_PRINT0( DEBUG_HIGH, "[MAIN]:Cold Start...\r\n");
+    134              }
+    135              else
+    136              {
+    137                  DEBUG_PRINT0( DEBUG_HIGH, "[MAIN]:Warm Start...\r\n");
+    138              }
+    139          #endif
+    140          
+    141              /* Initialize RTC */
+    142              RTC_Config();
+    143              /* Initialize PSYNC */
+    144              PS_Initialize();
+    145              
+    146              /* Initialize ADC1 */
+    147              ADC1_Initialize();
+    148              
+    149              /* Initialize external interrupt */
+    150              mn_exti_config();
+    151              
+    152              /* Initialize spi flash, and get the parameter */
+    153              sFLASH_Init();
+    154              Load_Param();
+    155              
+    156              Sensors_init();
+    157              
+    158              
+    159          #ifdef USE_DEBUG
+    160          	uint8_t wakeup_source;
+    161          	wakeup_source = Sys_Get_Wakeup_Src_Flags();
+    162          	if(!Cold_Start())
+    163                  DEBUG_PRINT1(DEBUG_HIGH,"[SYSTEM]:Wake Up SRC:%x\n\r",wakeup_source);
+    164          #endif
+    165              
+    166          }
+    167          
+    168          int main(void)
+    169          {
+    170             /*!< At this stage the microcontroller clock setting is already configured, 
+    171                 this is done through SystemInit() function which is called from startup
+    172                 file (startup_stm32f10x_xx.s) before to branch to application main.
+    173                 To reconfigure the default setting of SystemInit() function, refer to
+    174                 system_stm32f10x.c file
+    175               */     
+    176              Task_Type   task_id;
+    177              //DBGMCU_Config(DBGMCU_SLEEP|DBGMCU_IWDG_STOP,ENABLE);
+    178              //DBGMCU->CR = 0X00000307;
+    179          
+    180              Init_Cold_Start_Flag();
+    181          //    Sys_Clear_Standby_Req_Flag();
+    182              mn_immediate_init();
+    183          
+    184              /* Creates all the tasks, then starts the scheduler. */
+    185              OS_Init();                                   /* initialize operating system structures */
+    186          
+    187              for (task_id = (Task_Type)0; task_id < (OS_NUM_TASKS-2); task_id++)
+    188              {
+    189                  OS_Activate_Task(task_id);                /* initialize all tasks */
+    190              }
+    191              OS_Start();                                  /* Start task switching. This function should not return */
+    192          
+    193              /* If this line is reached then vTaskStartScheduler() returned because there
+    194              was insufficient heap memory remaining for the idle task to be created. */
+    195              for( ;; );
+    196          
+    197              //return 0;
+    198          }
+    199          
+    200          /**
+    201            * @brief  Configures the different system clocks.
+    202            * @param  None
+    203            * @retval None
+    204            */
+    205          static void mn_rcc_config(void)
+    206          {   
+    207              /* Enable GPIOA, GPIOB, GPIOC, GPIOD, GPIOE and AFIO clocks */
+    208              RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |RCC_APB2Periph_GPIOC
+    209                                     | RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO, ENABLE );
+    210          
+    211              /* SPI2 Periph clock enable */
+    212              RCC_APB1PeriphClockCmd( RCC_APB1Periph_SPI2, ENABLE );
+    213          
+    214              /* Enable USART1 clocks */
+    215              RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+    216              /* Enable USART2 clocks */
+    217              RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+    218              /* Enable USART3 clocks */
+    219              RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+    220          }
+    221          
+    222          /**
+    223            * @brief  Configures the NVIC for CAN.
+    224            * @param  None
+    225            * @retval None
+    226            */
+    227          void mn_nvic_config(void)
+    228          {
+    229              NVIC_InitTypeDef  NVIC_InitStructure;
+    230          
+    231              NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+    232          
+    233              /* Enable the USART1 Interrupt */
+    234              NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+    235              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x2;
+    236              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    237              NVIC_Init(&NVIC_InitStructure);
+    238              /* Enable the USART2 Interrupt */
+    239              NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+    240              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x2;
+    241              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    242              NVIC_Init(&NVIC_InitStructure);
+    243              /* Enable the USART3 Interrupt */
+    244              NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+    245              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x2;
+    246              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    247              NVIC_Init(&NVIC_InitStructure);
+    248              /* Enable the UART4 Interrupt */
+    249          /*    NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;
+    250              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x2;
+    251              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    252              NVIC_Init(&NVIC_InitStructure);
+    253          */
+    254            /* Enable the SPI2 Interrupt */
+    255              NVIC_InitStructure.NVIC_IRQChannel = SPI1_IRQn;
+    256              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x2;
+    257              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    258              NVIC_Init(&NVIC_InitStructure);
+    259          
+    260              /* Set the Vector Table base address at 0x08002000 */
+    261              NVIC_SetVectorTable( NVIC_VectTab_FLASH, 0x0 ); //add by scb
+    262          }
+    263          
+    264          static void mn_gpio_init(void)
+    265          {
+    266              GPIO_InitTypeDef GPIO_InitStructure;  
+    267              // JTAG-DP Disabled and SW-DP Enabled,so PA15 & PB4 can be used for I/O ports. 
+    268              GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+    269          //    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_7 | GPIO_Pin_9;
+    270              GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_4 | GPIO_Pin_5 \
+    271                                          | GPIO_Pin_7 | GPIO_Pin_9;
+    272              GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+    273              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    274              GPIO_Init(GPIOC, &GPIO_InitStructure);
+    275          
+    276              GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_10;
+    277              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    278              GPIO_Init(GPIOA, &GPIO_InitStructure);
+    279          
+    280              GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+    281              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+    282              GPIO_Init(GPIOA, &GPIO_InitStructure);
+    283          
+    284              GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
+    285              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    286              GPIO_Init(GPIOB, &GPIO_InitStructure);
+    287          
+    288              GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_7;
+    289              GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+    290              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    291              GPIO_Init(GPIOB, &GPIO_InitStructure);
+    292          
+    293              GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_11;
+    294              GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+    295              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    296              GPIO_Init(GPIOA, &GPIO_InitStructure);
+    297          
+    298          //    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_6; //
+    299              GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_6;
+    300              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    301              GPIO_Init(GPIOC, &GPIO_InitStructure);
+    302          
+    303          #if 0
+    304              IO_GSM_4V_CTRL_OUT(Bit_SET);
+    305              IO_GSM_4V_CTRL_OUT(Bit_RESET);
+    306          #endif
+    307              IO_GSM_PWR_ON_OUT(Bit_RESET);
+    308          //    IO_4V_CTRL_OUT(Bit_SET);
+    309          //    IO_3V3_GPS_EN_OUT(Bit_SET);
+    310              IO_4V_CTRL_OUT(Bit_RESET);  //
+    311              IO_3V3_GPS_EN_OUT(Bit_RESET);//
+    312              
+    313              IO_MCU_LED1_CTL_OUT(Bit_RESET);
+    314              IO_MCU_LED2_CTL_OUT(Bit_RESET);
+    315              IO_FLASH_WP_OUT(Bit_SET);
+    316              IO_FLASH_HOLD_OUT(Bit_SET);
+    317              IO_CHARGE_CTL(Bit_RESET);
+    318          //    IO_CHRG_OUT(Bit_RESET); //
+    319              IO_GPS_RESET_OUT(Bit_RESET);
+    320          }
+    321          
+    322          /*-----------------------------------------------------------*/
+    323          
+    324          /*-----------------------------------------------------------*/
+    325          
+    326          int fputc( int ch, FILE *f )
+    327          {
+    328              /* Place your implementation of fputc here */
+    329              /* e.g. write a character to the USART */
+    330              USART_SendData(USART1, (uint8_t) ch); 
+    331              /* Loop until the end of transmission */
+    332              while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+    333              return ch;
+    334          }
+    335          /*-----------------------------------------------------------*/
+    336          
+    337          
+    338          /**
+    339            * @brief  Configures EXTI Lines.
+    340            * @param  None
+    341            * @retval None
+    342            */
+    343          static void mn_exti_config(void)
+    344          {
+    345              EXTI_InitTypeDef    EXTI_InitStructure;
+    346              NVIC_InitTypeDef    NVIC_InitStructure; 
+    347              
+    348              /* Configure EXTI Line17(RTC Alarm) to generate an interrupt on rising edge */
+    349              EXTI_ClearITPendingBit(EXTI_Line17);
+    350              EXTI_InitStructure.EXTI_Line = EXTI_Line17;
+    351              EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    352              EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+    353              EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    354              EXTI_Init(&EXTI_InitStructure);
+    355              
+    356              /* moved from no_io routine */
+    357                 /* 3. configure interrupts */
+    358              /* PA0-Wakeup pin for EXTI0 */
+    359              GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource0);
+    360              EXTI_InitStructure.EXTI_Line = EXTI_Line0;
+    361              EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    362              EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+    363              EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    364              EXTI_Init(&EXTI_InitStructure);
+    365              NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
+    366              NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+    367              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+    368              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    369              NVIC_Init(&NVIC_InitStructure);
+    370          
+    371              /* ACC */
+    372              GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource2);
+    373              EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    374              EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    375          //    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+    376              EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;      /*  */
+    377              
+    378              EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    379              EXTI_Init(&EXTI_InitStructure);
+    380              NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
+    381              NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+    382              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+    383              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    384              NVIC_Init(&NVIC_InitStructure);
+    385          
+    386              /* Gsensor */
+    387              GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource6);
+    388              EXTI_InitStructure.EXTI_Line = EXTI_Line6;
+    389              EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    390              EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+    391              EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    392              EXTI_Init(&EXTI_InitStructure);
+    393              NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+    394              NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+    395              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+    396              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    397              NVIC_Init(&NVIC_InitStructure);
+    398           
+    399          #if 0
+    400              /* Accel */
+    401              EXTI_InitStructure.EXTI_Line = EXTI_Line8;
+    402              EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    403              EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+    404              EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    405              EXTI_Init(&EXTI_InitStructure);
+    406              NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+    407              NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+    408              NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+    409              NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    410              NVIC_Init(&NVIC_InitStructure);
+    411          #endif
+    412          }
+    413          
+    414          
+    415          
+    416          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   fputc
+         8   -> USART_GetFlagStatus
+         8   -> USART_SendData
+       8   main
+         8   -> Init_Cold_Start_Flag
+         8   -> OS_Activate_Task
+         8   -> OS_Init
+         8   -> OS_Start
+         8   -> mn_immediate_init
+      16   mn_Initialize
+        16   -> ADC1_Initialize
+        16   -> Get_Cold_Start
+        16   -> Load_Param
+        16   -> PS_Initialize
+        16   -> RTC_Config
+        16   -> SY_Sw_Date
+        16   -> SY_Sw_Version
+        16   -> Sensors_init
+        16   -> Sys_Get_Wakeup_Src_Flags
+        16   -> mn_exti_config
+        16   -> printf
+        16   -> sFLASH_Init
+      16   mn_exti_config
+        16   -> EXTI_ClearITPendingBit
+        16   -> EXTI_Init
+        16   -> GPIO_EXTILineConfig
+        16   -> NVIC_Init
+       8   mn_gpio_init
+         8   -> GPIO_Init
+         8   -> GPIO_PinRemapConfig
+         8   -> GPIO_WriteBit
+       8   mn_immediate_init
+         8   -> Get_Cold_Start
+         8   -> Sys_Clear_Standby_Req_Flag
+         8   -> Sys_Clear_Wakeup_Src_Flags
+         8   -> Sys_Get_Standby_Req_Flag
+         8   -> Uart_Initialize
+         8   -> mn_gpio_init
+         8   -> mn_nvic_config
+         8   -> mn_rcc_config
+         8   -> printf
+         8   -> rl_set_low_batt_sleep
+         8   -> rl_set_rtc_timeout
+       8   mn_nvic_config
+         8   -> NVIC_Init
+         8   -> NVIC_PriorityGroupConfig
+         8   -> NVIC_SetVectorTable
+       8   mn_rcc_config
+         8   -> RCC_APB1PeriphClockCmd
+         8   -> RCC_APB2PeriphClockCmd
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable4
+       4  ??DataTable4_1
+       4  ??DataTable4_10
+       4  ??DataTable4_11
+       4  ??DataTable4_12
+       4  ??DataTable4_13
+       4  ??DataTable4_2
+       4  ??DataTable4_3
+       4  ??DataTable4_4
+       4  ??DataTable4_5
+       4  ??DataTable4_6
+       4  ??DataTable4_7
+       4  ??DataTable4_8
+       4  ??DataTable4_9
+      28  ?_0
+      28  ?_1
+       4  ?_2
+       4  ?_3
+      24  ?_4
+      24  ?_5
+      24  ?_6
+      28  ?_7
+      32  fputc
+      40  main
+     158  mn_Initialize
+     240  mn_exti_config
+     272  mn_gpio_init
+      64  mn_immediate_init
+     116  mn_nvic_config
+      52  mn_rcc_config
+
+ 
+   164 bytes in section .rodata
+ 1 030 bytes in section .text
+ 
+ 1 030 bytes of CODE  memory
+   164 bytes of CONST memory
+
+Errors: none
+Warnings: none

@@ -1,0 +1,737 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:23
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\GPRS.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\GPRS.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\GPRS.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\GPRS.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\GPRS.c
+      1          /**********************************************************************
+      2             Title                      : GPRS.c         
+      3                                                                                   
+      4             Module Description         : Telematics module. This file is the communication task
+      5                                                  with telm modlue.
+      6          
+      7             Author                     : 
+      8             
+      9           *********************************************************************/
+     10          
+     11          /**********************************************************************
+     12           * Include files                                                       
+     13           *********************************************************************/
+     14          #include "standard.h"
+     15          #include "ATProtocol.h"
+     16          #include "ATApp.h"
+     17          #include "TelmProtocol.h"
+     18          #include "stm32f10x_rtc.h"
+     19          #include <string.h>
+     20          
+     21          #include "uart.h"
+     22          #include "gps.h"
+     23          //#include "spi_flash.h"
+     24          #define USE_DEBUG
+     25          #include "Debug.h"
+     26          
+     27          /**********************************************************************
+     28           * Constant and Macro Definitions using #define
+     29           *********************************************************************/
+     30          #define TIMER_QUERY_INTERVAL	(MSec_To_Ticks(2000))
+     31          #define TIMER_UPGRADE_GUARD   (10 * ONE_MINUTE_IN_TICKS)   //3G firmware upgrade guard timer is 
+     32          
+     33          //#define TEST_2G_SIGNAL
+     34          //#define TEST_BATT
+     35          //#define TEMPERATURE_READ_ENABLE
+     36          //#define USE_DEV_TRACE
+     37          
+     38          #define OTA_DATA_LEN_MAX 0x3FF00
+     39          #ifdef USE_DEV_TRACE
+     40          #define DEV_TRACE_TIME (1400000)
+     41          #endif
+     42          /*********************************************************************/
+     43          /* Enumerations and Structures and Typedefs                          */
+     44          /*********************************************************************/
+     45          static bool	telematics_module_pwr_on;
+     46          static bool telematics_module_upgrade_state; // 0: No upgrade state, 1: upgrade in progress
+     47          
+     48          /* Addr 0x00 - 0x03 */
+     49          typedef struct init_flag_tag
+     50          {
+     51              uint8_t flags[4];
+     52          }init_flag_t;
+     53          
+     54          typedef struct gps_back_header_tag
+     55          {
+     56              uint8_t total_num;
+     57              uint8_t sent_ptr;
+     58              uint8_t store_ptr;
+     59          }gps_back_header_t;
+     60          
+     61          typedef struct ota_header_tag
+     62          {
+     63              uint8_t ota_start_flag;
+     64              uint8_t ota_data_len[4];
+     65              uint8_t sw_ver[4];
+     66              uint8_t checksum[4];
+     67          }ota_header_t;
+     68          
+     69          static uint8_t dev_activated_state = 1; // 0: Not activated, 1: activated
+     70          
+     71          //static uint8_t harsh_data = 0; // 0: No harsh data to send, 1: data to send
+     72          static uint8_t accept_call_flag = 0; // 0: no call, 1: call accepted
+     73          extern  uint8_t prvATProt_Uart_Transmit(const char* tx_buf, uint16_t bytes);
+     74          /**********************************************************************
+     75           * Function Prototypes for Private Functions with File Level Scope
+     76           *********************************************************************/
+     77          static void prvGSM_Module_Init(void);
+     78          
+     79          static void prvGSM_evt_nop(int16_t data);
+     80          static void prvGSM_evt_car_crashed(int16_t data);
+     81          static void prvGSM_evt_reset_module(int16_t data);
+     82          static void prvGSM_evt_sys_power_lost(int16_t data);
+     83          static void prvGSM_evt_car_theft(int16_t data);
+     84          static void prvGSM_evt_gps_upload(int16_t data);
+     85          static void prvGSM_evt_dev_upload(int16_t data);
+     86          static void prvGSM_evt_batt_upload(int16_t data);
+     87          static void prvGSM_evt_env_test(int16_t data);
+     88          static void prvGSM_evt_backup_gps_upload(int16_t data);
+     89          static void prvGSM_evt_config_upload(int16_t data);
+     90          static void prvGSM_evt_ota(int16_t data);
+     91          static void prvGSM_evt_gps_first_fixed(int16_t data);
+     92          static void prvGSM_evt_trip(int16_t data);
+     93          static void prvGSM_evt_dbe(int16_t data);
+     94          
+     95          //static void prvVehicleCrashed_Scan_init(void);
+     96          
+     97          uint32_t get_OTA_checksum(void);
+     98          
+     99          /*********************************************************************/
+    100          /* Static Variables and Const Variables With File Level Scope        */
+    101          /*********************************************************************/
+    102          static void_int16_fptr tcom_event_handler[]=
+    103          {
+    104              prvGSM_evt_nop,					//TM_EVT_NOP
+    105              prvGSM_evt_reset_module,			//TM_EVT_RESET_MODULE
+    106              prvGSM_evt_car_crashed,			//TM_EVT_CAR_CRASHED
+    107              prvGSM_evt_sys_power_lost,		//TM_EVT_BATTERY_FAULT 
+    108              prvGSM_evt_car_theft,    //TM_EVT_CAR_THEFT	 //!!NOT USED
+    109              prvGSM_evt_gps_upload,
+    110              prvGSM_evt_dev_upload,
+    111              prvGSM_evt_batt_upload,
+    112              prvGSM_evt_env_test,
+    113              prvGSM_evt_backup_gps_upload,
+    114              prvGSM_evt_config_upload,
+    115              prvGSM_evt_ota,
+    116              prvGSM_evt_gps_first_fixed,
+    117              prvGSM_evt_trip,
+    118              prvGSM_evt_dbe,
+    119          };
+    120          
+    121          /*********************************************************************/
+    122          /* User file include                                                 */
+    123          /*********************************************************************/
+    124          
+    125          /**********************************************************************
+    126           * Function Definitions
+    127           *********************************************************************/
+    128          
+    129          /*******************************************************************************
+    130          *    Function:  GPRS_Set_Telematics_Activation_State
+    131          *
+    132          *  Parameters:  
+    133          *     Returns:  None
+    134          * Description:  GPRS_Set_Telematics_Activation_State.
+    135          *******************************************************************************/
+    136          void GPRS_Set_Telematics_Activation_State(uint8_t act_flag)
+    137          {
+    138          //    dev_activated_state = act_flag;
+    139          //    if (act_flag == 1)
+    140          //        set_activated();
+    141          }
+    142          
+    143          /*******************************************************************************
+    144          *    Function:  GPRS_Get_Telematics_Activation_State
+    145          *
+    146          *  Parameters:  
+    147          *     Returns:  None
+    148          * Description:  GPRS_Get_Telematics_Activation_State.
+    149          *******************************************************************************/
+    150          uint8_t GPRS_Get_Telematics_Activation_State(void)
+    151          {
+    152             return dev_activated_state;
+    153          }
+    154          /*******************************************************************************
+    155          *    Function:  GPRS_Set_Telematics_Module_Pwr_State
+    156          *
+    157          *  Parameters:  
+    158          *     Returns:  None
+    159          * Description:  GPRS_Set_Telematics_Module_Pwr_State.
+    160          *******************************************************************************/
+    161          void GPRS_Set_Telematics_Module_Pwr_State(bool pwr_flag)
+    162          {
+    163          	telematics_module_pwr_on = pwr_flag;
+    164          }
+    165          
+    166          /*******************************************************************************
+    167          *    Function:  GPRS_Get_Telematics_Module_Pwr_State
+    168          *
+    169          *  Parameters:  
+    170          *     Returns:  None
+    171          * Description:  GPRS_Get_Telematics_Module_Pwr_State.
+    172          *******************************************************************************/
+    173          bool GPRS_Get_Telematics_Module_Pwr_State(void)
+    174          {
+    175          	return telematics_module_pwr_on;
+    176          }
+    177          /*******************************************************************************
+    178          *    Function:  GPRS_Get_FMUpgrade_state
+    179          *
+    180          *  Parameters:  void
+    181          *     Returns:  void
+    182          * Description:  return the firmware upgrade state: 1 is in upgrade mode, 0 is not in upgrade mode
+    183          *******************************************************************************/
+    184          bool GPRS_Get_FMUpgrade_state(void)
+    185          {
+    186             return telematics_module_upgrade_state;
+    187          }
+    188          /*******************************************************************************
+    189          *    Function:  GPRS_Get_FMUpgrade_state
+    190          *
+    191          *  Parameters:  void
+    192          *     Returns:  void
+    193          * Description:  return the firmware upgrade state: 1 is in upgrade mode, 0 is not in upgrade mode
+    194          *******************************************************************************/
+    195          void GPRS_Set_FMUpgrade_state(uint8_t fmupgrade_state)
+    196          {
+    197             telematics_module_upgrade_state = fmupgrade_state;
+    198          }
+    199          
+    200          /*******************************************************************************
+    201          *    Function:  IOT_Task
+    202          *
+    203          *  Parameters:  None
+    204          *     Returns:  None
+    205          * Description:  TASK to handle communication between MCU and GPRS module.
+    206          *******************************************************************************/
+    207          extern void IOT_Task(void* pvParameters)
+    208          {
+    209              Data_Message_T msg;
+    210              uint32_t csq_time = 0;
+    211          
+    212              #ifdef USE_DEBUG
+    213              DEBUG_PRINT0( DEBUG_MEDIUM, "[2G]:2G TASK Started!\r\n");
+    214              #endif
+    215          
+    216              prvGSM_Module_Init();
+    217              csq_time = OS_Time();
+    218          
+    219          #ifdef USE_DEV_TRACE
+    220              if (u3G_Get_FMUpgrade_state() != 1)
+    221                  TMR_Start_Timer(DEV_TRACE_TIMER, DEV_TRACE_TIME, vSend_Dev_Trace);	
+    222          #endif
+    223          
+    224          
+    225              while(PS_Running()&&(Mdg_SW_Upgrage_mode==false))
+    226              {
+    227                  /* wait event from other tasks */
+    228                  if(E_OK == OS_Wait_Message(OS_IOT_TASK, &msg.all, MSec_To_Ticks(20)))// 20ms testing
+    229                	{
+    230                      if(msg.parts.msg < TM_NUM_EVENTS)
+    231                      {
+    232                          if(NULL != tcom_event_handler[msg.parts.msg])
+    233                          {
+    234                              (*tcom_event_handler[msg.parts.msg])(msg.parts.data);
+    235                          }
+    236                      }
+    237                  }
+    238          
+    239                  if (GPRS_Get_Telematics_Module_Pwr_State())
+    240                  {
+    241                  }
+    242          
+    243                  if ((csq_time + MSec_To_Ticks(300)) < OS_Time())
+    244                  {
+    245                      vATApp_Loop_Check();
+    246          #ifdef TELM_TEST_PHONE
+    247                      if (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_8) == 0)
+    248                      {
+    249                          DEBUG_PRINT0(DEBUG_HIGH,"RING!\r\n");
+    250                          if (accept_call_flag==0)
+    251                          {
+    252                              accept_call();
+    253                              accept_call_flag=1;
+    254                          }
+    255                      }
+    256                      else
+    257                      {
+    258                          accept_call_flag=0;
+    259                      }
+    260          #endif
+    261                      csq_time = OS_Time();
+    262                  }
+    263          
+    264                  if (GPRS_Get_Telematics_Module_Pwr_State())
+    265                  {
+    266                      vATProt_Check_Receive();
+    267                      vTelmApp_main_loop();
+    268                      vATProt_Check_Transmit();
+    269                  }
+    270              }
+    271              /* execute necessary process for going to sleep */
+    272          
+    273              OS_Terminate_Task();
+    274          }
+    275          
+    276          /*******************************************************************************
+    277          *    Function:  prvGSM_Module_Init
+    278          *
+    279          *  Parameters:  None
+    280          *     Returns:  None
+    281          * Description:  Initialize variables TCOM task use. UART Initilization should be put here.
+    282          *******************************************************************************/
+    283          static void prvGSM_Module_Init(void)
+    284          {
+    285              GPRS_Set_Telematics_Module_Pwr_State(false);
+    286              vATProt_Init();
+    287              vATApp_Init();
+    288              GPRS_Set_Telematics_Module_Pwr_State(true);
+    289          }
+    290          
+    291          /*******************************************************************************
+    292          *    Function:  v3G_Module_GoSleep
+    293          *
+    294          *  Parameters:  None
+    295          *     Returns:  None
+    296          * Description:  Initialize variables TCOM task use. UART Initilization should be put here.
+    297          *******************************************************************************/
+    298          void GPRS_Module_GoSleep(void)
+    299          {
+    300              if ((1 == GPRS_Get_FMUpgrade_state()) &&
+    301                    (1 == GPRS_Get_Telematics_Activation_State()))
+    302              {
+    303                  GPRS_Set_FMUpgrade_state(0);
+    304              }
+    305              vATProt_sendAT_Command(AT_CMD_IPCLOSE_EXCUTE,NULL,NULL);
+    306              OS_Sleep(600);
+    307              vATApp_GoSleep();
+    308              vATProt_GoSleep();
+    309          }
+    310          
+    311          /*******************************************************************************
+    312          *    Function:  prvGSM_evt_nop
+    313          *
+    314          *  Parameters:  None
+    315          *     Returns:  None
+    316          * Description:  Send series of command to 3G module for initilization.
+    317          *******************************************************************************/
+    318          static void prvGSM_evt_nop(int16_t data)
+    319          {
+    320          }
+    321          
+    322          /*******************************************************************************
+    323          * Function:  prvGSM_evt_reset_module
+    324          *
+    325          * Parameters:  None
+    326          * Returns:  None
+    327          * Description:  
+    328          *******************************************************************************/
+    329          static void prvGSM_evt_reset_module(int16_t data)
+    330          {
+    331             vATProt_Com_Reset();
+    332             vATApp_Init();
+    333          }
+    334          
+    335          /*******************************************************************************
+    336          *    Function:  prvGSM_evt_car_crashed
+    337          *
+    338          *  Parameters:  None
+    339          *     Returns:  None
+    340          * Description:  
+    341          *******************************************************************************/
+    342          static void prvGSM_evt_car_crashed(int16_t data)
+    343          {
+    344              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    345              {
+    346          	    vTelmApp_uploadData(TELM_SEC_EVT_CRASH, NULL);
+    347              }
+    348              else
+    349              {
+    350                  vTelmApp_Backup_Msg(TELM_SEC_EVT_CRASH);
+    351              }
+    352          }
+    353          
+    354          /*******************************************************************************
+    355          * Function:  prvGSM_evt_sys_power_lost
+    356          *
+    357          * Parameters:  None
+    358          * Returns:  None
+    359          * Description:  automotive battery power lost
+    360          *******************************************************************************/
+    361          static void prvGSM_evt_sys_power_lost(int16_t data)
+    362          {
+    363              if (1 != GPRS_Get_Telematics_Activation_State())
+    364                  return;
+    365              DEBUG_PRINT0(DEBUG_HIGH,"[2G] low battery voltage!\n\r");
+    366              /* Set car battery abnormal status */
+    367          //    set_battery_status(1);
+    368              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    369              {
+    370          	    vTelmApp_uploadData(TELM_SEC_EVT_BATT, NULL);
+    371              }
+    372              else
+    373              {
+    374                  vTelmApp_Backup_Msg(TELM_SEC_EVT_BATT);
+    375          //        save_current_except();
+    376              }
+    377          }
+    378          
+    379          // move after ignition off
+    380          static void prvGSM_evt_car_theft(int16_t data)
+    381          {
+    382              if (1 != GPRS_Get_Telematics_Activation_State())
+    383                  return;
+    384              DEBUG_PRINT0(DEBUG_MEDIUM,"[2G] abnormal movement!\n\r");
+    385              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    386              {
+    387                  vTelmApp_uploadData(TELM_SEC_EVT_TOWING, NULL);
+    388              }
+    389              else
+    390              {
+    391                  vTelmApp_Backup_Msg(TELM_SEC_EVT_TOWING);
+    392              }
+    393          }
+    394          
+    395          static void prvGSM_evt_gps_upload(int16_t data)
+    396          {
+    397              if (1 != GPRS_Get_Telematics_Activation_State())
+    398                  return;
+    399          //    DEBUG_PRINT0(DEBUG_HIGH,"[2G] upload GPS!\n\r");
+    400              Set_Last_GPS_uploader(0);
+    401              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    402              {
+    403          	    vTelmApp_uploadData(TELM_SEC_EVT_GPS, NULL);
+    404              }
+    405              else
+    406              {
+    407                  //save GPS point
+    408              }
+    409          }
+    410          
+    411          static void prvGSM_evt_dev_upload(int16_t data)
+    412          {
+    413              vTelmApp_uploadData(TELM_SEC_EVT_DEV, NULL);
+    414          }
+    415          
+    416          static void prvGSM_evt_batt_upload(int16_t data)
+    417          {
+    418              vTelmApp_uploadData(TELM_SEC_EVT_BATT, NULL);
+    419          }
+    420          
+    421          static void prvGSM_evt_env_test(int16_t data)
+    422          {
+    423              if (1 != GPRS_Get_Telematics_Activation_State())
+    424                  return;
+    425              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    426              {
+    427          	    vTelmApp_uploadData(TELM_SEC_EVT_BATT, NULL);
+    428              }
+    429              else
+    430              {
+    431              }
+    432          }
+    433          
+    434          static void prvGSM_evt_backup_gps_upload(int16_t data)
+    435          {
+    436              if (1 != GPRS_Get_Telematics_Activation_State())
+    437                  return;
+    438              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    439              {
+    440          	    vTelmApp_uploadData(TELM_SEC_EVT_BACKUP, NULL);
+    441              }
+    442          }
+    443          
+    444          static void prvGSM_evt_config_upload(int16_t data)
+    445          {
+    446              if (1 != GPRS_Get_Telematics_Activation_State())
+    447                  return;
+    448              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    449              {
+    450          	    vTelmApp_uploadData(TELM_SEC_EVT_CONFIG, NULL);
+    451              }
+    452          }
+    453          
+    454          static void prvGSM_evt_ota(int16_t data)
+    455          {
+    456              if (1 != GPRS_Get_Telematics_Activation_State())
+    457                  return;
+    458              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    459              {
+    460          	    vTelmApp_uploadData(TELM_SEC_EVT_OTA, NULL);
+    461              }
+    462          }
+    463          
+    464          static void prvGSM_evt_gps_first_fixed(int16_t data)
+    465          {
+    466          //    Periodic_Get_GPS_Fixed();
+    467              if (1 != GPRS_Get_Telematics_Activation_State())
+    468                  return;
+    469              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    470              {
+    471          	    vTelmApp_uploadData(TELM_SEC_EVT_GPS_FIX, NULL);
+    472              }
+    473              else
+    474              {
+    475                  vTelmApp_Backup_Msg(TELM_SEC_EVT_GPS_FIX);
+    476              }
+    477          }
+    478          
+    479          static void prvGSM_evt_trip(int16_t data)
+    480          {
+    481              if (1 != GPRS_Get_Telematics_Activation_State())
+    482                  return;
+    483              // If data==2, trip start; If data==1, trip end
+    484              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    485              {
+    486          	    vTelmApp_uploadData(TELM_SEC_EVT_TRIP, NULL);
+    487              }
+    488              else
+    489              {
+    490                  vTelmApp_Backup_Msg(TELM_SEC_EVT_TRIP);
+    491              }
+    492          }
+    493          
+    494          static void prvGSM_evt_dbe(int16_t data)
+    495          {
+    496              if (1 != GPRS_Get_Telematics_Activation_State())
+    497                  return;
+    498              if (NET_DATA_TRANS == vATProt_Get_TCP_State())
+    499              {
+    500          	    vTelmApp_uploadData(TELM_SEC_EVT_DRIVE_BHV, NULL);
+    501              }
+    502              else
+    503              {
+    504                  vTelmApp_Backup_Msg(TELM_SEC_EVT_DRIVE_BHV);
+    505              }
+    506          }
+    507          
+    508          extern uint8_t GPRS_server_connected(void)
+    509          {
+    510              if (NET_TCP_CONNECTED<=vATProt_Get_TCP_State())
+    511                  return 1;
+    512              else
+    513                  return 0;
+    514          }
+    515          
+    516          /*=======================================================================================*\
+    517           * File Revision History
+    518           *=======================================================================================
+    519           * ----------  ------   ---------------------------------------------
+    520           *
+    521          \*=======================================================================================*/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   GPRS_Get_FMUpgrade_state
+       0   GPRS_Get_Telematics_Activation_State
+       0   GPRS_Get_Telematics_Module_Pwr_State
+       8   GPRS_Module_GoSleep
+         8   -> GPRS_Get_FMUpgrade_state
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> GPRS_Set_FMUpgrade_state
+         8   -> OS_Sleep
+         8   -> vATApp_GoSleep
+         8   -> vATProt_GoSleep
+         8   -> vATProt_sendAT_Command
+       0   GPRS_Set_FMUpgrade_state
+       0   GPRS_Set_Telematics_Activation_State
+       0   GPRS_Set_Telematics_Module_Pwr_State
+       8   GPRS_server_connected
+         8   -> vATProt_Get_TCP_State
+      16   IOT_Task
+        16   -- Indirect call
+        16   -> GPRS_Get_Telematics_Module_Pwr_State
+        16   -> OS_Wait_Message
+        16   -> PS_Running
+        16   -> printf
+        16   -> prvGSM_Module_Init
+        16   -> vATApp_Loop_Check
+        16   -> vATProt_Check_Receive
+        16   -> vATProt_Check_Transmit
+        16   -> vTaskSuspend
+        16   -> vTelmApp_main_loop
+        16   -> xTaskGetTickCountFromISR
+       8   prvGSM_Module_Init
+         8   -> GPRS_Set_Telematics_Module_Pwr_State
+         8   -> vATApp_Init
+         8   -> vATProt_Init
+       8   prvGSM_evt_backup_gps_upload
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_batt_upload
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_car_crashed
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_Backup_Msg
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_car_theft
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> printf
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_Backup_Msg
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_config_upload
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_dbe
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_Backup_Msg
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_dev_upload
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_env_test
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_gps_first_fixed
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_Backup_Msg
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_gps_upload
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> Set_Last_GPS_uploader
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_uploadData
+       0   prvGSM_evt_nop
+       8   prvGSM_evt_ota
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_reset_module
+         8   -> vATApp_Init
+         8   -> vATProt_Com_Reset
+       8   prvGSM_evt_sys_power_lost
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> printf
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_Backup_Msg
+         8   -> vTelmApp_uploadData
+       8   prvGSM_evt_trip
+         8   -> GPRS_Get_Telematics_Activation_State
+         8   -> vATProt_Get_TCP_State
+         8   -> vTelmApp_Backup_Msg
+         8   -> vTelmApp_uploadData
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable7
+       4  ??DataTable7_1
+       4  ??DataTable7_2
+       4  ??DataTable7_3
+       4  ??DataTable7_4
+       4  ??DataTable7_5
+       4  ??DataTable7_6
+       4  ??DataTable7_7
+      24  ?_0
+      28  ?_1
+      28  ?_2
+       6  GPRS_Get_FMUpgrade_state
+       6  GPRS_Get_Telematics_Activation_State
+       6  GPRS_Get_Telematics_Module_Pwr_State
+      52  GPRS_Module_GoSleep
+       8  GPRS_Set_FMUpgrade_state
+       2  GPRS_Set_Telematics_Activation_State
+       6  GPRS_Set_Telematics_Module_Pwr_State
+      18  GPRS_server_connected
+     146  IOT_Task
+       1  dev_activated_state
+      24  prvGSM_Module_Init
+      28  prvGSM_evt_backup_gps_upload
+      12  prvGSM_evt_batt_upload
+      28  prvGSM_evt_car_crashed
+      42  prvGSM_evt_car_theft
+      28  prvGSM_evt_config_upload
+      36  prvGSM_evt_dbe
+      12  prvGSM_evt_dev_upload
+      28  prvGSM_evt_env_test
+      36  prvGSM_evt_gps_first_fixed
+      34  prvGSM_evt_gps_upload
+       2  prvGSM_evt_nop
+      28  prvGSM_evt_ota
+      12  prvGSM_evt_reset_module
+      42  prvGSM_evt_sys_power_lost
+      36  prvGSM_evt_trip
+      60  tcom_event_handler
+       4  telematics_module_pwr_on
+       4  telematics_module_upgrade_state
+
+ 
+   8 bytes in section .bss
+  61 bytes in section .data
+  80 bytes in section .rodata
+ 710 bytes in section .text
+ 
+ 710 bytes of CODE  memory
+  80 bytes of CONST memory
+  69 bytes of DATA  memory
+
+Errors: none
+Warnings: 1

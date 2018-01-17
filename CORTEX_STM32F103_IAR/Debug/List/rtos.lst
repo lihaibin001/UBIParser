@@ -1,0 +1,960 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:27
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\rtos.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\rtos.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\rtos.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\rtos.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\common\rtos.c
+      1          /* $Header:   rtos.c    $*/
+      2          /*===========================================================================*\
+      3           * FILE: rtos.c
+      4           *===========================================================================
+      5           * 
+      6           * DESCRIPTION:
+      7           *    Operating System Kernel Abstract C file
+      8           *
+      9           * AUTHOR:
+     10           *    
+     11           *
+     12          \*===========================================================================*/
+     13          
+     14          /*===========================================================================*\
+     15           * Include Header files 
+     16          \*===========================================================================*/
+     17          
+     18          #include "standard.h"
+     19          /*===========================================================================*\
+     20           * Constant and Macro Definitions using #define
+     21          \*===========================================================================*/
+     22          
+     23          static xQueueHandle pxTaskQueue[OS_NUM_TASKS];//message queue handle
+     24          static xTaskHandle  pxTaskHandle[OS_NUM_TASKS];//task handle
+     25          static xSemaphoreHandle  pxResources[OS_NUM_RESOURCES];//Counting Semaphore for system resource
+     26          
+     27          static OS_TCB_Init_Type const os_TCB_init[OS_NUM_TASKS] =                                            
+     28          {
+     29              /*Entry          stack size                       msg queue size                  message size        priority       task name, */
+     30             {Psync_Task,     TASK_PSYNC_STACK_SIZE,     TASK_PSYNC_QUEUE_SIZE,   TASK_PSYNC_MSG_SIZE,TASK_PSYNC_PRIORITY, "psync task"},
+     31             {Relays_Task,     TASK_RELAYS_STACK_SIZE,     TASK_RELAYS_QUEUE_SIZE,   TASK_RELAYS_MSG_SIZE,TASK_RELAYS_PRIORITY, "relays task"},
+     32             {Periodic_Task,   TASK_PERIODIC_STACK_SIZE,   TASK_PERIODIC_QUEUE_SIZE, TASK_PERIODIC_MSG_SIZE,  TASK_PERIODIC_PRIORITY, "peroidic task"},
+     33             {Diag_Task,   TASK_DIAG_STACK_SIZE,   TASK_DIAG_QUEUE_SIZE, TASK_DIAG_MSG_SIZE,  TASK_DIAG_PRIORITY, "diag task"},
+     34             {Record_Task,     TASK_RECORD_STACK_SIZE,     TASK_RECORD_QUEUE_SIZE,   TASK_RECORD_MSG_SIZE,TASK_RECORD_PRIORITY, "record task"},
+     35          #if 1
+     36             {Sensor_Task,   TASK_SENSOR_STACK_SIZE,   TASK_SENSOR_QUEUE_SIZE, TASK_SENSOR_MSG_SIZE,  TASK_SENSOR_PRIORITY, "Sensor task"},
+     37          #endif
+     38             {IOT_Task,   TASK_IOT_STACK_SIZE,   TASK_IOT_QUEUE_SIZE, TASK_IOT_MSG_SIZE,  TASK_IOT_PRIORITY, "IoT task"},
+     39             {GPS_Task,   TASK_GPS_STACK_SIZE,   TASK_GPS_QUEUE_SIZE, TASK_GPS_MSG_SIZE,  TASK_GPS_PRIORITY, "GPS task"},
+     40          };
+     41          
+     42          //---------------------------------------------------------------------
+     43          //  Set up Resources initialization data 
+     44          //---------------------------------------------------------------------
+     45          static Semaphore_Init const resource_init[OS_NUM_RESOURCES] =
+     46          {
+     47             {1,1},                                       // RES_IOT  (one available, and maximum of one)
+     48             {1,1},                                       // RES_RELAYS  (one available, and maximum of one)
+     49             {0,10},                                    //RES_PERIODIC(zero available, and maximum of ten)
+     50             {0,1},                                       //RES_CAN  (zero available, and maximum of one)
+     51             {4,4},                                       // RES_DMA_CHANNELS  (four available, and maximum of four)
+     52             {1,1},                                       //RES_IIC_0  (one available, and maximum of one)   {1,1},   
+     53             {1,1},                           // RES_SPIFLASH  (one available, and maximum of one)
+     54          };
+     55          
+     56          /*===========================================================================*\
+     57           * Enumerations and Structures and Typedefs
+     58          \*===========================================================================*/
+     59          typedef struct os_tcb_Tag
+     60          {
+     61             OS_Stack_Type *stack_ptr;    /* Pointer to current top of stack */
+     62             Event_Mask_Type event_mask;  /* Event mask */
+     63             Tick_Type alarm_count;       /* Alarm for timeouts */
+     64             uint16_t alarm_period;       /* alarm delta */
+     65             int8_t state;                /* (Task_State_Type) Task status (SUSPENDED,WAITING,READY,RUNNING,WAITING_MSG) */
+     66          } OS_TCB;
+     67          /*--------------------------------------------------------------------
+     68           *    Resource Type
+     69           *------------------------------------------------------------------*/
+     70          
+     71          
+     72          /*===========================================================================*\
+     73           * Global and Const Variable Defining Definitions / Initializations
+     74          \*===========================================================================*/
+     75          __no_init  uint32_t OS_Cold_Start; //                    // false if last reset was coldstart
+     76          uint8_t  OS_ResF;       /* Cause of hardware reset */
+     77          uint8_t  OS_RamF;       /* RAM retention voltage detection */
+     78          //PRIVILEGED_DATA bool          os_started;                  /* Set true when OS task switching has been enabled */
+     79          bool          os_started;                  /* Set true when OS task switching has been enabled */
+     80          /*===========================================================================*\
+     81           * Static Variables and Const Variables With File Level Scope
+     82          \*===========================================================================*/
+     83          
+     84          /*===========================================================================*\
+     85           * Function Prototypes for Private Functions with File Level Scope
+     86          \*===========================================================================*/
+     87          static void OS_Create_Task(const OS_TCB_Init_Type *task_info, xQueueHandle *pQuehandle,xTaskHandle *pTaskhandle);
+     88          static Status_Type os_get_resource(Resource_Type resid);
+     89          static void Idle_Task (void );
+     90          /*===========================================================================*\
+     91           * Add User defined functions
+     92          \*===========================================================================*/
+     93          void SY_Reset(void)
+     94          {
+     95               OS_Sleep(100);//100ms delay?
+     96          }
+     97          
+     98          extern void Init_Cold_Start_Flag(void)
+     99          {
+    100              if(OS_Cold_Start != 0x55)
+    101                  OS_Cold_Start = true;
+    102              else
+    103                  OS_Cold_Start = false;//otherwise it must be warm start
+    104          }
+    105          
+    106          extern void Set_Cold_Start(void)
+    107          {
+    108              OS_Cold_Start = true;
+    109          }
+    110          
+    111          extern void Clear_Cold_Start(void)
+    112          {
+    113              OS_Cold_Start = false;
+    114          }
+    115          extern void Set_warm_Start(void)
+    116          {
+    117              OS_Cold_Start = 0x55;
+    118          }
+    119          
+    120          extern bool Get_Cold_Start(void)
+    121          {
+    122              return OS_Cold_Start ;
+    123          }
+    124          
+    125          /**********************************************************************
+    126           *    Function: OS_Check_Cold_Start
+    127           *
+    128           *  Parameters: None
+    129           *
+    130           *     Returns: None
+    131           *
+    132           *    Modifies: Cold_Start
+    133           *
+    134           * Description: Set Cold_Start flag if any previous stack was corrupted
+    135           *
+    136           *********************************************************************/
+    137          void OS_Check_Cold_Start(void)
+    138          {
+    139          }
+    140          
+    141          
+    142          /*===========================================================================*\
+    143           * Function Definitions
+    144          \*===========================================================================*/
+    145          /*===========================================================================*\
+    146           *    Function: OS_Init
+    147           *
+    148           *  Parameters: None
+    149           *
+    150           *     Returns: None
+    151           *
+    152           *
+    153           * Description: Initializes all RTOS data structures at system startup
+    154           *
+    155          \*===========================================================================*/
+    156          void OS_Init(void)
+    157          {
+    158              Resource_Type res_id;
+    159          
+    160              for (res_id = (Resource_Type) 0; res_id < OS_NUM_RESOURCES; res_id++)
+    161              {                            /* initialize all resources */
+    162                  pxResources[res_id] = xSemaphoreCreateCounting(resource_init[res_id].max,resource_init[res_id].init_count);
+    163              }
+    164          }
+    165          /*===========================================================================*\
+    166           *    Function: OS_Task_State
+    167           *
+    168           *  Parameters: 'task_id' task to return information on
+    169           *
+    170           *     Returns: task state
+    171           *
+    172           *    Modifies: none
+    173           *
+    174           * Description: Return 'task_id' state (SUSPENDED, READY, RUNNING,
+    175           *                 OS_WAIT_ALARM, OS_WAIT_MSG, OS_WAIT_EVENT, OS_WAIT_RES)
+    176           *
+    177          \*===========================================================================*/
+    178          Task_State_Type OS_Task_State(Task_Type task_id)
+    179          {
+    180              if (OS_NUM_TASKS > task_id)
+    181              {
+    182                  if(TRUE == xTaskIsTaskSuspended(pxTaskHandle[task_id]))
+    183                  {
+    184                      return(SUSPENDED);
+    185                  }
+    186                  else
+    187                  {
+    188                      return(INVALID_STATE);/*reserved for other state*/
+    189                  }
+    190              }
+    191              else
+    192              {
+    193                  return (INVALID_STATE);
+    194              }
+    195          }                               /* GetTaskState */
+    196          
+    197          /*===========================================================================*\
+    198           *    Function: OS_Activate_Task
+    199           *
+    200           *  Parameters: 'task_id' id of task to activate.
+    201           *
+    202           *    Returns: E_OK if sucessful
+    203           *             else E_OS_ID if invalid ID
+    204           *
+    205           *    Modifies: none
+    206           *
+    207           * Description: Starts the requested task from its initial entry position
+    208           *              Note, the task MUST release all resources before calling this routine.
+    209           *
+    210          \*===========================================================================*/
+    211          Status_Type OS_Activate_Task(Task_Type task_id)
+    212          {
+    213              if (OS_NUM_TASKS > task_id)
+    214              {
+    215                  {
+    216                      OS_Create_Task(&os_TCB_init[task_id], &pxTaskQueue[task_id],&pxTaskHandle[task_id]);
+    217                      /* Initialize task entry point and stack */
+    218                  }
+    219                  return (E_OK);
+    220              }
+    221              else
+    222              {
+    223                  return (E_OS_ID);         /* Invalid task number */
+    224              }
+    225          }
+    226          /*===========================================================================*\
+    227           *    Function: OS_Create_Task
+    228           * Description: Initialize new task
+    229           *  Parameters: task_info is point to RTOS task control block
+    230           *              pQuehandle is pointer to task message queue
+    231           *              pTaskhandle is pointer to task handle
+    232           *     Returns: None
+    233          \*===========================================================================*/
+    234          static void OS_Create_Task(const OS_TCB_Init_Type * task_info, xQueueHandle *pQuehandle,xTaskHandle *pTaskhandle)
+    235          {
+    236              xQueueHandle xQueue;
+    237          
+    238              xQueue = xQueueCreate( task_info->Queue_Size, task_info->Msg_Size );/*create message queues for each task*/
+    239              if((errQUEUE_FULL == xQueue)&&(task_info->Queue_Size > 0))
+    240              {
+    241                  while(1);/*error, queue create failed*/
+    242              }
+    243          
+    244              *pQuehandle = xQueue;
+    245          
+    246              /*create task with static prameters*/
+    247              xTaskCreate( (pdTASK_CODE)(task_info->Entry) \
+    248             	            , (const signed char *)task_info->name \
+    249             	            , task_info->Stack_Size \
+    250             	            , ( void * ) (*pQuehandle) \
+    251             	            , task_info->Priority \
+    252             	            , pTaskhandle );
+    253          
+    254              if(NULL == pTaskhandle)
+    255              {
+    256                  while(1);/*error, task create failed,just for debug*/
+    257              }
+    258          }
+    259          /*===========================================================================*\
+    260           *    Function: OS_Suspend_Task
+    261           *  Parameters: 
+    262           *     Returns: None
+    263          \*===========================================================================*/
+    264          void OS_Suspend_Task(Task_Type pTasknum)
+    265          {
+    266              if(pxTaskHandle[pTasknum] !=NULL)  //if the task is active
+    267              {
+    268                  vTaskSuspend(pxTaskHandle[pTasknum]);
+    269              }
+    270          }
+    271          /*===========================================================================*\
+    272           *    Function: Idle_Task
+    273           *
+    274           *  Parameters: None
+    275           *
+    276           *     Returns: None
+    277           *
+    278           *    Modifies: none
+    279           *
+    280           * Description: This function is executed when no other tasks are ready to run.
+    281           *              It is an external user defined routine called by OS idle task
+    282           *
+    283          \*===========================================================================*/
+    284          static void Idle_Task (void )
+    285          {
+    286              Feed_Dog();          /* update watchdog */
+    287              /* if idle task starved for more than 10 seconds, will reset */
+    288              Enable_Interrupts();      /* enable interrupts */
+    289              Halt();                   /* pause CPU until next interrupt */
+    290              /*an system tick interrupt should be executed*/ 
+    291          }
+    292          /*===========================================================================*\
+    293           *    Function: OS_Start
+    294           *
+    295           *  Parameters: None
+    296           *
+    297           *     Returns: None
+    298           *
+    299           *    Modifies: os_cur_task_id
+    300           *              os_cur_task_mask
+    301           *              os_cur_task
+    302           *
+    303           * Description: Start multitasking. This routine should never return to caller.
+    304           *
+    305          \*===========================================================================*/
+    306          void OS_Start(void)
+    307          {
+    308              /* Start the scheduler. */
+    309              vTaskStartScheduler();
+    310              /* branches to start of task */
+    311          }
+    312          /*===========================================================================*\
+    313           *    Function: OS_Send_Message
+    314           *
+    315           *  Parameters: 'task_id' is task to send message to
+    316           *              'msg'   pointer value to write to mailbox
+    317           *
+    318           *     Returns: None
+    319           *
+    320           *    Modifies: task's mailbox
+    321           *              OS_Error_Ctr
+    322           *
+    323           *  Description: if mailbox empty then place message in it.
+    324           *            if task pending on mailbox, queue it.
+    325           *
+    326          \*===========================================================================*/
+    327          Status_Type OS_Send_Message(Task_Type task_id, Message_Type msg)
+    328          {
+    329              Message_Type xmsg = msg;
+    330          
+    331              //Need check the pointer valid or not, freeRTOS doesn't do this.
+    332              if (pxTaskQueue[task_id]== NULL)
+    333              {
+    334                  return (E_ERROR);
+    335              }
+    336              if(errQUEUE_FULL == xQueueSend(pxTaskQueue[task_id], ( void * ) &xmsg, 0))
+    337              {
+    338                  return (E_ERROR);       /* Queue full */
+    339              }
+    340              else
+    341              {
+    342                  return (E_OK);     /* else return there was no message */
+    343              }
+    344          }
+    345          
+    346          /*===========================================================================*\
+    347           *    Function: OS_Send_Message_FromISR
+    348           *
+    349           *  Parameters: 'task_id' is task to send message to
+    350           *              'msg'   pointer value to write to mailbox
+    351           *
+    352           *     Returns: None
+    353           *
+    354           *    Modifies: task's mailbox
+    355           *              OS_Error_Ctr
+    356           *
+    357           *  Description: if mailbox empty then place message in it.
+    358           *            if task pending on mailbox, queue it.
+    359           *
+    360          \*===========================================================================*/
+    361          Status_Type OS_Send_Message_FromISR(Task_Type task_id, Message_Type msg)
+    362          {
+    363              Message_Type xmsg = msg;
+    364          
+    365              //Need check the pointer valid or not, freeRTOS doesn't do this.
+    366              if (pxTaskQueue[task_id]== NULL)
+    367              {
+    368                  return (E_ERROR);
+    369              }
+    370              if(errQUEUE_FULL == xQueueSendFromISR(pxTaskQueue[task_id], ( void * ) &xmsg, 0))
+    371              {
+    372                  return (E_ERROR);       /* Queue full */
+    373              }
+    374              else
+    375              {
+    376                  return (E_OK);     /* else return there was no message */
+    377              }
+    378          }
+    379          
+    380          /*===========================================================================*\
+    381           *    Function: OS_Receive_Message
+    382           *
+    383           *  Parameters: 'msg'   pointer to write the message to from mailbox
+    384           *
+    385           *     Returns: Status_Type - E_OK if message received
+    386           *                     E_COM_NOMSG if no message present
+    387           *
+    388           *    Modifies: task's mailbox
+    389           *
+    390           * Description: Returns the current message in mailbox if there is one.
+    391           *              Unlike OS_Wait_Message(), OS_Receive_Message() does not suspend
+    392           *              the calling task if a message is not available.
+    393           *
+    394          \*===========================================================================*/
+    395          Status_Type OS_Receive_Message(Task_Type task_id,Message_Type * msg)
+    396          {
+    397              //Need check the pointer valid or not, freeRTOS doesn't do this.
+    398              if (pxTaskQueue[task_id]== NULL)
+    399              {
+    400                  return (E_ERROR);
+    401              }
+    402              if(pdFALSE == xQueueReceive(pxTaskQueue[task_id],(void *)msg,0))
+    403              {
+    404                  return (E_ERROR);     /* else return there was no message */
+    405              }
+    406              else
+    407              {
+    408                  return (E_OK);     /*OK */
+    409              }
+    410          }
+    411          
+    412          /*===========================================================================*\
+    413           *    Function: OS_Wait_Message
+    414           *
+    415           *  Parameters: 'msg'   pointer to write the message to from mailbox
+    416           *              'timeout'   maximum number of clock ticks to wait for resource
+    417           *                    (0 will wait 'forever', unless previous alarm condition is set)
+    418           *
+    419           *     Returns: Status_Type - E_OK if message received
+    420           *                     E_COM_NOMSG if timeout
+    421           *
+    422           *    Modifies: none
+    423           *
+    424           *  Description: if mailbox empty then waits for it with optional timeout
+    425           *            else returns with message from the mailbox, emptying the mailbox
+    426           *
+    427          \*===========================================================================*/
+    428          Status_Type OS_Wait_Message(Task_Type task_id,Message_Type * msg, Tick_Type timeout)
+    429          {
+    430              //Need check the pointer valid or not, freeRTOS doesn't do this.
+    431              if (pxTaskQueue[task_id]== NULL)
+    432              {
+    433                  return (E_ERROR);
+    434              }
+    435              if(pdFALSE == xQueueReceive(pxTaskQueue[task_id],(void *)msg,timeout))
+    436              {
+    437                  return (E_ERROR);     /* else return there was no message */
+    438              }
+    439              else
+    440              {
+    441                  return (E_OK);     /*OK */
+    442              }
+    443          }
+    444          
+    445          /*===========================================================================*\
+    446           * Description: Builds a Message Type message from the id and data
+    447           *  Parameters: 16 bit message id and 16 bit data
+    448           *     Returns: 32 bit packed data
+    449          \*===========================================================================*/
+    450          Message_Type Build_Message(uint16_t id, int16_t data)
+    451          {
+    452              Data_Message_T temp_msg = {0};
+    453              temp_msg.parts.msg = id;
+    454              temp_msg.parts.data = data;
+    455              return (temp_msg.all);
+    456          }
+    457          /*===========================================================================*\
+    458           *   Function: os_get resource
+    459           *
+    460           * Parameters:  'resid'    is the index of desired resource(Semaphore)
+    461           *
+    462           *    Returns:  E_OK (0)   if the resource is available
+    463           *                     the semaphore is decremented so the next time
+    464           *                     os_get_resource() is called, the resource may no
+    465           *                     longer be available.
+    466           *              E_OS_RESOURCE (!=0) if the resource is not available
+    467           *
+    468           *    Modifies: resources
+    469           *
+    470           * Description: This internal function actually checks the semaphore to see if
+    471           *             the resource is available or if an event occurred.
+    472          \*===========================================================================*/
+    473          static Status_Type os_get_resource(Resource_Type resid)
+    474          {
+    475              //Need check the pointer valid or not, freeRTOS doesn't do this.
+    476              if (pxResources[resid] == NULL)
+    477              {
+    478                  return (E_OS_RESOURCE);
+    479              }
+    480              if(pdTRUE == xSemaphoreTake(pxResources[resid], 0))
+    481              {
+    482                  return (E_OK);
+    483              }
+    484              else
+    485              {
+    486                  return (E_OS_RESOURCE);/* default is resource not available */
+    487              }
+    488          }
+    489          
+    490          /*===========================================================================*\
+    491           *   Function: OS_Get Resource
+    492           *
+    493           * Parameters:  'resid'    is the index of desired resource
+    494           *
+    495           *    Returns:  E_OK (0)   if the resource is available
+    496           *                     the semaphore is decremented so the next time
+    497           *                     OS_Get_Resource() is called, the resource may no
+    498           *                     longer be available.
+    499           *              E_OS_RESOURCE (!=0) if the resource is not available
+    500           *
+    501           *    Modifies: resources
+    502           *
+    503           * Description: This global function runs the scheduler before checking
+    504           *              the semaphore to see if the resource
+    505           *              is available or if an event occurred.  Unlike Wait_Resource,
+    506           *              Get_Resource does not suspend the calling task if the
+    507           *              resource is not available
+    508          \*===========================================================================*/
+    509          Status_Type OS_Get_Resource(Resource_Type resid)
+    510          {
+    511              return (os_get_resource(resid));     /* attempt actual get of resource */
+    512          }
+    513          
+    514          /*===========================================================================*\
+    515           *    Function: OS_Wait_Resource
+    516           *
+    517           *  Parameters: 'resid'    is the index of desired resource
+    518           *              'timeout'   maximum number of clock ticks to wait for resource
+    519           *                    (0 will wait 'forever', unless previous alarm condition is set)
+    520           *
+    521           *     Returns: E_OK (0)       if the resource was allocated within timeout.
+    522           *              E_OS_RESOURCE  if the resource was not available within timeout
+    523           *
+    524           *    Modifies: resources
+    525           *
+    526           * Description: This function checks the semaphore to see if the resource is available.
+    527           *              Wait Resource will block the calling task if the resource is not available
+    528           *
+    529          \*===========================================================================*/
+    530          Status_Type OS_Wait_Resource(Resource_Type resid, Tick_Type timeout)
+    531          {
+    532              //Need check the pointer valid or not, freeRTOS doesn't do this.
+    533              if (pxResources[resid] == NULL)
+    534              {
+    535                  return (E_OS_RESOURCE);
+    536              }
+    537              if(pdTRUE == xSemaphoreTake(pxResources[resid], timeout))
+    538              {
+    539                 return (E_OK);
+    540              }
+    541              else
+    542              {
+    543                 return (E_TIMEOUT);/* semaphore wait timer out */
+    544              }
+    545          }
+    546          
+    547          /*===========================================================================*\
+    548           *    Function: OS_Release Resource
+    549           *
+    550           *  Parameters: 'resid'    is the index of desired resource
+    551           *
+    552           *     Returns: E_OK
+    553           *
+    554           *    Modifies: resources
+    555           *
+    556           * Description: This function releases a resource by either assigning it
+    557           *              to a waiting task or incrementing its semaphore.
+    558           *              Note, task may block if higher priority task was waiting.
+    559          \*===========================================================================*/
+    560          Status_Type OS_Release_Resource(Resource_Type resid)
+    561          {
+    562              if (NULL  != pxResources[resid])
+    563              {
+    564                  if(pdTRUE == xSemaphoreGive(pxResources[resid]))
+    565                  {
+    566                      return (E_OK);
+    567                  }
+    568                  else
+    569                  {
+    570                      return (E_ERROR);/*error*/
+    571                  }
+    572              }
+    573              else
+    574              {
+    575                  return (E_ERROR);/*error*/
+    576              }
+    577          }
+    578          
+    579          /*===========================================================================*\
+    580           *    Function: OS_Release_Resource_FromISR
+    581           *
+    582           *  Parameters: 'resid'    is the index of desired resource
+    583           *
+    584           *     Returns: E_OK
+    585           *
+    586           *    Modifies: resources
+    587           *
+    588           * Description: This function releases a resource by either assigning it
+    589           *              to a waiting task or incrementing its semaphore.
+    590           *              Note, No schedule will happen.
+    591          \*===========================================================================*/
+    592          Status_Type OS_Release_Resource_From_ISR(Resource_Type resid, bool from_tick_isr)
+    593          {
+    594              int32_t  HigherPriorityTaskWoken = false; //fixme.flag indicates if higher priority task woken.
+    595          
+    596              if (NULL  != pxResources[resid])
+    597              {
+    598                  if(pdTRUE == xSemaphoreGiveFromISR(pxResources[resid], &HigherPriorityTaskWoken))
+    599                  {
+    600                      if(!from_tick_isr)
+    601                      {
+    602                          portEND_SWITCHING_ISR(HigherPriorityTaskWoken);
+    603                      }
+    604                      return (E_OK);                                                                                             //would switch in rtc interrupt.
+    605                  }
+    606                  else
+    607                  {
+    608                      return (E_ERROR);/*error*/
+    609                  }
+    610              }
+    611              else
+    612              {
+    613                  return (E_ERROR);/*error*/
+    614              }
+    615          }
+    616          /***********************************************************************
+    617           *    Function: OS_Sleep
+    618           *
+    619           *  Parameters: 'time' in msec to sleep for
+    620           *
+    621           *     Returns: None
+    622           *
+    623           *    Modifies: none
+    624           *
+    625           * Description: Delays the current task for 'n' msec.
+    626           *              Note: If scheduler is locked (which the current task must have done)
+    627           *                    this function will return immediately.
+    628           *
+    629           **********************************************************************/
+    630          void OS_Sleep(Tick_Type time)
+    631          {
+    632              if ( os_started )                                  /* task switch only if OS has been started */
+    633              {
+    634                  vTaskDelay(time);
+    635              }
+    636              else
+    637              {
+    638                  UNUSED_PARAM(time);
+    639                  Enable_Interrupts();                               /* ensure interrupts are enabled */
+    640              }
+    641          }
+    642          /***********************************************************************
+    643           *    Function: OS_Is_Started
+    644           *
+    645           *  Parameters: 
+    646           *
+    647           *     Returns: None
+    648           *
+    649           *    Modifies: none
+    650           *
+    651           **********************************************************************/
+    652          bool OS_Is_Started(void)
+    653          {
+    654              return (os_started);
+    655          }
+    656          /***********************************************************************
+    657           *    Function: OS_Is_Started
+    658           *
+    659           *  Parameters: 
+    660           *
+    661           *     Returns: None
+    662           *
+    663           *    Modifies: none
+    664           *
+    665           **********************************************************************/
+    666          void OS_Clr_Start_Flag(void)
+    667          {
+    668              os_started = false;
+    669          }
+    670          /*===========================================================================*\
+    671           *    Function: vApplicationStackOverflowHook
+    672           *
+    673           *  Parameters: None
+    674           *
+    675           *     Returns: None
+    676           *
+    677           * Description: just for link error fixed
+    678           *
+    679          \*===========================================================================*/
+    680          void vApplicationStackOverflowHook( void )
+    681          {
+    682          	/* This will be called if a task overflows its stack.  pxCurrentTCB
+    683          	can be inspected to see which is the offending task. */
+    684          	for( ;; );
+    685          }
+    686          /*===========================================================================*\
+    687           *    Function: vApplicationIdleHook
+    688           *
+    689           *  Parameters: None
+    690           *
+    691           *     Returns: None
+    692           *
+    693           * Description: Application hook in IDLE Task
+    694           *
+    695          \*===========================================================================*/
+    696          extern void vApplicationIdleHook( void )
+    697          {
+    698                Idle_Task(); 
+    699          }
+    700          
+    701          /*===========================================================================*\
+    702           *    Function: vApplicationTickHook
+    703           *
+    704           *  Parameters: None
+    705           *
+    706           *     Returns: None
+    707           *
+    708           * Description: Application hook in Tick interrupt ISR
+    709           *
+    710          \*===========================================================================*/
+    711          extern void vApplicationTickHook(void)
+    712          {
+    713              if(OS_Is_Started())
+    714              {
+    715                  Periodic_Tick();
+    716              }
+    717          }
+    718          /*===========================================================================*\
+    719           *    Function: vApplicationGetTickBaseHook
+    720           *
+    721           *  Parameters: None
+    722           *
+    723           *     Returns: None
+    724           *
+    725           * Description: 
+    726           *
+    727          \*===========================================================================*/
+    728          extern unsigned char vApplicationGetTickBaseHook(void)
+    729          {
+    730              return(0);
+    731          }
+    732          
+    733          /*===========================================================================*\
+    734           *    Function: vApplicationStartHook
+    735           *
+    736           *  Parameters: None
+    737           *
+    738           *     Returns: None
+    739           *
+    740           * Description: Application hook in Tick interrupt ISR
+    741           *
+    742          \*===========================================================================*/
+    743          extern void vApplicationStartHook(void)
+    744          {
+    745          #if !configUSE_PREEMPTION
+    746              ;
+    747          #endif
+    748          //    RL_Finish_Awake_Sequence();       // 
+    749              mn_Initialize();                             /* call initialization routines after power on */
+    750              Disable_Interrupts();
+    751              os_started = true;                   /* flag that task switching has been enabled */
+    752          }
+    753          /*===========================================================================*\
+    754           * File Revision History (bottom to top: first revision to last revision)
+    755           *===========================================================================
+    756           *
+    757           * Date           
+    758           * ----------- --------
+    759           *
+    760          \*===========================================================================*/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       4   Build_Message
+       0   Clear_Cold_Start
+       0   Get_Cold_Start
+       8   Idle_Task
+         8   -> IWDG_ReloadCounter
+         8   -> vPortClearInterruptMask
+       0   Init_Cold_Start_Flag
+       8   OS_Activate_Task
+         8   -> OS_Create_Task
+       0   OS_Check_Cold_Start
+       0   OS_Clr_Start_Flag
+      32   OS_Create_Task
+        32   -> xQueueGenericCreate
+        32   -> xTaskGenericCreate
+       8   OS_Get_Resource
+         8   -> os_get_resource
+       8   OS_Init
+         8   -> xQueueCreateCountingSemaphore
+       0   OS_Is_Started
+       8   OS_Receive_Message
+         8   -> xQueueGenericReceive
+       8   OS_Release_Resource
+         8   -> xQueueGenericSend
+      16   OS_Release_Resource_From_ISR
+        16   -> vPortYieldFromISR
+        16   -> xQueueGenericSendFromISR
+      16   OS_Send_Message
+        16   -> xQueueGenericSend
+      16   OS_Send_Message_FromISR
+        16   -> xQueueGenericSendFromISR
+       8   OS_Sleep
+         8   -> vPortClearInterruptMask
+         8   -> vTaskDelay
+       8   OS_Start
+         8   -> vTaskStartScheduler
+       8   OS_Suspend_Task
+         8   -> vTaskSuspend
+       8   OS_Task_State
+         8   -> xTaskIsTaskSuspended
+       8   OS_Wait_Message
+         8   -> xQueueGenericReceive
+       8   OS_Wait_Resource
+         8   -> xQueueGenericReceive
+       8   SY_Reset
+         8   -> OS_Sleep
+       0   Set_Cold_Start
+       0   Set_warm_Start
+       8   os_get_resource
+         8   -> xQueueGenericReceive
+       0   vApplicationGetTickBaseHook
+       8   vApplicationIdleHook
+         8   -> Idle_Task
+       0   vApplicationStackOverflowHook
+       8   vApplicationStartHook
+         8   -> mn_Initialize
+         8   -> ulPortSetInterruptMask
+       8   vApplicationTickHook
+         8   -> OS_Is_Started
+         8   -> Periodic_Tick
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable21
+       4  ??DataTable21_1
+       4  ??DataTable21_2
+       4  ??DataTable21_3
+       4  ??DataTable21_4
+       4  ??DataTable21_5
+       4  ??DataTable21_6
+       4  ??DataTable21_7
+      12  ?_0
+      12  ?_1
+      16  ?_2
+      12  ?_3
+      12  ?_4
+      12  ?_5
+      12  ?_6
+      12  ?_7
+       4  ?_8
+      22  Build_Message
+       8  Clear_Cold_Start
+       6  Get_Cold_Start
+      26  Idle_Task
+      30  Init_Cold_Start_Flag
+      44  OS_Activate_Task
+       2  OS_Check_Cold_Start
+       8  OS_Clr_Start_Flag
+       4  OS_Cold_Start
+      66  OS_Create_Task
+      10  OS_Get_Resource
+      46  OS_Init
+       6  OS_Is_Started
+       1  OS_RamF
+      46  OS_Receive_Message
+      48  OS_Release_Resource
+      68  OS_Release_Resource_From_ISR
+       1  OS_ResF
+      52  OS_Send_Message
+      52  OS_Send_Message_FromISR
+      24  OS_Sleep
+       8  OS_Start
+      28  OS_Suspend_Task
+      36  OS_Task_State
+      44  OS_Wait_Message
+      48  OS_Wait_Resource
+      10  SY_Reset
+      10  Set_Cold_Start
+       8  Set_warm_Start
+     128  os_TCB_init
+      48  os_get_resource
+       4  os_started
+      28  pxResources
+      32  pxTaskHandle
+      32  pxTaskQueue
+      16  resource_init
+       4  vApplicationGetTickBaseHook
+       8  vApplicationIdleHook
+       2  vApplicationStackOverflowHook
+      18  vApplicationStartHook
+      16  vApplicationTickHook
+
+ 
+  98 bytes in section .bss
+   4 bytes in section .noinit
+ 248 bytes in section .rodata
+ 884 bytes in section .text
+ 
+ 884 bytes of CODE  memory
+ 248 bytes of CONST memory
+ 102 bytes of DATA  memory
+
+Errors: none
+Warnings: none

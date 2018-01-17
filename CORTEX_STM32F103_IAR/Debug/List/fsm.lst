@@ -1,0 +1,358 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:22
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\fsm.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\fsm.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\fsm.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\fsm.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\fsm.c
+      1          /*===========================================================================*/
+      2          /**
+      3           * @file fsm.c
+      4           *
+      5           * @todo Add a one line description of the implementation.
+      6           *
+      7           *
+      8           * DESCRIPTION:
+      9           *
+     10           * @todo Add full description here
+     11           *
+     12           * ABBREVIATIONS:
+     13           *   - @todo List any abbreviations, precede each with a dash ('-').
+     14           *
+     15           * TRACEABILITY INFO:
+     16           *   - Design Document(s):
+     17           *     - @todo Update list of design document(s).
+     18           *
+     19           *   - Requirements Document(s):
+     20           *     - @todo Update list of requirements document(s)
+     21           *
+     22           * DEVIATIONS FROM STANDARDS:
+     23           *   - @todo List of deviations from standards in this file, or "None".
+     24           *
+     25           */
+     26          /*==========================================================================*/
+     27          
+     28          /*===========================================================================*\
+     29           * Header Files
+     30          \*===========================================================================*/
+     31          #include "compiler.h"
+     32          #include "definiti.h"
+     33          #include "fsm.h"
+     34          
+     35          /*===========================================================================*\
+     36           * Local Preprocessor #define Constants
+     37          \*===========================================================================*/
+     38          
+     39          /*===========================================================================*\
+     40           * Local Preprocessor #define MACROS
+     41          \*===========================================================================*/
+     42          
+     43          /*===========================================================================*\
+     44           * Local Type Declarations
+     45          \*===========================================================================*/
+     46          
+     47          /*===========================================================================*\
+     48           * Exported Const Object Definitions
+     49          \*===========================================================================*/
+     50          
+     51          /*===========================================================================*\
+     52           * Local Object Definitions
+     53          \*===========================================================================*/
+     54          
+     55          /*===========================================================================*\
+     56           * Local Function Prototypes
+     57          \*===========================================================================*/
+     58          
+     59          /*===========================================================================*\
+     60           * Local Inline Function Definitions and Function-Like Macros
+     61          \*===========================================================================*/
+     62          
+     63          /*===========================================================================*\
+     64           * Function Definitions
+     65          \*===========================================================================*/
+     66          
+     67          /************************************************************************
+     68          *                                                                       *
+     69          * FUNCTION      :   FSM_Process_Evt                                     *
+     70          *                                                                       *
+     71          * DESCRIPTION   :   starting at current state, search for event in      *
+     72          *                   transition list of this state. if not found go to   *
+     73          *                   parent state and look there. If found then do       *
+     74          *                   transition action and go to next state. the search  *
+     75          *                   for event continues until root of tree is reached.  *
+     76          *                                                                       *
+     77          * PARAMETERS    :   msg: message contains the event and data that is    *
+     78          *                   passed with the event                               *
+     79          *                    msg.part.msg:  input event to stimulate tree g     *
+     80          *                    msg.part.data: 2 byte parameter for the transition *
+     81          *                                   action (optional)                   *
+     82          *                   current_state: cs to start the search               *
+     83          *                   tree_ptr:      pointer to the tree                  *
+     84          *                                                                       *
+     85          * RETURN        :   new current state                                   *
+     86          *                                                                       *
+     87          ************************************************************************/
+     88          uint8_t FSM_Process_Evt (Data_Message_T msg, uint8_t current_state, tree_type const * tree_ptr)
+     89          {
+     90             bool        found;
+     91             uint8_t     i;
+     92             uint8_t     length;
+     93             uint8_t     search_state;
+     94             uint8_t     new_current_state;
+     95             trans_type  const * trans_ptr;
+     96             
+     97          
+     98             #if CONDITION_OPTION_IS
+     99             uint8_t condition_offset;
+    100             #endif
+    101          
+    102             #if EXIT_OPTION_IS
+    103             uint8_t exits[MAX_EXITS];
+    104             uint8_t nr_of_exits = 0;
+    105             #endif
+    106          
+    107             found = false;
+    108             search_state      = current_state;
+    109             new_current_state = current_state;
+    110          
+    111             if (tree_ptr == NULL)
+    112             {
+    113                return(TREE_NOT_VALID);
+    114             }
+    115          
+    116             do
+    117             {
+    118                trans_ptr = tree_ptr[search_state].trans_tab;
+    119                length    = tree_ptr[search_state].trans_len;
+    120          
+    121                #if EXIT_OPTION_IS      /*save state when exit action is defined */
+    122                if ((trans_ptr != NULL) && (trans_ptr[length-1].event == EXIT))
+    123                {
+    124                   exits[nr_of_exits++] = search_state;  /* save index number if exit is found */
+    125                }
+    126                #endif /*EXIT_OPTION_IS */
+    127          
+    128                /************************************************************************ */
+    129                /****      search in the state for the transition                     *** */
+    130                /************************************************************************ */
+    131          
+    132                i = 0;                               /* index of first transition */
+    133          
+    134                while (i < length)
+    135                {
+    136                   if (trans_ptr->event == msg.parts.msg)
+    137                   {
+    138                      #if NEXT_OPTION_IS
+    139                      while (trans_ptr->next_state == NEXT)     /*like next transition !!! */
+    140                      {
+    141                         trans_ptr++;
+    142                         i++;
+    143                      }
+    144                      #endif
+    145                      #if CONDITION_OPTION_IS
+    146                      if (trans_ptr->next_state == CONDITION)   /* condition ? */
+    147                      {
+    148                        // condition_offset = (*trans_ptr->action)(msg.parts.data); /*execute the condition check action */
+    149                         condition_offset = (*trans_ptr->action)(); /*execute the condition check action */
+    150                         trans_ptr += condition_offset;
+    151                      }
+    152                      #endif
+    153                      found = true;
+    154                      break;
+    155                   }
+    156                   trans_ptr++;
+    157                   i++;
+    158                } /* end search event loop */
+    159          
+    160                /************************************************************************ */
+    161                /****      execute all exit, transition and entry actions             *** */
+    162                /************************************************************************ */
+    163          
+    164                if (found)
+    165                {
+    166                   if (trans_ptr->next_state == INTERNAL)
+    167                   {
+    168                      /********** execute transition action only ************** */
+    169                      (*trans_ptr->action)();        /*execute the desired function */
+    170                      //(*trans_ptr->action)(msg.parts.data);        /*execute the desired function */
+    171                   }
+    172                   else /* if (trans_ptr->next_state != INTERNAL) */
+    173                   {
+    174                      #ifdef EXIT_OPTION_IS
+    175                      /********** execute all exit actions first ***************** */
+    176          
+    177                      if (nr_of_exits)                 /* EXIT handling */
+    178                      {
+    179                         i=0;
+    180                         while (i < nr_of_exits)
+    181                         {
+    182                            length = tree_ptr[exits[i]].trans_len;
+    183                            tree_ptr[exits[i]].trans_tab[length-1].action();
+    184                            i++;
+    185                         }
+    186                      }
+    187                      #endif
+    188          
+    189                      /********** execute then the transition action **************** */
+    190                      (*trans_ptr->action)();        /* execute the desired function */
+    191          
+    192                     // (*trans_ptr->action)(msg.parts.data);        /* execute the desired function */
+    193          
+    194                      /********** set new current state ***************************** */
+    195          
+    196                      new_current_state = trans_ptr->next_state;   /* set current to next state */
+    197          
+    198                      /********** execute all entry actions now ********************* */
+    199          
+    200                      do                            /* do entry actions until at leaf */
+    201                      {
+    202                         i = new_current_state;     /* i now used to check change of current state,   */
+    203                                                    /* that might be changed inside the entry actions */
+    204                                                    /* default, history, deep history                 */
+    205          
+    206                         trans_ptr = tree_ptr[i].trans_tab;
+    207                         if (trans_ptr[0].event == ENTRY)
+    208                         {
+    209                            new_current_state = trans_ptr[0].action();
+    210                         }
+    211                      } while (i != new_current_state); /* cs was set new in entry action                 */
+    212                                                        /* so next states entry action has to be checked  */
+    213                   }
+    214                } /*** end if found ***/
+    215          
+    216                else /* if (!found) */
+    217                {
+    218                   if (search_state)  /*search_state is not yet the root(=0) of the tree */
+    219                   {
+    220                      /* for next round in loop -> start again in the parent state */
+    221                      search_state = tree_ptr[search_state].parent_state;
+    222                   }
+    223                   else               /*if root reached and evt not found -> end */
+    224                   {
+    225                      break;
+    226                   }
+    227                }
+    228          
+    229            } while(!found);
+    230          
+    231            return (new_current_state);
+    232          }
+    233          
+    234          /************************************************************************
+    235          *                                                                       *
+    236          * FUNCTION      :   FSM_Process_CS                                      *
+    237          *                                                                       *
+    238          * DESCRIPTION   :   starting at current state, executes the cs_routine  *
+    239          *                   of this state. Then go to parent state and execute  *
+    240          *                   this cs_routine. This continues until root of tree  *
+    241          *                   is reached.                                         *
+    242          *                                                                       *
+    243          * PARAMETERS    :   current_state: cs to start with execution           *
+    244          *                   tree_ptr:      pointer to the tree                  *
+    245          *                                                                       *
+    246          * RETURN        :   none                                                *
+    247          *                                                                       *
+    248          ************************************************************************/
+    249          void FSM_Process_CS (uint8_t current_state, tree_type const *tree_ptr)
+    250          {
+    251             uint8_t search_state = current_state;
+    252          
+    253             FOREVER
+    254             {
+    255                tree_ptr[search_state].cs_action();
+    256          
+    257                if (search_state)         /* search_state was not yet root state (=0) */
+    258                {
+    259                   search_state = tree_ptr[search_state].parent_state;
+    260                }
+    261                else                      /* search state was root state, now finish */
+    262                {
+    263                   break;
+    264                }
+    265             }
+    266          }
+    267          
+    268          /*===========================================================================*\
+    269           * File Revision History (top to bottom: last revision to first revision)
+    270           *===========================================================================
+    271           *
+    272          \*===========================================================================*/
+    273          
+    274          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      16   FSM_Process_CS
+        16   -- Indirect call
+      48   FSM_Process_Evt
+        48   -- Indirect call
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      32  FSM_Process_CS
+     352  FSM_Process_Evt
+
+ 
+ 384 bytes in section .text
+ 
+ 384 bytes of CODE memory
+
+Errors: none
+Warnings: none

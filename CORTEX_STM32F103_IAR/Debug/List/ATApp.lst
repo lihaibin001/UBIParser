@@ -1,0 +1,505 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:19
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\ATApp.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\ATApp.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\ATApp.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\ATApp.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\ATApp.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          /**********************************************************************
+     16           * Include files                                                       
+     17           *********************************************************************/
+     18          #include <standard.h>
+     19          #include "ATProtocol.h"
+     20          #include "ATApp.h"
+     21          #include "TelmProtocol.h"
+     22          #include <stdio.h>
+     23          #include "uart.h"
+     24          #include "GPRS.h"
+     25          
+     26          #ifdef USE_AGPS
+     27          #include "gps.h"    //Must put this after 2G.h, beacuse USE_AGPS is defined in 2G.h.
+     28          #endif
+     29          
+     30          #include "Debug.h"
+     31          
+     32          /******************************************************************************
+     33          * Constant and Macro Definitions using #define
+     34          *****************************************************************************/
+     35          
+     36          /*********************************************************************/
+     37          /* Enumerations and Structures and Typedefs                          */
+     38          /*********************************************************************/
+     39          
+     40          /**********************************************************************
+     41           * Function Prototypes for Private Functions with File Level Scope
+     42           *********************************************************************/
+     43          
+     44          /*********************************************************************/
+     45          /* Static Variables and Const Variables With File Level Scope        */
+     46          /*********************************************************************/
+     47          static callBack				IP_Send_CallBack_Backup;
+     48          
+     49          static Tick_Type Conn_Timeout_timer = MSec_To_Ticks(100000);
+     50          static Tick_Type Conn_Timeout;
+     51          static uint16_t send_retries = 0;
+     52          
+     53          #ifdef USE_UNICOM_APN_1 //Server, OTA check start after configuration download from server.
+     54          //static bool telematics_ota_check_request = false; //OTA check request flag, true: need OTA check.
+     55          static bool telematics_ota_check_request = true; //Meituan 2B is the same protocol as 2C, this should be true.
+     56          #endif
+     57          #ifdef USE_UNICOM_APN_2 //Meituan server, configuration command is not always received ,so initialize the OTA check flag to start OTA check.
+     58          static bool telematics_ota_check_request = true; //OTA check request flag, true: need OTA check.
+     59          #endif
+     60          #ifdef TEST_ON_OWN_SERVER //Test server, configuration command is not always received ,so initialize the OTA check flag to start OTA check.
+     61          static bool telematics_ota_check_request = true; //OTA check request flag, true: need OTA check.
+     62          #endif
+     63          static void vATApp_Poll_OTA_Check(void);
+     64          static void prvATApp_Timeout_Reset(void);
+     65          static void prvATApp_Check_Timeout(void);
+     66          static uint8_t vATApp_Retry_Inc(uint16_t retry_perid);
+     67          static void vATApp_Retry_Clear(void);
+     68          static void vATApp_Conn_Wait_Timeout(void);
+     69          
+     70          /*******************************************************************************
+     71          *    Function:  vATApp_Init
+     72          *
+     73          *  Parameters:  
+     74          *     Returns:  None
+     75          * Description:  necessary process when start up.
+     76          *******************************************************************************/
+     77          extern void vATApp_Init(void)
+     78          {
+     79              if (!ATProt_Power_Status())
+     80              {
+     81                  UART_Reset_Buf(UART_GSM_CHANNEL);
+     82                  vATProt_Power_On();
+     83              }
+     84              prvATApp_Timeout_Reset();
+     85              vATApp_Init_Active_Check();
+     86              vATProt_sendAT_Command(AT_CMD_SET_ECHO, NULL, NULL);
+     87              TMR_Start_Timer(TELM_TCP_TIMER,14000,vATApp_Conn_Wait_Timeout);
+     88              Load_OTAHeader();
+     89          }
+     90          
+     91          uint8_t vATApp_Retry_Inc(uint16_t retry_perid)
+     92          {
+     93              uint8_t retry_result = 0;
+     94          
+     95              if (send_retries > 5*retry_perid)
+     96              {
+     97                  send_retries = 0;
+     98                  vATProt_Com_Reset();
+     99                   vATProt_Power_Off();
+    100                  vATProt_Set_TCP_State(NET_INIT);
+    101                  vATProt_Power_On();
+    102              }
+    103              else if(0 == send_retries %retry_perid)
+    104              {
+    105                  retry_result = 1;
+    106              }
+    107          
+    108              send_retries++;
+    109              return retry_result;
+    110          }
+    111          
+    112          void vATApp_Retry_Clear(void)
+    113          {
+    114              send_retries = 0;
+    115          }
+    116          
+    117          //0: No times out, 1: time out
+    118          static uint8_t vATApp_Retry_Check(uint16_t retry_perid)
+    119          {
+    120              return (0 == (send_retries++ %retry_perid));
+    121          }
+    122          
+    123          void vATApp_Loop_Check(void)
+    124          {
+    125              uint8_t net_state = vATProt_Get_TCP_State();
+    126          
+    127              // ATE0
+    128              // AT+CMGD=1,2
+    129              // AT+CMGF=1
+    130              // AT+CIPHEAD=1
+    131              // Init, wait for call ready
+    132              // AT+CPIN?
+    133              // AT+CGATT?
+    134              // AT+CREG?
+    135              // AT+CSQ
+    136              // Connect
+    137              // AT+CSTT
+    138              // AT+CIICR
+    139              // AT+CIFSR
+    140              // AT+CIPSTART
+    141          
+    142              switch(net_state)
+    143              {
+    144                  case NET_INIT:
+    145                      prvATApp_Check_Timeout();
+    146                      break;
+    147          
+    148                  case NET_POWER_ON:
+    149                      prvATApp_Check_Timeout();
+    150                      vATProt_sendAT_Command(AT_CMD_NO_ECHO_SETTING, NULL, NULL);
+    151                      vATProt_sendAT_Command(AT_CMD_SMS_FORMAT, NULL, NULL);
+    152                      vATProt_sendAT_Command(AT_CMD_CIPHEAD, NULL, NULL);
+    153                      vATProt_Set_TCP_State(NET_ECHO_CLOSED);
+    154                      break;
+    155                  case NET_ECHO_CLOSED:
+    156                      prvATApp_Check_Timeout();
+    157                      vATProt_sendAT_Command(AT_CMD_GET_IMEI_NO, NULL, NULL);
+    158                      vATProt_sendAT_Command(AT_CMD_GET_IMSI_NO, NULL, NULL);
+    159                      vATProt_sendAT_Command(AT_CMD_CSQ_QUERY, NULL, NULL);
+    160                      vATProt_sendAT_Command(AT_CMD_SET_CREG, NULL, NULL);
+    161                      vATProt_Set_TCP_State(NET_SIM_CONNECTED);
+    162                      break;
+    163                  case NET_SIM_CONNECTED:
+    164                      prvATApp_Check_Timeout();
+    165                      vATProt_sendAT_Command(AT_CMD_CREG_QUERY, NULL, NULL);
+    166                      break;
+    167                  case NET_REGISTERED:
+    168                      prvATApp_Check_Timeout();
+    169                      vATApp_Retry_Clear();
+    170                      vATProt_sendAT_Command(AT_CMD_DELETE_SMS, NULL, NULL);
+    171                      vATProt_sendAT_Command(AT_CMD_CHECK_GPRS, NULL, NULL);
+    172                      vATProt_Set_TCP_State(NET_GPRS_ATTACHED);
+    173                      break;
+    174                  case NET_GPRS_ATTACHED:
+    175                      //Register APN
+    176                      vATProt_sendAT_Command(AT_CMD_CGATT, NULL, NULL);
+    177                      vATProt_sendAT_Command(AT_CMD_CHECK_GPRS, NULL, NULL);
+    178                      prvATApp_Check_Timeout();
+    179          #if 0
+    180                      vATProt_Set_TCP_State(NET_APN_REGISTERED);
+    181          #endif
+    182                      break;
+    183                  case NET_APN_REGISTERED:
+    184                      prvATApp_Check_Timeout();
+    185                      vATProt_sendAT_Command(AT_CMD_IP_INIT_EXCUTE, NULL, NULL);
+    186                      vATProt_sendAT_Command(AT_CMD_IP_REG_EXCUTE, NULL, NULL);
+    187                      vATProt_Set_TCP_State(NET_GPRS_ACTIVATED);
+    188                      break;
+    189                  case NET_GPRS_ACTIVATED:
+    190                      vATProt_sendAT_Command(AT_CMD_IP_QUERY, NULL, NULL);
+    191                      break;
+    192                  case NET_IP_GOT:
+    193                      vATProt_sendAT_Command(AT_CMD_IP_OPEN_EXCUTE, NULL, NULL);
+    194                      break;
+    195                  case NET_TCP_CONNECTED:
+    196                      /* Check if message need resend */
+    197                      Conn_Timeout = 0;
+    198                      vTelmApp_uploadData(TELM_SEC_EVT_DEV, NULL);
+    199                      vATProt_Set_TCP_State(NET_DATA_TRANS);
+    200                      break;
+    201                  case NET_DATA_TRANS:
+    202                      break;
+    203              }
+    204          }
+    205          
+    206          static void prvATApp_Timeout_Reset(void)
+    207          {
+    208              Conn_Timeout = OS_Time()+Conn_Timeout_timer;
+    209          }
+    210          
+    211          static void prvATApp_Check_Timeout(void)
+    212          {
+    213              if ((Conn_Timeout < OS_Time()) && (Conn_Timeout != 0))
+    214              {
+    215                  Conn_Timeout = 0;
+    216                  vATProt_Com_Reset();
+    217                  vATProt_Power_Off();
+    218                  rl_delay_without_schedule(1000);
+    219                  vATProt_Set_TCP_State(NET_INIT);
+    220                  vATProt_Power_On();
+    221                  prvATApp_Timeout_Reset();
+    222                  vATProt_sendAT_Command(AT_CMD_SET_ECHO, NULL, NULL);
+    223              }
+    224          }
+    225          
+    226          static void vATApp_Conn_Wait_Timeout(void)
+    227          {
+    228              if (NET_INIT == vATProt_Get_TCP_State())
+    229              {
+    230                  vATProt_Set_TCP_State(NET_POWER_ON);
+    231              }
+    232          }
+    233          
+    234          /*******************************************************************************
+    235          *    Function:  vATApp_GoSleep
+    236          *
+    237          *  Parameters:  
+    238          *     Returns:  None
+    239          * Description:  necessary process when going to sleep.
+    240          *******************************************************************************/
+    241          extern void vATApp_GoSleep(void)
+    242          {
+    243          }
+    244          
+    245          /*******************************************************************************
+    246          *    Function:  vATApp_WakeUp
+    247          *
+    248          *  Parameters:  
+    249          *     Returns:  None
+    250          * Description:  necessary process when wake up.
+    251          *******************************************************************************/
+    252          extern void vATApp_WakeUp(void)
+    253          {
+    254          	vATApp_Init();
+    255          }
+    256          
+    257          /*********************************************************
+    258          *Function Name: 	vATApp_IPSEND_Excute
+    259          *Prototype: 		vATApp_IPSEND_Excute(void)
+    260          *Called by: 		app
+    261          *Parameters:		char const* type: "TCP" or "UDP"
+    262          *					char const *ip	:destination ip address
+    263          *					uint16_t port	:destination port number
+    264          *					uint8_t const* ipData:data to be sent
+    265          *					uint8_t len		:length of data to be sent
+    266          *					callBack cb		:call back when data has been sent
+    267          *Returns:			void
+    268          *Description:		vATApp_IPOPEN_Query
+    269          **********************************************************/
+    270          void vATApp_IPSEND_Excute(uint8_t const* ipData,uint16_t len,callBack cb)
+    271          {
+    272              /* data is not sent in this function because we need to confirm tcp link status first 
+    273              so store the data and parameters  to be sent to static variable here */
+    274              if (len > TELM_MODULE_MAX_BUFF_LEN)
+    275                  len = TELM_MODULE_MAX_BUFF_LEN;
+    276              memcpy(TCP_backup_data.TCP_data, ipData, len);
+    277              TCP_backup_data.TCP_Len = len;
+    278          
+    279              IP_Send_CallBack_Backup = cb;
+    280          
+    281              /* get network and tcp link status first */
+    282              /* since the priority of commands below is from high to low,
+    283              ATProtocol.c will automatically execute one by one from the first
+    284              command to last */
+    285              vATProt_sendAT_Command(AT_CMD_IP_SEND_DATA_EXCUTE, NULL, NULL);
+    286          }
+    287          
+    288          void vATApp_IPSEND_Ack(uint8_t const* ipData,uint16_t len,callBack cb)
+    289          {
+    290              if (len > TELM_MODULE_MAX_BUFF_LEN)
+    291                  len = TELM_MODULE_MAX_BUFF_LEN;
+    292              memcpy(TCP_backup_data.Ack_data, ipData, len);
+    293              TCP_backup_data.ACK_Len = len;
+    294              IP_Send_CallBack_Backup = cb;
+    295          
+    296              /* get network and tcp link status first */
+    297              /* since the priority of commands below is from high to low,
+    298              ATProtocol.c will automatically execute one by one from the first
+    299              command to last */
+    300              vATProt_sendAT_Command(AT_CMD_IP_SEND_ACK_EXCUTE, NULL, NULL);
+    301          }
+    302          
+    303          void vATApp_SMS_SEND_Excute(uint8_t const* sms_data, uint16_t len, callBack cb)
+    304          {
+    305          
+    306          }
+    307          
+    308          void vATApp_Init_Active_Check(void)
+    309          {
+    310              // Default activated
+    311          }
+    312          
+    313          void vATApp_Init_Deactive_Check(void)
+    314          {
+    315          
+    316          }
+    317          
+    318          void vATApp_Sent_Callback(void)
+    319          {
+    320              if (IP_Send_CallBack_Backup != NULL)
+    321                  IP_Send_CallBack_Backup(AT_CMD_RES_OK);
+    322          }
+    323          
+    324          static void vATApp_Poll_OTA_Check(void)
+    325          {
+    326              //workaround by Chuanji:trigger only once OTA check message after config command from server
+    327              //OTA check condition: Activated && PS STATE > PS_AWAKE && NO_Upgrading && OTA_Check_request
+    328              if((1 == GPRS_Get_Telematics_Activation_State())&& (PS_Full_System())
+    329                  && (0 == GPRS_Get_FMUpgrade_state())&&(true == telematics_ota_check_request))
+    330              {
+    331                  vTelmApp_uploadData(TELM_SEC_EVT_OTACHECK, NULL);
+    332                  /* Check if voltage buffer full */
+    333                  batt_volt_nv_check_tx();
+    334                  telematics_ota_check_request = false;
+    335              }
+    336          }
+    337          
+    338          void vATApp_Restart_OTA_Check(void)
+    339          {
+    340              //Set OTA checked flag to restart OTA check command.
+    341              telematics_ota_check_request = true;
+    342          }
+    343          
+    344          
+    345          /*=======================================================================================*\
+    346           * File Revision History
+    347           *=======================================================================================
+    348           * ----------  ------   ---------------------------------------------
+    349           *
+    350          \*=======================================================================================*/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   prvATApp_Check_Timeout
+         8   -> prvATApp_Timeout_Reset
+         8   -> rl_delay_without_schedule
+         8   -> vATProt_Com_Reset
+         8   -> vATProt_Power_Off
+         8   -> vATProt_Power_On
+         8   -> vATProt_Set_TCP_State
+         8   -> vATProt_sendAT_Command
+         8   -> xTaskGetTickCountFromISR
+       8   prvATApp_Timeout_Reset
+         8   -> xTaskGetTickCountFromISR
+       8   vATApp_Conn_Wait_Timeout
+         8   -> vATProt_Get_TCP_State
+         8   -> vATProt_Set_TCP_State
+       0   vATApp_GoSleep
+      16   vATApp_IPSEND_Ack
+        16   -> __aeabi_memcpy
+        16   -> vATProt_sendAT_Command
+      16   vATApp_IPSEND_Excute
+        16   -> __aeabi_memcpy
+        16   -> vATProt_sendAT_Command
+       8   vATApp_Init
+         8   -> ATProt_Power_Status
+         8   -> Load_OTAHeader
+         8   -> TMR_Start_Timer
+         8   -> UART_Reset_Buf
+         8   -> prvATApp_Timeout_Reset
+         8   -> vATApp_Init_Active_Check
+         8   -> vATProt_Power_On
+         8   -> vATProt_sendAT_Command
+       0   vATApp_Init_Active_Check
+       0   vATApp_Init_Deactive_Check
+       8   vATApp_Loop_Check
+         8   -> prvATApp_Check_Timeout
+         8   -> vATApp_Retry_Clear
+         8   -> vATProt_Get_TCP_State
+         8   -> vATProt_Set_TCP_State
+         8   -> vATProt_sendAT_Command
+         8   -> vTelmApp_uploadData
+       0   vATApp_Restart_OTA_Check
+       0   vATApp_Retry_Clear
+       0   vATApp_SMS_SEND_Excute
+       8   vATApp_Sent_Callback
+         8   -- Indirect call
+       8   vATApp_WakeUp
+         8   -> vATApp_Init
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable7
+       4  ??DataTable7_1
+       4  ??DataTable7_2
+       4  ??DataTable7_3
+       4  ??DataTable7_4
+       4  ??DataTable7_5
+       4  ??DataTable7_6
+       4  ??DataTable7_7
+       4  Conn_Timeout
+       4  Conn_Timeout_timer
+       4  IP_Send_CallBack_Backup
+      70  prvATApp_Check_Timeout
+      18  prvATApp_Timeout_Reset
+       2  send_retries
+       4  telematics_ota_check_request
+      18  vATApp_Conn_Wait_Timeout
+       2  vATApp_GoSleep
+      52  vATApp_IPSEND_Ack
+      52  vATApp_IPSEND_Excute
+      58  vATApp_Init
+       2  vATApp_Init_Active_Check
+       2  vATApp_Init_Deactive_Check
+     314  vATApp_Loop_Check
+       8  vATApp_Restart_OTA_Check
+       8  vATApp_Retry_Clear
+       2  vATApp_SMS_SEND_Excute
+      20  vATApp_Sent_Callback
+       8  vATApp_WakeUp
+
+ 
+  10 bytes in section .bss
+   8 bytes in section .data
+ 666 bytes in section .text
+ 
+ 666 bytes of CODE memory
+  18 bytes of DATA memory
+
+Errors: none
+Warnings: 3

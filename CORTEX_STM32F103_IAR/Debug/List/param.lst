@@ -1,0 +1,1369 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:25
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\param.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\param.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\param.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\param.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\common\param.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          
+     16          #include "standard.h"
+     17          #include "prj_config.h"
+     18          #include <time.h>
+     19          #include <string.h>
+     20          #include "ATProtocol.h"
+     21          
+     22          #include "Debug.h"
+     23          
+     24          #define FLASH_SPI_SECTORSIZE 			(4 * 1024)
+     25          #define GPS_LOG_NUMBER_PER_SECOTR		(146)
+     26          #define GPS_LOG_MAX_SECTOR_NUM (128)
+     27          #define MAX_GPS_LOG_NUMBER				(GPS_LOG_MAX_SECTOR_NUM * GPS_LOG_NUMBER_PER_SECOTR)
+     28          #define OTADATAPERPACKAGE				(1 * 1024)
+     29          #define FLASHWRITEREPEATTIMES 			5
+     30          /* INITIALIZE DATA */
+     31          #define INITIALIZE_DATA							(0xa5a5)
+     32          #define START_OTA_FLAG 							(0x55AA)
+     33          #define INIT_FLAG_DATA 							INITIALIZE_DATA
+     34          #define BATTERY_LOG_MAX    (819)
+     35          
+     36          #define OTA_MAX_SIZE (256 * 1024)
+     37          
+     38          #define RTC_REF_DELTA 600
+     39          
+     40          /************************ Global vatiables *****************************/
+     41          typedef struct gps_backup_info_tag
+     42          {
+     43              uint16_t log_total_number;
+     44              uint16_t log_sector_read_ptr;
+     45              uint16_t log_read_sector;
+     46              uint16_t log_sector_write_ptr;
+     47              uint16_t log_write_sector;
+     48          }gps_backup_info_t;
+     49          
+     50          static uint8_t default_devinfo[]={0xa5,0xa5,
+     51                                          0x30,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+     52                                          0x00,0x00,0x00,0x02,
+     53                                          0x04,0x00,0x00,0x00,0x01,0x01};
+     54          /* *****
+     55           * 2017/2/9 LiHaibin modify
+     56           * Add wakeup_type=0x00, wakeup_time=0x0000
+     57           * ****/
+     58          static uint8_t default_config[]={0x00,0x01,
+     59                                          0x00,90u,200u,10u,5u,150u,3u,130u,118u,
+     60                                          0x00,29,
+     61                                          0x00,0x78,0x01,
+     62                                          0x05,0xA0,0xF0,
+     63                                          30,0x01,0x90,30,5,
+     64                                          0x00,0xB4,0x02,0x1C,
+     65                                          0x00,0x00,
+     66                                          30,0x0F,0xA1,
+     67                                          '1', '3', '9', '.', '1', '9', '6', '.', '4', '.', '1', '0', '5',0x00,0x00,0x00,
+     68                                          0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+     69                                          0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+     70                                          0x02,0x00,0x00};
+     71          
+     72          static DevInfo_Sct_t g_devinfo_sct;
+     73          static Config_t g_config_data;
+     74          
+     75          static gps_backup_info_t g_gps_info;
+     76          static OTAHdr_Sct_t g_ota_info;
+     77          
+     78          static uint8_t last_gps_uploaded=0;
+     79          static uint8_t low_voltage_uploaded=0;
+     80          
+     81          static Last_Trip_t last_trip_info;
+     82          
+     83          static uint32_t ref_rtc = 0; // Reference clock counter
+     84          static uint8_t rtc_inited = 0;
+     85          
+     86          static const uint16_t tcom_month_tab[2][12]={ 
+     87             {0,31,59,90,120,151,181,212,243,273,304,334},//No leap year
+     88             {0,31,60,91,121,152,182,213,244,274,305,335}, //Leap year
+     89          };
+     90          
+     91          /***************** Internal functions ****************/
+     92          static bool Set_Manufacture_Setting(DevInfo_Sct_t devinfo_sct);
+     93          static void Init_Param_In_Flash(void);
+     94          static void Get_default_config(Config_t *config);
+     95          
+     96          
+     97          static uint16_t ArrayToUint16(uint8_t *bytes)
+     98          {
+     99              uint16_t data ;
+    100          
+    101              if(bytes == NULL)
+    102                  return 0 ;
+    103              data = bytes[0];
+    104              data <<= 8;
+    105              data += bytes[1] ;
+    106              return data ;
+    107          }
+    108          
+    109          static bool Uint16ToArray(uint16_t data , uint8_t *array)
+    110          {
+    111              if (array == NULL)
+    112                  return false ;
+    113              *array = (uint8_t)(data >> 8) & 0xff;
+    114              *(array+1) = data & 0xff;
+    115              return true ;
+    116          }
+    117          
+    118          static void Init_Manufacture_Setting(void)
+    119          {
+    120          
+    121              sFLASH_EraseSector(FLASH_MANUFACTURE_SETTING_OFFSET);
+    122              DEBUG_PRINT0(DEBUG_MEDIUM, "[PARAM]:Manufacture setting Data initialized!\n\r");
+    123          }
+    124          
+    125          // Load setting from flash, address 0
+    126          bool Get_Manufacture_Setting(DevInfo_Sct_t *devinfo_sct)
+    127          {
+    128              uint16_t crc = 0;
+    129          
+    130              if(devinfo_sct == NULL)
+    131                  return false ;
+    132              sFLASH_ReadBuffer(devinfo_sct->byte, FLASH_MANUFACTURE_SETTING_OFFSET, sizeof(DevInfo_Sct_t));
+    133          
+    134              crc = crc_ccitt(crc, devinfo_sct->byte, sizeof(DevInfo_Sct_t) - 2) ;
+    135              if ((((devinfo_sct->structData.initialized[0] << 8) + \
+    136                  devinfo_sct->structData.initialized[1]) != INITIALIZE_DATA) ||
+    137                  (crc != ((devinfo_sct->structData.crc[0] << 8) + devinfo_sct->structData.crc[1]))
+    138                  )
+    139              {
+    140                  // read flash error, use default setting
+    141                  memcpy(g_devinfo_sct.byte,default_devinfo,sizeof(DevInfo_Sct_t) - 2);
+    142                  ATProt_Get_Imei(g_devinfo_sct.structData.dev_sn);
+    143                  crc = crc_ccitt(crc, g_devinfo_sct.byte, sizeof(DevInfo_Sct_t) - 2) ;
+    144                  g_devinfo_sct.structData.crc[0]=(crc>>8) & 0xff;
+    145                  g_devinfo_sct.structData.crc[1]=(crc) & 0xff;
+    146                  Init_Param_In_Flash();
+    147                  Set_Manufacture_Setting(g_devinfo_sct);
+    148                  memcpy(devinfo_sct->byte,g_devinfo_sct.byte,sizeof(DevInfo_Sct_t));
+    149                  Get_default_config(&g_config_data);
+    150                  return false ;
+    151              }
+    152          
+    153              return true ;
+    154          }
+    155          
+    156          static bool Set_Manufacture_Setting(DevInfo_Sct_t devinfo_sct)
+    157          {
+    158              uint16_t crc = 0;
+    159              DevInfo_Sct_t tmp_g_devinfo_sct;
+    160          
+    161              crc = crc_ccitt(crc, devinfo_sct.byte, sizeof(DevInfo_Sct_t) - 2);
+    162              devinfo_sct.structData.crc[0] = crc >> 8;
+    163              devinfo_sct.structData.crc[1] = crc >> 0;
+    164          
+    165              {
+    166                  sFLASH_EraseSector(FLASH_MANUFACTURE_SETTING_OFFSET);
+    167                  OS_Sleep(100);
+    168                  sFLASH_WriteBuffer(devinfo_sct.byte,
+    169                                      FLASH_MANUFACTURE_SETTING_OFFSET,
+    170                                      sizeof(DevInfo_Sct_t));
+    171                  OS_Sleep(100);
+    172                  sFLASH_ReadBuffer(tmp_g_devinfo_sct.byte,
+    173                                      FLASH_MANUFACTURE_SETTING_OFFSET,
+    174                                      sizeof(DevInfo_Sct_t));
+    175                  if(memcmp(devinfo_sct.byte, tmp_g_devinfo_sct.byte, sizeof(DevInfo_Sct_t))==0)
+    176                      return true ;
+    177              }
+    178              return false ;
+    179          }
+    180          
+    181          
+    182          // Get hardware version
+    183          extern bool Get_Hardware_Version(uint8_t *hv)
+    184          {
+    185              if(hv == NULL)
+    186                  return false ;
+    187          
+    188              memcpy(hv, g_devinfo_sct.structData.mb_ver, 4) ;
+    189              return true ;
+    190          }
+    191          
+    192          extern void Set_Activation_Status(uint8_t status)
+    193          {
+    194              g_devinfo_sct.structData.activation_status = status;
+    195              Set_Manufacture_Setting(g_devinfo_sct);
+    196          }
+    197          
+    198          // Activation status. 0x04 = activated
+    199          extern uint8_t Get_Activation_Status(void)
+    200          {
+    201          //    return g_devinfo_sct.structData.activation_status ;
+    202              return g_devinfo_sct.structData.activation_status;
+    203          }
+    204          
+    205          // Get firmware version
+    206          extern bool Get_Firmware_Version(uint8_t* fv)
+    207          {
+    208              if(fv == NULL)
+    209                  return false;
+    210          
+    211              memcpy(fv, g_devinfo_sct.structData.sw_ver, 4);
+    212              return true;
+    213          }
+    214          
+    215          // Get device type
+    216          extern bool Get_Device_Type(uint8_t *type)
+    217          {
+    218              if(type == NULL)
+    219                  return false ;
+    220          
+    221              *type = g_devinfo_sct.structData.dev_type ;
+    222              return true ;
+    223          }
+    224          /************************Manufacture Settings*****************************/
+    225          
+    226          /************************Config Settings**********************************/
+    227          
+    228          static void Init_Config(void)
+    229          {
+    230              uint16_t crc = 0 ;
+    231          
+    232              crc = crc_ccitt(crc , g_config_data.byte , sizeof(Config_t) - 2) ;
+    233              g_config_data.structData.crc[0] = crc >> 8 ;
+    234              g_config_data.structData.crc[1] = crc >> 0 ;
+    235              sFLASH_EraseSector(FLASH_CONFIG_OFFSET);
+    236              sFLASH_WriteBuffer(g_config_data.byte,
+    237                                  FLASH_CONFIG_OFFSET,
+    238                                  sizeof(Config_t));
+    239          #if 0
+    240              DEBUG_PRINT0(DEBUG_MEDIUM, "[PARAM]:Config Data initialized!\n\r");
+    241          #endif
+    242          }
+    243          
+    244          // Get default config from RAM
+    245          static void Get_default_config(Config_t *config)
+    246          {
+    247              uint16_t crc = 0 ;
+    248              memcpy(config->byte,default_config,sizeof(Config_t)-2);
+    249              crc = crc_ccitt(crc , config->byte , sizeof(Config_t) - 2) ;
+    250              config->structData.crc[0]=(crc>>8) & 0xff;
+    251              config->structData.crc[1]=(crc) & 0xff;
+    252              Set_Config(*config);
+    253          }
+    254          
+    255          // Read config data from flash
+    256          bool Get_Config(Config_t *config)
+    257          {
+    258              uint16_t crc = 0;
+    259          
+    260              if(config == NULL)
+    261                  return false;
+    262          
+    263          #ifdef USE_DEFAULT_CONFIG
+    264              Get_default_config(config);
+    265              return true;
+    266          #endif
+    267              
+    268              sFLASH_ReadBuffer(config->byte, FLASH_CONFIG_OFFSET, sizeof(Config_t));
+    269          
+    270              crc = crc_ccitt(crc, config->byte, sizeof(Config_t)-2);
+    271              if(crc != ((config->structData.crc[0] << 8) + config->structData.crc[1]))
+    272              {
+    273                  Get_default_config(config);
+    274                  return false;
+    275              }
+    276          
+    277              return true;
+    278          }
+    279          
+    280          // Save config data to flash
+    281          bool Set_Config(Config_t config)
+    282          {
+    283              uint16_t crc = 0;
+    284          //    int count = 0;
+    285              Config_t tmp_config;
+    286          
+    287              crc = crc_ccitt(crc , config.byte , sizeof(Config_t) - 2);
+    288              config.structData.crc[0] = crc >> 8;
+    289              config.structData.crc[1] = crc;
+    290          
+    291              memcpy(g_config_data.byte, config.byte, sizeof(Config_t) - 2);
+    292              {
+    293                  sFLASH_EraseSector(FLASH_CONFIG_OFFSET);
+    294                  OS_Sleep(100);
+    295                  sFLASH_WriteBuffer(config.byte, FLASH_CONFIG_OFFSET, sizeof(Config_t));
+    296                  OS_Sleep(100);
+    297                  sFLASH_ReadBuffer(tmp_config.byte, FLASH_CONFIG_OFFSET, sizeof(Config_t));
+    298                  if(memcmp(config.byte, tmp_config.byte, sizeof(Config_t))==0)
+    299                      return true ;
+    300          //        count++;
+    301              }
+    302              return false ;
+    303          }
+    304          
+    305          // Get config version
+    306          extern bool Get_Config_Version(uint8_t *cfv)
+    307          {
+    308              if(cfv == NULL)
+    309                  return false ;
+    310          
+    311              memcpy(cfv, g_config_data.structData.config_ver, 2);
+    312              return true;
+    313          }
+    314          
+    315          extern uint8_t Get_IP_config(uint8_t *ip, uint8_t *port)
+    316          {
+    317              uint8_t rt=0;
+    318              uint8_t port_tmp[2];
+    319              rt=strlen(g_config_data.structData.network_connection_IP);
+    320              strcpy(ip,g_config_data.structData.network_connection_IP);
+    321              port_tmp[0]=g_config_data.structData.network_connection_port[1];
+    322              port_tmp[1]=g_config_data.structData.network_connection_port[0];
+    323              DECtoStr(port, port_tmp, 2);
+    324              
+    325              return rt;
+    326          }
+    327          
+    328          extern void Get_config_data(Config_t *config)
+    329          {
+    330              memcpy(config->byte, g_config_data.byte, sizeof(Config_t));
+    331          }
+    332          
+    333          extern void Reset_default_config(void)
+    334          {
+    335              Get_default_config(&g_config_data);
+    336          }
+    337          
+    338          /************************Config Settings end******************************/
+    339          
+    340          /************************GPS Info*****************************************/
+    341          
+    342          /*******************************************************************************
+    343          *    Function:  sys_get_sec_offset
+    344          *
+    345          *  Parameters:  time_buffer is the string like "20120304,123456"
+    346          *     Returns:  None
+    347          * Description:  get system time, convert to second.
+    348          *******************************************************************************/
+    349          uint32_t sys_get_sec_offset(uint8_t *time_buffer)
+    350          {
+    351              uint8_t year_offset; // current day offset from 2000 to the start of current year
+    352              uint16_t day_offset; // current day offset from the start of current year
+    353          
+    354              uint32_t cur_day_offset;//the second offset from 2000/01/01 to  the start of the current  day 2012/03/04
+    355              uint32_t cur_sec_offset; //the second offset from the 00:00:00  to the current time 12:34:56
+    356              uint16_t t;
+    357          
+    358              if (time_buffer == NULL)
+    359              {
+    360                  return 0;
+    361              }
+    362          
+    363              /* Check the GPS data and  */
+    364              if (time_buffer[0]=='2')
+    365              {
+    366                  year_offset = (time_buffer[2] - '0') * 10 + time_buffer[3] - '0';
+    367                  if (year_offset%4)
+    368                  {
+    369                      day_offset = tcom_month_tab[0][(time_buffer[4] - '0') * 10 + time_buffer[5] - '0' -1 ];
+    370                  }
+    371                  else
+    372                  {
+    373                      day_offset = tcom_month_tab[1][(time_buffer[4] - '0') * 10 + time_buffer[5] - '0' -1];
+    374                  }
+    375                  day_offset += (time_buffer[6] - '0') * 10 + time_buffer[7] - '0' - 1;
+    376          
+    377                  cur_day_offset = (year_offset*365ul + ((year_offset-1)/4 + 1) + day_offset)*86400ul;
+    378                  cur_sec_offset = ((time_buffer[8] - '0')*10+ time_buffer[9] - '0') * 3600ul + \
+    379                        ((time_buffer[10] - '0')*10+ time_buffer[11] - '0')* 60ul + \
+    380                        ((time_buffer[12] - '0')*10+ time_buffer[13] - '0');
+    381          
+    382                  cur_sec_offset += cur_day_offset;
+    383                  for(t=1970;t<2000;t++) //
+    384                  {
+    385                      if(Is_Leap_Year(t))
+    386                          cur_sec_offset+=31622400; //
+    387                      else
+    388                          cur_sec_offset+=31536000; //
+    389                  }
+    390                  // Then plus the RTC adjustment data
+    391              }
+    392              else
+    393              {
+    394                  year_offset = ((time_buffer[2] - '0') * 10 + time_buffer[3] - '0')-70;
+    395                  if (year_offset%4)
+    396                  {
+    397                      day_offset = tcom_month_tab[0][(time_buffer[4] - '0') * 10 + time_buffer[5] - '0' -1 ];
+    398                  }
+    399                  else
+    400                  {
+    401                      day_offset = tcom_month_tab[1][(time_buffer[4] - '0') * 10 + time_buffer[5] - '0' -1];
+    402                  }
+    403                  day_offset += (time_buffer[6] - '0') * 10 + time_buffer[7] - '0' - 1;
+    404          
+    405                  if (year_offset>0)
+    406                      cur_day_offset = (year_offset*365ul + ((year_offset-1)/4 + 1) + day_offset)*86400ul;
+    407                  else
+    408                      cur_day_offset = day_offset*86400ul;
+    409                  cur_sec_offset = ((time_buffer[8] - '0')*10+ time_buffer[9] - '0') * 3600ul + \
+    410                        ((time_buffer[10] - '0')*10+ time_buffer[11] - '0')* 60ul + \
+    411                        ((time_buffer[12] - '0')*10+ time_buffer[13] - '0');
+    412          
+    413                  cur_sec_offset += cur_day_offset;
+    414              }
+    415              return cur_sec_offset;
+    416          }
+    417          
+    418          /*******************************************************************************
+    419          *    Function:  sys_get_cur_sec_offset
+    420          *
+    421          *  Parameters:  
+    422          *     Returns:  None
+    423          * Description:  get current second offset from system.
+    424          *******************************************************************************/
+    425          extern uint32_t sys_get_cur_sec_offset(void)
+    426          {
+    427          //    uint8_t curGpsUtc[15];
+    428              uint8_t curGpsUtc[17];  // ywf, size 15 is overlapped
+    429             /* Get GPS data from gps modual */
+    430             vGps_Get_Gps_Utc(curGpsUtc);
+    431          
+    432             if (curGpsUtc[0] == true)
+    433             {
+    434                /* Get GPS data from gps modual */
+    435                if (rtc_inited == 0)
+    436                {
+    437                    uint16_t utc_year = (((curGpsUtc[1] - '0') * 1000) +
+    438                                ((curGpsUtc[2] - '0') * 100) +
+    439                                ((curGpsUtc[3] - '0') * 10) +
+    440                                (curGpsUtc[4] - '0'));
+    441                    uint8_t utc_month = (((curGpsUtc[5] - '0') * 10) +
+    442                                (curGpsUtc[6] - '0'));
+    443                    uint8_t utc_day = (((curGpsUtc[7] - '0') * 10) +
+    444                                (curGpsUtc[8] - '0'));
+    445                    uint8_t utc_h = (((curGpsUtc[9] - '0') * 10) +
+    446                                (curGpsUtc[10] - '0'));
+    447                    uint8_t utc_m = (((curGpsUtc[11] - '0') * 10) +
+    448                                (curGpsUtc[12] - '0'));
+    449                    uint8_t utc_s = (((curGpsUtc[13] - '0') * 10) +
+    450                                (curGpsUtc[14] - '0'));
+    451          
+    452                    RTC_Set(utc_year,utc_month,utc_day,utc_h,utc_m,utc_s);
+    453                    // Get RTC adjustment, save with RTC counter
+    454                    ref_rtc = RTC_GetCounter();
+    455                    rtc_inited = 1;
+    456                }
+    457                else
+    458                {
+    459                    // Check RTC counter, if exceed 10 minutes after first located, set RTC again
+    460                    if (ref_rtc > 0)
+    461                    {
+    462                        if ((RTC_GetCounter()-ref_rtc) > RTC_REF_DELTA)
+    463                        {
+    464                            uint16_t utc_year = (((curGpsUtc[1] - '0') * 1000) +
+    465                                ((curGpsUtc[2] - '0') * 100) +
+    466                                ((curGpsUtc[3] - '0') * 10) +
+    467                                (curGpsUtc[4] - '0'));
+    468                            uint8_t utc_month = (((curGpsUtc[5] - '0') * 10) +
+    469                                (curGpsUtc[6] - '0'));
+    470                            uint8_t utc_day = (((curGpsUtc[7] - '0') * 10) +
+    471                                (curGpsUtc[8] - '0'));
+    472                            uint8_t utc_h = (((curGpsUtc[9] - '0') * 10) +
+    473                                (curGpsUtc[10] - '0'));
+    474                            uint8_t utc_m = (((curGpsUtc[11] - '0') * 10) +
+    475                                (curGpsUtc[12] - '0'));
+    476                            uint8_t utc_s = (((curGpsUtc[13] - '0') * 10) +
+    477                                (curGpsUtc[14] - '0'));
+    478          
+    479                            RTC_Set(utc_year,utc_month,utc_day,utc_h,utc_m,utc_s);
+    480                            ref_rtc = RTC_GetCounter();
+    481                        }
+    482                    }
+    483                }
+    484                return sys_get_sec_offset(&curGpsUtc[1]);   
+    485             }
+    486             else
+    487             {
+    488                /* Get RTC from Local system time */
+    489                uint8_t utc_buff[20];
+    490                if (0 == RTC_Get(utc_buff))
+    491                   return sys_get_sec_offset(utc_buff);
+    492             }
+    493             return 0;
+    494          }
+    495          
+    496          static void Init_GPS_Info(void)
+    497          {
+    498              sFLASH_EraseSector(FLASH_GPS_INFO_OFFSET);
+    499          }
+    500          
+    501          bool Switch_GPS_Sturcture_data_to_log(gps_data_t gps_data, GPS_log_t *gps_log)
+    502          {
+    503              uint32_t sec_offset;
+    504          
+    505              if(gps_log == NULL)
+    506                  return false;
+    507              memset(gps_log ->byte, 0, sizeof(GPS_log_t));
+    508              memcpy(gps_log->structData.latitude, gps_data.latitude, 4);
+    509              memcpy(gps_log->structData.longitude, gps_data.longitude, 4);
+    510              sec_offset = sys_get_cur_sec_offset();
+    511              if (!gps_data.valid)
+    512              {
+    513                  uint8_t clk_tmp[14];
+    514                  ATProt_Get_Clock(clk_tmp);
+    515                  sec_offset=sys_get_sec_offset(clk_tmp);
+    516              }
+    517              gps_log ->structData.postion_time[0] = sec_offset >> 24;
+    518              gps_log ->structData.postion_time[1] = sec_offset >> 16;
+    519              gps_log ->structData.postion_time[2] = sec_offset >> 8;
+    520              gps_log ->structData.postion_time[3] = sec_offset >> 0;
+    521              memcpy(gps_log->structData.altitude, gps_data.altitude, 4);
+    522              memcpy(gps_log->structData.cog, gps_data.cog, 2) ;
+    523          
+    524              gps_log ->structData.speed = gps_data.speed[1] ;
+    525              gps_log ->structData.pdop  = gps_data.pdop[1] ;
+    526          
+    527              gps_log ->structData.used_satellite_number = gps_data.gps_sat_info.used_sat_num;
+    528          
+    529              return true ;
+    530          }
+    531          
+    532          static bool Get_GPS_Info(void)
+    533          {
+    534              GPS_Info_t gps_info;
+    535              sFLASH_ReadBuffer(gps_info.byte, FLASH_GPS_INFO_OFFSET, sizeof(GPS_Info_t));
+    536          
+    537              if ((gps_info.byte[0]==0xff) && (gps_info.byte[1]==0xff))
+    538              {
+    539                  memset(&g_gps_info,0,sizeof(gps_backup_info_t));
+    540                  return false;
+    541              }
+    542              g_gps_info.log_read_sector = ArrayToUint16(gps_info.structData.log_read_sector);
+    543              g_gps_info.log_sector_read_ptr = ArrayToUint16(gps_info.structData.log_sector_read_pointer);
+    544              g_gps_info.log_write_sector = ArrayToUint16(gps_info.structData.log_write_sector);
+    545              g_gps_info.log_sector_write_ptr = ArrayToUint16(gps_info.structData.log_sector_write_pointer);
+    546              g_gps_info.log_total_number = ArrayToUint16(gps_info.structData.log_total_number);
+    547          
+    548              if(g_gps_info.log_read_sector > 128)
+    549              {
+    550                  g_gps_info.log_read_sector=0;
+    551                  g_gps_info.log_sector_read_ptr=0;
+    552                  return false;		/* 512K , max: 128sector */
+    553              }
+    554              if(g_gps_info.log_sector_read_ptr > GPS_LOG_NUMBER_PER_SECOTR)
+    555              {
+    556                  g_gps_info.log_sector_read_ptr=0;
+    557                  return false;
+    558              }
+    559              if(g_gps_info.log_write_sector > 128)
+    560              {
+    561                  g_gps_info.log_write_sector=0;
+    562                  g_gps_info.log_sector_write_ptr=0;
+    563                  return false;		/* 512K , max: 128sector */
+    564              }
+    565              if(g_gps_info.log_sector_write_ptr >= GPS_LOG_NUMBER_PER_SECOTR)
+    566              {
+    567                  g_gps_info.log_sector_write_ptr=0;
+    568                  return false;
+    569              }
+    570              if(g_gps_info.log_total_number > MAX_GPS_LOG_NUMBER)
+    571              {
+    572                  g_gps_info.log_total_number=0;
+    573                  return false;
+    574              }
+    575          
+    576              return true;
+    577          }
+    578          
+    579          uint16_t Get_GPS_Data_Total_Number(void)
+    580          {
+    581              return g_gps_info.log_total_number;
+    582          }
+    583          
+    584          static bool Set_GPS_Info(GPS_Info_t *gps_info_t)
+    585          {
+    586              if (gps_info_t->structData.log_total_number == 0)
+    587                  return false;
+    588          
+    589              {
+    590                  sFLASH_EraseSector(FLASH_GPS_INFO_OFFSET);
+    591                  sFLASH_WriteBuffer(gps_info_t->byte,
+    592                                      FLASH_GPS_INFO_OFFSET,
+    593                                      sizeof(GPS_Info_t));
+    594              }
+    595              return true;
+    596          }
+    597          
+    598          // write gps data to flash
+    599          bool Write_GPS_Data(GPS_log_t *gps_log_t)
+    600          {
+    601              /* arrive new sector */
+    602              if(g_gps_info.log_sector_write_ptr == 0)
+    603              {
+    604                  sFLASH_EraseSector(FLASH_GPS_LOG_OFFSET + g_gps_info.log_write_sector * FLASH_SPI_SECTORSIZE);
+    605                  if (g_gps_info.log_total_number==MAX_GPS_LOG_NUMBER)
+    606                  {
+    607                      g_gps_info.log_total_number-=GPS_LOG_NUMBER_PER_SECOTR;
+    608                      if (g_gps_info.log_write_sector>=(GPS_LOG_MAX_SECTOR_NUM-1))
+    609                          g_gps_info.log_read_sector = 0;
+    610                      else
+    611                          g_gps_info.log_read_sector = g_gps_info.log_write_sector+1;
+    612                      g_gps_info.log_sector_read_ptr = 0;
+    613                  }
+    614              }
+    615              sFLASH_WriteBuffer(gps_log_t->byte,
+    616                              FLASH_GPS_LOG_OFFSET + g_gps_info.log_write_sector * FLASH_SPI_SECTORSIZE + \
+    617                              g_gps_info.log_sector_write_ptr * sizeof(GPS_log_t), \
+    618                              sizeof(GPS_log_t));
+    619              /* 
+    620                one sector store 146(4k / 28) packages , gps data cover 128(512k/4k) sector 
+    621                max package number = 146 * 128 = 18688
+    622              */
+    623              g_gps_info.log_sector_write_ptr++;
+    624              /* if write pointer reach end of flash area , reset to 0 */
+    625              if(g_gps_info.log_sector_write_ptr >= GPS_LOG_NUMBER_PER_SECOTR)
+    626              {
+    627                  g_gps_info.log_sector_write_ptr = 0;
+    628                  g_gps_info.log_write_sector ++;
+    629              }
+    630              if(g_gps_info.log_write_sector >= GPS_LOG_MAX_SECTOR_NUM)
+    631              {
+    632                  g_gps_info.log_write_sector = 0;
+    633                  g_gps_info.log_sector_write_ptr = 0;
+    634              }
+    635          
+    636              if(g_gps_info.log_total_number < MAX_GPS_LOG_NUMBER)
+    637                  g_gps_info.log_total_number ++;
+    638              else 
+    639              {
+    640                  /* read pointer == write pointer */
+    641                  g_gps_info.log_total_number = MAX_GPS_LOG_NUMBER;
+    642                  g_gps_info.log_read_sector = g_gps_info.log_write_sector;
+    643                  g_gps_info.log_sector_read_ptr = g_gps_info.log_sector_write_ptr;
+    644              }
+    645              return true ;
+    646          }
+    647          
+    648          // set read pointer to the next N
+    649          // num shall not greater than (GPS_LOG_NUMBER_PER_SECOTR-log_sector_read_ptr)
+    650          bool Set_GPS_Data_Next_Read_Pointer(uint8_t num)
+    651          {
+    652              if((g_gps_info.log_total_number == 0) || (g_gps_info.log_total_number <= num))
+    653              {
+    654                  memset(&g_gps_info, 0, sizeof(gps_backup_info_t));
+    655                  return false;
+    656              }
+    657              g_gps_info.log_sector_read_ptr+=num;
+    658              if(g_gps_info.log_sector_read_ptr >= GPS_LOG_NUMBER_PER_SECOTR)
+    659              {
+    660                  g_gps_info.log_sector_read_ptr=0;
+    661                  g_gps_info.log_read_sector++;
+    662              }
+    663              if(g_gps_info.log_read_sector >= GPS_LOG_MAX_SECTOR_NUM)
+    664              {
+    665                  g_gps_info.log_read_sector=0;
+    666                  g_gps_info.log_sector_read_ptr=0;
+    667                  return true;
+    668              }
+    669              if(g_gps_info.log_total_number > 0)
+    670              {
+    671                  g_gps_info.log_total_number -= num;
+    672                  if (g_gps_info.log_total_number == 0)
+    673                  {
+    674                      g_gps_info.log_read_sector = 0;
+    675                      g_gps_info.log_write_sector = 0;
+    676                      g_gps_info.log_sector_read_ptr = 0;
+    677                      g_gps_info.log_sector_write_ptr = 0;
+    678                      Init_GPS_Info();
+    679                      return true;
+    680                  }
+    681              }
+    682              if((g_gps_info.log_read_sector == g_gps_info.log_write_sector) &&
+    683                 (g_gps_info.log_sector_read_ptr == g_gps_info.log_sector_write_ptr))
+    684              {
+    685                  g_gps_info.log_total_number = 0;
+    686                  g_gps_info.log_read_sector = 0;
+    687                  g_gps_info.log_write_sector = 0;
+    688                  g_gps_info.log_sector_read_ptr = 0;
+    689                  g_gps_info.log_sector_write_ptr = 0;
+    690                  Init_GPS_Info();
+    691              }
+    692          
+    693              return true;
+    694          }
+    695          
+    696          uint8_t Read_GPS_Data(uint8_t *gps_log_t, uint8_t num)
+    697          {
+    698              uint16_t read_sector;
+    699              uint16_t read_sector_pointer;
+    700              uint8_t i=0;
+    701          
+    702              read_sector_pointer = g_gps_info.log_sector_read_ptr;
+    703              read_sector = g_gps_info.log_read_sector;
+    704          
+    705              if (num > g_gps_info.log_total_number)
+    706              {
+    707                  num = g_gps_info.log_total_number;
+    708              }
+    709              if ((num+g_gps_info.log_sector_read_ptr) >= GPS_LOG_NUMBER_PER_SECOTR)
+    710              {
+    711                  num = (GPS_LOG_NUMBER_PER_SECOTR-read_sector_pointer);
+    712              }
+    713              memset(gps_log_t, 0, sizeof(GPS_log_t)*num);
+    714              for (i=0;((i+read_sector_pointer) < GPS_LOG_NUMBER_PER_SECOTR) && (i<num); i++)
+    715              {
+    716                  sFLASH_ReadBuffer(gps_log_t+(i*sizeof(GPS_log_t)),
+    717                                  FLASH_GPS_LOG_OFFSET + read_sector * FLASH_SPI_SECTORSIZE + (read_sector_pointer+i) * sizeof(GPS_log_t),
+    718                                  sizeof(GPS_log_t));
+    719              }
+    720          
+    721              return num;
+    722          }
+    723          
+    724          /************************GPS Info end*************************************/
+    725          
+    726          /************************OTA Info*****************************************/
+    727          
+    728          static void Init_OTA_Info(void)
+    729          {
+    730              sFLASH_EraseSector(FLASH_OTA_INFO_OFFSET);
+    731              DEBUG_PRINT0(DEBUG_MEDIUM, "[PARAM]:OTA Info Data initialized!\n\r");
+    732          }
+    733          
+    734          bool Set_OTA_Info(OTAHdr_Sct_t ota_info)
+    735          {
+    736              memcpy(g_ota_info.byte, ota_info.byte, sizeof(OTAHdr_Sct_t));
+    737              sFLASH_EraseSector(FLASH_OTA_INFO_OFFSET);
+    738              sFLASH_WriteBuffer(ota_info.byte,
+    739                                  FLASH_OTA_INFO_OFFSET,
+    740                                  sizeof(OTAHdr_Sct_t));
+    741              return true ;
+    742          }
+    743          
+    744          bool Get_OTA_Info(OTAHdr_Sct_t *ota_info) 
+    745          {
+    746              if(ota_info == NULL)
+    747                  return false ;
+    748          
+    749              sFLASH_ReadBuffer(ota_info->byte, FLASH_OTA_INFO_OFFSET, sizeof(OTAHdr_Sct_t));
+    750              
+    751              return true ;
+    752          }
+    753          
+    754          bool Get_OTA_Target_Ver(uint16_t *ver)
+    755          {
+    756              OTAHdr_Sct_t ota_info;
+    757          
+    758              if(ver == NULL)
+    759                  return false ;
+    760              if(!(Get_OTA_Info(&ota_info)))
+    761                  return false ;
+    762          
+    763              *ver = (ota_info.structData.ota_target_ver[0] << 8 ) + ota_info.structData.ota_target_ver[1] ;
+    764          
+    765              return true ;
+    766          }
+    767          
+    768          bool Start_Write_OTA_Data(uint32_t total_bytes)
+    769          {
+    770              OTAHdr_Sct_t ota_info;
+    771              int i = 0 ;
+    772              uint16_t need_sector = 0 ;
+    773          
+    774              if(total_bytes > OTA_MAX_SIZE)
+    775                  return false ;
+    776          
+    777              if(!(Get_OTA_Info(&ota_info)))
+    778                  return false ;
+    779          
+    780              ota_info.structData.ota_total_bytes[0] = total_bytes >> 24 ;
+    781              ota_info.structData.ota_total_bytes[1] = total_bytes >> 16 ;
+    782              ota_info.structData.ota_total_bytes[2] = total_bytes >> 8 ;
+    783              ota_info.structData.ota_total_bytes[3] = total_bytes >> 0 ;
+    784          
+    785              if ((total_bytes % FLASH_SPI_SECTORSIZE)==0)
+    786              {
+    787                  need_sector = total_bytes / FLASH_SPI_SECTORSIZE;
+    788              }
+    789              else
+    790              {
+    791                  need_sector = total_bytes / FLASH_SPI_SECTORSIZE + 1 ;
+    792              }
+    793              for(i = 0 ; i < need_sector ; i ++)
+    794              {
+    795                  sFLASH_EraseSector(FLASH_OTA_DATA_OFFSET + (i * FLASH_SPI_SECTORSIZE)) ;
+    796              }
+    797          
+    798              Set_OTA_Info(ota_info) ;
+    799              return true ;
+    800          }
+    801          
+    802          bool Write_OTA_Data(uint8_t *data , uint16_t len)
+    803          {
+    804              uint16_t ota_total_package;
+    805              uint16_t ota_current_package_index;
+    806              uint32_t ota_total_bytes;
+    807              uint32_t ota_downloaded_bytes;
+    808              OTAHdr_Sct_t ota_info;
+    809              uint16_t crc;
+    810          
+    811              if(data == NULL)
+    812                  return false ;
+    813          
+    814              Get_OTA_Info(&ota_info) ;
+    815              ota_current_package_index = (ota_info.structData.ota_current_package_index[0] << 8) + \
+    816                                           ota_info.structData.ota_current_package_index[1] ;
+    817              ota_total_package         = (ota_info.structData.ota_total_package[0] << 8) + \
+    818                                           ota_info.structData.ota_total_package[1];
+    819              ota_total_bytes           = (ota_info.structData.ota_total_bytes[0] << 24) + \
+    820                                          (ota_info.structData.ota_total_bytes[1] << 16) + \
+    821                                          (ota_info.structData.ota_total_bytes[2] << 8) + \
+    822                                           ota_info.structData.ota_total_bytes[3];
+    823              ota_downloaded_bytes      = (ota_info.structData.ota_downloaded_bytes[0] << 24) + \
+    824                                          (ota_info.structData.ota_downloaded_bytes[1] << 16) + \
+    825                                          (ota_info.structData.ota_downloaded_bytes[2] << 8) + \
+    826                                           ota_info.structData.ota_downloaded_bytes[3];
+    827              if(ota_current_package_index > ota_total_package)
+    828                  return false;
+    829              if(ota_downloaded_bytes > ota_total_bytes)
+    830                  return false;
+    831          
+    832              sFLASH_WriteBuffer(data , FLASH_OTA_DATA_OFFSET + ota_downloaded_bytes , len);
+    833          
+    834              ota_current_package_index ++ ;
+    835              ota_downloaded_bytes += len ;
+    836          
+    837              ota_info.structData.ota_downloaded_bytes[0] = ota_downloaded_bytes >> 24 ;
+    838              ota_info.structData.ota_downloaded_bytes[1] = ota_downloaded_bytes >> 16 ;
+    839              ota_info.structData.ota_downloaded_bytes[2] = ota_downloaded_bytes >> 8 ;
+    840              ota_info.structData.ota_downloaded_bytes[3] = ota_downloaded_bytes >> 0 ;
+    841          
+    842              ota_info.structData.ota_current_package_index[0] = ota_current_package_index >> 8 ;
+    843              ota_info.structData.ota_current_package_index[1] = ota_current_package_index >> 0 ;
+    844          
+    845              Set_OTA_Info(ota_info) ;
+    846          
+    847              return true ;
+    848          }
+    849          
+    850          bool End_Write_OTA_Data(uint16_t crc)
+    851          {
+    852              OTAHdr_Sct_t ota_info ;
+    853          
+    854              if(!(Get_OTA_Info(&ota_info)))
+    855                  return false ;
+    856          
+    857              return true ;
+    858          }
+    859          
+    860          bool Read_OTA_Data(uint8_t *data , uint16_t len)
+    861          {
+    862              if(data == NULL)
+    863                  return false ;
+    864          
+    865              //ota_read_bytes_pointer
+    866              return true ;
+    867          }
+    868          
+    869          /************************OTA Info end*************************************/
+    870          
+    871          /************************Battery Info*************************************/
+    872          /*
+    873          	bettery log
+    874          	----------------------------------------------------------------------
+    875          	 name	vol1	time1	vol2	time2	...
+    876          	----------------------------------------------------------------------
+    877          	 size	 1		  4		 1		 4		...
+    878          	----------------------------------------------------------------------
+    879          	max 819 battery data
+    880          	battery_log_numberÔÚconfigÄÚ
+    881          */
+    882          
+    883          bool WriteBatteryData(Battery_log_t g_battery_log_t)
+    884          {
+    885              uint16_t battery_log_number = 0;
+    886          
+    887              if(battery_log_number >= BATTERY_LOG_MAX)
+    888              {
+    889                  battery_log_number = 0 ;
+    890                  sFLASH_EraseSector(FLASH_BATTERY_LOG_OFFSET);
+    891              }
+    892              sFLASH_WriteBuffer(g_battery_log_t.byte,
+    893                                  FLASH_BATTERY_LOG_OFFSET + battery_log_number * sizeof(Battery_log_t),
+    894                                  sizeof(Battery_log_t));
+    895              battery_log_number ++;
+    896              return true ;
+    897          }
+    898          
+    899          static Battery_log_t ReadBatteryData(uint16_t start)
+    900          {
+    901              Battery_log_t g_bettery_log_t ;
+    902          
+    903              sFLASH_ReadBuffer(g_bettery_log_t.byte,
+    904                              FLASH_BATTERY_LOG_OFFSET + start * sizeof(Battery_log_t) ,
+    905                              sizeof(Battery_log_t));
+    906          
+    907              return g_bettery_log_t;
+    908          }
+    909          
+    910          uint16_t Get_Battery_Log_Number(void)
+    911          {
+    912              return 0 ;
+    913          }
+    914          
+    915          
+    916          void Set_Battery_Log_Number(uint16_t bettery_log_number)
+    917          {
+    918          
+    919          }
+    920          
+    921          /************************Battery Info end*********************************/
+    922          
+    923          /******************Device started flag*************************/
+    924          static uint8_t Get_Dev_Start(void)
+    925          {
+    926              uint8_t rt=0;
+    927              uint8_t data[2];
+    928              sFLASH_ReadBuffer(data,FLASH_DEV_START_OFFSET,2);
+    929              if ((data[0]==0x55) && (data[1]==0xaa))
+    930                  rt=1;
+    931              return rt;
+    932          }
+    933          
+    934          static void Set_Dev_Start(void)
+    935          {
+    936              uint8_t data[2]={0x55,0xaa};
+    937              sFLASH_EraseSector(FLASH_DEV_START_OFFSET);
+    938              sFLASH_WriteBuffer(data,FLASH_DEV_START_OFFSET,2);
+    939          }
+    940          /******************Device started flag end*********************/
+    941          
+    942          /*******************Trip Info**********************************/
+    943          void Set_Last_Trip_Info(Last_Trip_t *info)
+    944          {
+    945              memcpy(&last_trip_info, info, sizeof(Last_Trip_t));
+    946          }
+    947          
+    948          uint8_t Get_Last_Trip_Info(Last_Trip_t *info)
+    949          {
+    950              if ((last_trip_info.trip_status!=1) && (last_trip_info.trip_status!=2))
+    951              {
+    952                  memset(info, 0, sizeof(Last_Trip_t));
+    953                  return 0;
+    954              }
+    955              else
+    956              {
+    957                  memcpy(info, &last_trip_info, sizeof(Last_Trip_t));
+    958                  return 1;
+    959              }
+    960          }
+    961          
+    962          static void Load_Trip_Info(void)
+    963          {
+    964              sFLASH_ReadBuffer((uint8_t *)&last_trip_info, FLASH_TRIP_INFO_OFFSET, sizeof(Last_Trip_t));
+    965          }
+    966          
+    967          static void Store_Trip_Info(void)
+    968          {
+    969              sFLASH_WriteBuffer((uint8_t *)&last_trip_info, FLASH_TRIP_INFO_OFFSET, sizeof(Last_Trip_t));
+    970          }
+    971          
+    972          /******************Flash data initialization********************/
+    973          static void Init_Param_In_Flash(void)
+    974          {
+    975              Init_Manufacture_Setting();
+    976              Init_Config();
+    977              Init_GPS_Info();
+    978              Init_OTA_Info();
+    979          }
+    980          
+    981          void Save_Param(void)
+    982          {
+    983              GPS_Info_t gps_info;
+    984          
+    985              Uint16ToArray(g_gps_info.log_total_number, gps_info.structData.log_total_number);
+    986              Uint16ToArray(g_gps_info.log_read_sector, gps_info.structData.log_read_sector);
+    987              Uint16ToArray(g_gps_info.log_sector_read_ptr, gps_info.structData.log_sector_read_pointer);
+    988              Uint16ToArray(g_gps_info.log_write_sector, gps_info.structData.log_write_sector);
+    989              Uint16ToArray(g_gps_info.log_sector_write_ptr, gps_info.structData.log_sector_write_pointer);
+    990          
+    991              Store_Trip_Info();
+    992              Set_GPS_Info(&gps_info);
+    993          }
+    994          
+    995          bool Load_Param(void)
+    996          {
+    997              bool res = true;
+    998          
+    999              if(!(Get_Manufacture_Setting(&g_devinfo_sct)))
+   1000              {
+   1001                  res = false ;
+   1002              }
+   1003              if(!(Get_Config(&g_config_data)))
+   1004              {
+   1005                  res = false ;
+   1006              }
+   1007              if(!(Get_GPS_Info()))
+   1008              {
+   1009                  res = false;
+   1010              }
+   1011              if(!(Get_OTA_Info(&g_ota_info)))
+   1012              {
+   1013                  res = false ;
+   1014              }
+   1015              Load_Trip_Info();
+   1016          
+   1017              if (0==Get_Dev_Start())
+   1018                  Set_Dev_Start();
+   1019              return res ;
+   1020          }
+   1021          
+   1022          uint8_t Get_Last_GPS_uploaded(void)
+   1023          {
+   1024              return last_gps_uploaded;
+   1025          }
+   1026          
+   1027          void Set_Last_GPS_uploader(uint8_t status)
+   1028          {
+   1029              last_gps_uploaded=status;
+   1030          }
+   1031          
+   1032          // 0=GPS point not uploaded, 1=GPS point uploaded
+   1033          uint8_t Get_Low_Voltage_Uploaded(void)
+   1034          {
+   1035              return low_voltage_uploaded;
+   1036          }
+   1037          
+   1038          void Set_Low_Voltage_Uploaded(uint8_t status)
+   1039          {
+   1040              low_voltage_uploaded=status;
+   1041          }
+   1042          
+   1043          
+   1044          /* end of file */
+   1045          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   ArrayToUint16
+      40   End_Write_OTA_Data
+        40   -> Get_OTA_Info
+       0   Get_Activation_Status
+       0   Get_Battery_Log_Number
+       8   Get_Config
+         8   -> Get_default_config
+       8   Get_Config_Version
+         8   -> __aeabi_memcpy
+      16   Get_Dev_Start
+        16   -> sFLASH_ReadBuffer
+       0   Get_Device_Type
+       8   Get_Firmware_Version
+         8   -> __aeabi_memcpy
+       0   Get_GPS_Data_Total_Number
+      24   Get_GPS_Info
+        24   -> ArrayToUint16
+        24   -> __aeabi_memset
+        24   -> sFLASH_ReadBuffer
+       8   Get_Hardware_Version
+         8   -> __aeabi_memcpy
+      24   Get_IP_config
+        24   -> DECtoStr
+        24   -> strcpy
+        24   -> strlen
+       0   Get_Last_GPS_uploaded
+       8   Get_Last_Trip_Info
+         8   -> __aeabi_memcpy
+         8   -> __aeabi_memset
+       0   Get_Low_Voltage_Uploaded
+      40   Get_Manufacture_Setting
+        24   -> ATProt_Get_Imei
+        24   -> Get_default_config
+        24   -> Init_Param_In_Flash
+        24   -> Set_Manufacture_Setting
+        24   -> __aeabi_memcpy
+        40   -> __aeabi_memcpy4
+        24   -> crc_ccitt
+        24   -> sFLASH_ReadBuffer
+       8   Get_OTA_Info
+         8   -> sFLASH_ReadBuffer
+      48   Get_OTA_Target_Ver
+        48   -> Get_OTA_Info
+       8   Get_config_data
+         8   -> __aeabi_memcpy
+      88   Get_default_config
+        72   -> Set_Config
+        72   -> __aeabi_memcpy
+        88   -> __aeabi_memcpy
+        72   -> crc_ccitt
+       8   Init_Config
+         8   -> crc_ccitt
+         8   -> sFLASH_EraseSector
+         8   -> sFLASH_WriteBuffer
+       8   Init_GPS_Info
+         8   -> sFLASH_EraseSector
+       8   Init_Manufacture_Setting
+         8   -> sFLASH_EraseSector
+       8   Init_OTA_Info
+         8   -> sFLASH_EraseSector
+       8   Init_Param_In_Flash
+         8   -> Init_Config
+         8   -> Init_GPS_Info
+         8   -> Init_Manufacture_Setting
+         8   -> Init_OTA_Info
+       8   Load_Param
+         8   -> Get_Config
+         8   -> Get_Dev_Start
+         8   -> Get_GPS_Info
+         8   -> Get_Manufacture_Setting
+         8   -> Get_OTA_Info
+         8   -> Load_Trip_Info
+         8   -> Set_Dev_Start
+       8   Load_Trip_Info
+         8   -> sFLASH_ReadBuffer
+      24   Read_GPS_Data
+        24   -> __aeabi_memset
+        24   -> sFLASH_ReadBuffer
+       0   Read_OTA_Data
+       8   Reset_default_config
+         8   -> Get_default_config
+      16   Save_Param
+        16   -> Set_GPS_Info
+        16   -> Store_Trip_Info
+        16   -> Uint16ToArray
+      32   Set_Activation_Status
+        16   -> Set_Manufacture_Setting
+        32   -> __aeabi_memcpy4
+       0   Set_Battery_Log_Number
+     104   Set_Config
+       104   -> OS_Sleep
+       104   -> __aeabi_memcpy
+       104   -> crc_ccitt
+       104   -> memcmp
+       104   -> sFLASH_EraseSector
+       104   -> sFLASH_ReadBuffer
+       104   -> sFLASH_WriteBuffer
+       8   Set_Dev_Start
+         8   -> sFLASH_EraseSector
+         8   -> sFLASH_WriteBuffer
+       8   Set_GPS_Data_Next_Read_Pointer
+         8   -> Init_GPS_Info
+         8   -> __aeabi_memset
+       8   Set_GPS_Info
+         8   -> sFLASH_EraseSector
+         8   -> sFLASH_WriteBuffer
+       0   Set_Last_GPS_uploader
+       8   Set_Last_Trip_Info
+         8   -> __aeabi_memcpy
+       0   Set_Low_Voltage_Uploaded
+      48   Set_Manufacture_Setting
+        48   -> OS_Sleep
+        48   -> crc_ccitt
+        48   -> memcmp
+        48   -> sFLASH_EraseSector
+        48   -> sFLASH_ReadBuffer
+        48   -> sFLASH_WriteBuffer
+      24   Set_OTA_Info
+        24   -> __aeabi_memcpy
+        24   -> sFLASH_EraseSector
+        24   -> sFLASH_WriteBuffer
+      88   Start_Write_OTA_Data
+        72   -> Get_OTA_Info
+        72   -> Set_OTA_Info
+        88   -> __aeabi_memcpy4
+        72   -> sFLASH_EraseSector
+       8   Store_Trip_Info
+         8   -> sFLASH_WriteBuffer
+      48   Switch_GPS_Sturcture_data_to_log
+        48   -> ATProt_Get_Clock
+        48   -> __aeabi_memcpy
+        48   -> __aeabi_memset
+        48   -> sys_get_cur_sec_offset
+        48   -> sys_get_sec_offset
+       0   Uint16ToArray
+      16   WriteBatteryData
+        16   -> sFLASH_EraseSector
+        16   -> sFLASH_WriteBuffer
+       8   Write_GPS_Data
+         8   -> sFLASH_EraseSector
+         8   -> sFLASH_WriteBuffer
+      96   Write_OTA_Data
+        80   -> Get_OTA_Info
+        80   -> Set_OTA_Info
+        96   -> __aeabi_memcpy4
+        80   -> sFLASH_WriteBuffer
+      72   sys_get_cur_sec_offset
+        72   -> RTC_Get
+        72   -> RTC_GetCounter
+        72   -> RTC_Set
+        72   -> sys_get_sec_offset
+        72   -> vGps_Get_Gps_Utc
+      16   sys_get_sec_offset
+        16   -> Is_Leap_Year
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable26
+       4  ??DataTable26_1
+       4  ??DataTable26_2
+       4  ??DataTable28
+       4  ??DataTable32
+       4  ??DataTable32_1
+       4  ??DataTable32_10
+       4  ??DataTable32_11
+       4  ??DataTable32_12
+       4  ??DataTable32_13
+       4  ??DataTable32_14
+       4  ??DataTable32_15
+       4  ??DataTable32_16
+       4  ??DataTable32_17
+       4  ??DataTable32_2
+       4  ??DataTable32_3
+       4  ??DataTable32_4
+       4  ??DataTable32_5
+       4  ??DataTable32_6
+       4  ??DataTable32_7
+       4  ??DataTable32_8
+       4  ??DataTable32_9
+       2  ?_0
+      22  ArrayToUint16
+      24  End_Write_OTA_Data
+       8  Get_Activation_Status
+       4  Get_Battery_Log_Number
+      20  Get_Config
+      28  Get_Config_Version
+      40  Get_Dev_Start
+      20  Get_Device_Type
+      28  Get_Firmware_Version
+       8  Get_GPS_Data_Total_Number
+     248  Get_GPS_Info
+      28  Get_Hardware_Version
+      68  Get_IP_config
+       6  Get_Last_GPS_uploaded
+      48  Get_Last_Trip_Info
+       6  Get_Low_Voltage_Uploaded
+     178  Get_Manufacture_Setting
+      24  Get_OTA_Info
+      48  Get_OTA_Target_Ver
+      18  Get_config_data
+      70  Get_default_config
+      62  Init_Config
+      12  Init_GPS_Info
+      10  Init_Manufacture_Setting
+      12  Init_OTA_Info
+      20  Init_Param_In_Flash
+      70  Load_Param
+      16  Load_Trip_Info
+     172  Read_GPS_Data
+      12  Read_OTA_Data
+      12  Reset_default_config
+      68  Save_Param
+      32  Set_Activation_Status
+       2  Set_Battery_Log_Number
+     118  Set_Config
+      28  Set_Dev_Start
+     280  Set_GPS_Data_Next_Read_Pointer
+      36  Set_GPS_Info
+       6  Set_Last_GPS_uploader
+      16  Set_Last_Trip_Info
+       6  Set_Low_Voltage_Uploaded
+      96  Set_Manufacture_Setting
+      46  Set_OTA_Info
+     122  Start_Write_OTA_Data
+      16  Store_Trip_Info
+     148  Switch_GPS_Sturcture_data_to_log
+      22  Uint16ToArray
+      50  WriteBatteryData
+     276  Write_GPS_Data
+     204  Write_OTA_Data
+      72  default_config
+      20  default_devinfo
+      76  g_config_data
+      24  g_devinfo_sct
+      12  g_gps_info
+      36  g_ota_info
+       1  last_gps_uploaded
+      32  last_trip_info
+       1  low_voltage_uploaded
+       4  ref_rtc
+       1  rtc_inited
+     406  sys_get_cur_sec_offset
+     458  sys_get_sec_offset
+      48  tcom_month_tab
+
+ 
+   187 bytes in section .bss
+    92 bytes in section .data
+    50 bytes in section .rodata
+ 3 866 bytes in section .text
+ 
+ 3 866 bytes of CODE  memory
+    50 bytes of CONST memory
+   279 bytes of DATA  memory
+
+Errors: none
+Warnings: 6

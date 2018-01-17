@@ -1,0 +1,240 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:24
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\lowpower.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\lowpower.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\lowpower.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\lowpower.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\lowpower.c
+      1          /* $Header:   lowpower.c   $*/
+      2          /**********************************************************************
+      3           *             Title:   lowpower.C
+      4           *
+      5           *       Description:   This file contains micro specific code to place 
+      6           *                      it into a low power state 
+      7           *
+      8           *            Author:  
+      9           *
+     10           *********************************************************************/
+     11          
+     12          /**********************************************************************
+     13           * Installation Instructions (periodic tasks, etc.)
+     14           *
+     15           *********************************************************************/
+     16          
+     17          /**********************************************************************
+     18           * Include header files
+     19           *********************************************************************/
+     20          /* Dependent "optimize.cmd"                                          */
+     21          /*********************************************************************/
+     22          #include    "lowpower.h"
+     23          
+     24          /*********************************************************************
+     25           * File level pragmas
+     26           *********************************************************************/
+     27           
+     28          /*---------------------------------------------------------------------
+     29           * pragma statements to keep all "boot" at the beginning of memory 
+     30           *-------------------------------------------------------------------*/
+     31          
+     32          /**********************************************************************
+     33           * Constant and Macro Definitions using #define
+     34           *********************************************************************/
+     35          #define PSMR_IDLE (0x02)  /* select idle 2 power save mode */
+     36          #define PSMR_STOP (0x01)  /* select stop power save mode */
+     37          /**********************************************************************
+     38           * Enumerations and Structures and Typedefs
+     39           *********************************************************************/
+     40          
+     41          /**********************************************************************
+     42           * Global and Const Variable Defining Definitions / Initializations
+     43           *********************************************************************/
+     44          
+     45          /**********************************************************************
+     46           * Static Variables and Const Variables With File Level Scope
+     47           *********************************************************************/
+     48          static uint8_t wkup_enable=0;
+     49          /**********************************************************************
+     50           * ROM Const Variables With File Level Scope
+     51           *********************************************************************/
+     52          
+     53          
+     54          /**********************************************************************
+     55           * Function Prototypes for Private Functions with File Level Scope
+     56           *********************************************************************/
+     57          
+     58          
+     59          /**********************************************************************
+     60           * Add User defined functions
+     61           *********************************************************************/
+     62          
+     63          /**********************************************************************
+     64           * Constant and Macro Definitions using #define
+     65           *********************************************************************/
+     66           
+     67          #ifdef STOP_OSCILLATOR
+     68          #define PSMR_REG PSMR_STOP
+     69          #else
+     70          #define PSMR_REG PSMR_IDLE
+     71          #endif
+     72          
+     73          /**********************************************************************
+     74           * Function Definitions
+     75           *********************************************************************/
+     76          
+     77          /**********************************************************************
+     78           * Description: Places the processor into STANDBY mode
+     79           *    If not stop oscillator  
+     80           *       Main oscillator running 
+     81           *       Watch timer running  (RTI / TOD)
+     82           *
+     83           *    PLL Stopped 
+     84           *    CPU Clock stopped  
+     85           *    Peripheral Clock stopped
+     86           * 
+     87           *    After wake-up, the PLL will still be disabled.
+     88           *
+     89           *  The user must configure wakeup interrupts before calling this function
+     90           *  
+     91           *  Parameters: None
+     92           *     Returns: None
+     93           *********************************************************************/
+     94          void Micro_Go_Standby(void)
+     95          {
+     96              Enable_Interrupts();/* ensure interrupts are enabled */
+     97          #if 1
+     98              RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2|RCC_APB1Periph_USART2|RCC_APB1Periph_USART3, DISABLE);
+     99              RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
+    100              RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD, DISABLE );
+    101          #endif
+    102              if (0 != wkup_enable)
+    103                  PWR_WakeUpPinCmd(ENABLE);
+    104              else
+    105                  PWR_WakeUpPinCmd(DISABLE);
+    106          
+    107              PWR_EnterSTANDBYMode();
+    108          
+    109              NOP();
+    110              NOP();
+    111              NOP();
+    112              NOP();
+    113              NOP();
+    114              NOP();
+    115              NOP();
+    116              NOP();
+    117          }
+    118          
+    119          void Micro_Go_Sleep(void)
+    120          {
+    121          	Enable_Interrupts();/* ensure interrupts are enabled */
+    122          	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+    123          	
+    124          	NOP();
+    125          	NOP();
+    126          	NOP();
+    127          	NOP();
+    128          	NOP();
+    129          	NOP();
+    130          	NOP();
+    131          	NOP();
+    132          }
+    133          
+    134          void Set_Wkup_Enable(uint8_t setting)
+    135          {
+    136              wkup_enable=setting;
+    137          }
+    138          
+    139          /**********************************************************************
+    140           *
+    141           * Revision History
+    142           *
+    143           *********************************************************************
+    144           *
+    145           *********************************************************************/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   Micro_Go_Sleep
+         8   -> PWR_EnterSTOPMode
+         8   -> vPortClearInterruptMask
+       8   Micro_Go_Standby
+         8   -> PWR_EnterSTANDBYMode
+         8   -> PWR_WakeUpPinCmd
+         8   -> RCC_APB1PeriphClockCmd
+         8   -> RCC_APB2PeriphClockCmd
+         8   -> vPortClearInterruptMask
+       0   Set_Wkup_Enable
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable1
+      34  Micro_Go_Sleep
+      80  Micro_Go_Standby
+       6  Set_Wkup_Enable
+       1  wkup_enable
+
+ 
+   1 byte  in section .bss
+ 124 bytes in section .text
+ 
+ 124 bytes of CODE memory
+   1 byte  of DATA memory
+
+Errors: none
+Warnings: none

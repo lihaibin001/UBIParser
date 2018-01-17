@@ -1,0 +1,200 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:23
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\int2evt.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\int2evt.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\int2evt.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\int2evt.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\int2evt.c
+      1          /* $Header:   int2evt.c  $*/
+      2          /**********************************************************************
+      3           *       Title:   int2evt.c
+      4           *
+      5           * Description:  This is the standard code file for msync.  This module
+      6           *                determines active primary audio source.
+      7           *
+      8           *      Author:   
+      9           *
+     10           *********************************************************************/
+     11          /**********************************************************************
+     12           * Installation Instructions (periodic tasks, etc.)
+     13           *
+     14           *********************************************************************/
+     15          
+     16          /**********************************************************************
+     17           * Include header files
+     18           *********************************************************************/
+     19          /*********************************************************************/
+     20          #include "standard.h"
+     21          
+     22          /*********************************************************************
+     23           * File level pragmas
+     24           *********************************************************************/
+     25          
+     26          /**********************************************************************
+     27           * Constant and Macro Definitions using #define
+     28           *********************************************************************/
+     29          
+     30           
+     31          /**********************************************************************
+     32           * Enumerations and Structures and Typedefs
+     33           *********************************************************************/
+     34          /**********************************************************************
+     35           * Global and Const Variable Defining Definitions / Initializations
+     36           *********************************************************************/
+     37          
+     38          /**********************************************************************
+     39           *********************************************************************/
+     40          
+     41          
+     42          /**********************************************************************
+     43           * Function Prototypes for Private Functions with File Level Scope
+     44           *********************************************************************/
+     45          
+     46          /*====================================================================
+     47           * Standard Event handlers
+     48           *==================================================================*/
+     49          /**********************************************************************
+     50           * Static Variables and Const Variables With File Level Scope
+     51           *********************************************************************/
+     52          
+     53          /**********************************************************************
+     54           * ROM Const Variables With File Level Scope
+     55           *********************************************************************/
+     56          
+     57          /**********************************************************************
+     58           * Add User defined functions
+     59           *********************************************************************/
+     60          
+     61          /**********************************************************************
+     62           * Function Definitions
+     63           *********************************************************************/
+     64          
+     65          /**********************************************************************
+     66           * Description: returns current main source
+     67           *  Parameters: None
+     68           *     Returns: current source
+     69           *********************************************************************/
+     70          /*********************************************************************
+     71           * Description: Converts a "message" based on state, mode, and state table
+     72           *              to an 16 bit event code
+     73           *  Parameters:
+     74           *     Returns:  event code (from inp2evt tables)
+     75           *********************************************************************/
+     76          int16_t Input_To_Event(Input_States_T *index, Message_Type msg, uint16_t mode, const INP2EVT_TABLE *inp2evt_table)
+     77          {
+     78             int   i;
+     79             int16_t       event;                           // return value
+     80          
+     81             event = EVT_NOP;                                // default event to do nothing
+     82          
+     83             if (0 != msg)
+     84             {
+     85                   for   (i = 0; i < inp2evt_table->input_size; i++)
+     86                   {
+     87                      if (msg == inp2evt_table->input_table[i].msg)
+     88                      {
+     89                         if (0 != (mode & inp2evt_table->input_table[i].mode))
+     90                         {
+     91                            break;
+     92                         }
+     93                      }
+     94                   }
+     95          
+     96                   if (inp2evt_table->input_size == i)
+     97                   {
+     98                      return(EVT_NOT_FOUND);                 // return msg but no match
+     99                   }
+    100          
+    101                   event = inp2evt_table->input_table[i].code;
+    102                   if (0 <= event)
+    103                   {
+    104                      return(event);
+    105                   }
+    106            }
+    107             
+    108             return(event);
+    109          }
+    110          
+    111          /**********************************************************************
+    112           *
+    113           * REVISION RECORDS
+    114           *
+    115           *********************************************************************/
+    116          /**********************************************************************
+    117           *
+    118           *********************************************************************/
+    119          
+    120          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   Input_To_Event
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      84  Input_To_Event
+
+ 
+ 84 bytes in section .text
+ 
+ 84 bytes of CODE memory
+
+Errors: none
+Warnings: none

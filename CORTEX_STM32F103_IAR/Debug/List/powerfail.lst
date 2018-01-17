@@ -1,0 +1,781 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:25
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\powerfail.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\powerfail.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\powerfail.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\powerfail.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\powerfail.c
+      1          /*===========================================================================*/
+      2          /**
+      3           * @file powerfail.c
+      4           *
+      5           *
+      6           */
+      7          /*==========================================================================*/
+      8          
+      9          /*===========================================================================*
+     10           * Header Files
+     11           *===========================================================================*/ 
+     12          #include    "standard.h"
+     13          #define USE_DEBUG
+     14          #include "Debug.h"
+     15          #include "TelmProtocol.h"
+     16          
+     17          /*===========================================================================*
+     18           * Local Preprocessor #define MACROS
+     19           *===========================================================================*/
+     20          #define write_timer(x, y)           (timer[x] = y)
+     21          #define read_timer(x)               (timer[x])
+     22          #define timer_running(x)            (timer[x] > OS_Time())
+     23          
+     24          #define AD_LVW_THRESHOLD            voltage_limits[V_LOW].lower_voltage
+     25          #define AD_RECOVERY_THRESHOLD            voltage_limits[V_LOW].upper_voltage
+     26          
+     27          #define AD_EXT_BATTERY 13 /* battery voltage channel */
+     28          #define AD_INT_BATTERY 1 /* internal battery voltage channel */
+     29          
+     30          #define EXT_AD_GAIN() 1804 //for HW  =(65520*(10/(100+10)))/(3.3) ,theoretical value
+     31          #define INT_AD_GAIN() 6823 //for HW  =(65520*(100/(100+191)))/(3.3) ,theoretical value
+     32          
+     33          
+     34          //
+     35          #define VE_WORK_LOW              (1150)
+     36          #define VI_CHARGE_LOW            (400)
+     37          //#define INT_BATT_CHARGE_LIMIT_HIGH  (450)
+     38          //#define INT_BATT_CHARGE_CHECK       (0)
+     39          
+     40          
+     41          #define MAX_DEBOUNCE_WARNING_COUNT          12  
+     42          
+     43          /*===========================================================================*
+     44           * Local Type Declarations
+     45           *===========================================================================*/
+     46          enum
+     47          {
+     48              MUTE_DELAY_TIMER,
+     49              NUM_PF_TIMERS
+     50          };
+     51          
+     52          enum
+     53          {
+     54              V_EXT_LOW,
+     55              V_EXT_HIGH,
+     56              V_INT_LOW,
+     57              V_INT_HIGH,
+     58              V_IGN_PULSE,  
+     59              NUM_MAX_VOLTAGE_TRESHOLD
+     60          };
+     61          
+     62          typedef struct PF_Voltage_Treshold_Limits_Tag
+     63          {
+     64              uint16_t  lower_voltage;
+     65              uint16_t  upper_voltage;
+     66          } PF_Voltage_Treshold_Limits_Type;
+     67          
+     68          typedef struct PF_Voltage_Treshold_Data_Tag
+     69          {
+     70              uint8_t   count;
+     71              bool      lower_voltage_is;
+     72          } PF_Voltage_Treshold_Data_Type;
+     73          
+     74          /*===========================================================================*
+     75           * Local Object Definitions
+     76           *===========================================================================*/
+     77          static const PF_Voltage_Treshold_Limits_Type voltage_limits[NUM_MAX_VOLTAGE_TRESHOLD] =
+     78          {
+     79              { 600,  650 },  /* V_EXT_LOW          threshold */
+     80              { 3000, 3050},  /* V_EXT_HIGH         threshold */
+     81              { 360,  380 },  /* V_INT_LOW          threshold */
+     82              { 500,  520}    /* V_INT_HIGH         threshold */
+     83          //    { 0, 0}  /* V_IGN_PULSE    threshold */
+     84          };
+     85          
+     86          static PF_Voltage_Treshold_Data_Type voltage_data[NUM_MAX_VOLTAGE_TRESHOLD] =
+     87          {
+     88              {MAX_DEBOUNCE_COUNT, false},    /* V_EXT_LOW */
+     89              {MAX_DEBOUNCE_COUNT, true },    /* V_EXT_HIGH */
+     90              {MAX_DEBOUNCE_COUNT, false},    /* V_INT_LOW */
+     91              {MAX_DEBOUNCE_COUNT, true }     /* V_INT_HIGH */
+     92          };
+     93          
+     94          //static bool pwr_fail_mute_is;
+     95          static bool pwr_fail_reset_is;
+     96          static Tick_Type timer[NUM_PF_TIMERS];
+     97          
+     98          static uint32_t   ext_batt_volt_avg;
+     99          static uint16_t   ext_batt_volt_avg_last;
+    100          
+    101          static uint32_t   int_batt_volt_avg;
+    102          static uint16_t   int_batt_volt_avg_last;
+    103          
+    104          static uint16_t   pwr_int_bat_charge_request;   //add
+    105          
+    106          /*===========================================================================*
+    107           * Local Function Prototypes
+    108           *===========================================================================*/
+    109          static void Pwr_Fail_Voltage_Hysteresis(uint16_t voltage, uint8_t index);
+    110          //bool Pwr_Fail_Is_Mute_Condition(void);
+    111          //bool Pwr_Fail_Is_Reset_Condition (void);
+    112          
+    113          /*===========================================================================*
+    114           * Function Definitions
+    115           *===========================================================================*/
+    116          
+    117          /**********************************************************************
+    118          *
+    119          *    Function: Pwr_Fail_Initialize
+    120          *
+    121          *  Parameters: none
+    122          *
+    123          *     Returns: none
+    124          *
+    125          * Description: initializes powerfail monitor module
+    126          *
+    127          **********************************************************************/
+    128          void Pwr_Fail_Initialize(void)
+    129          {
+    130              /* configure AD-LVW interrupt */
+    131              //AD_Interrupt_Configure();
+    132              //AD_Interrupt_Enable();
+    133          }
+    134          
+    135          /**********************************************************************
+    136          *
+    137          *    Function: Pwr_Fail_Shutdown
+    138          *
+    139          *  Parameters: none
+    140          *
+    141          *     Returns: none
+    142          *
+    143          * Description: This function configures powerfail module for idle mode.
+    144          *
+    145          *********************************************************************/
+    146          void Pwr_Fail_Shutdown(void)
+    147          {
+    148              /* AD conversion interrupt does not work in STOP! */
+    149              //AD_Interrupt_Disable();
+    150          }
+    151          
+    152          /**********************************************************************
+    153          *
+    154          *    Function: Pwr_Fail_Monitor
+    155          *
+    156          *  Parameters: none
+    157          *
+    158          *     Returns: none
+    159          *
+    160          * Description: This function handles all powerfail cases.
+    161          *
+    162          *********************************************************************/
+    163          void Pwr_Fail_Monitor(void)
+    164          {
+    165              Pwr_Fail_Check_Voltage();
+    166              // Check RTC counter
+    167              // Read flash to see if full
+    168              // If not full, save current RTC count and voltage into flash
+    169              // If RTC count greater than 1387584000, save count
+    170              // Save voltage with 4 interval(in seconds): 300, 3600, 7200, 14400
+    171              // Only save data when acc off
+    172              /* check powerfail-mute: voltage range that allows mute and stops devices */
+    173          //    if (pwr_fail_mute_is)
+    174          //    {
+    175          //        /* powerfail mute still active? */
+    176          //        if (Pwr_Fail_Is_Mute_Condition()== false)
+    177          //        {
+    178          //            /* reenable powerfail mute monitoring */
+    179          //            pwr_fail_mute_is = false;
+    180          //
+    181          //            /* inform RELAYS */
+    182          //            RL_Set_Pwr_Fail_Detected(pwr_fail_mute_is);
+    183          //        }
+    184          //        else
+    185          //        {
+    186          //            /* retrigger MUTE_DELAY_TIMER */
+    187          //            write_timer(MUTE_DELAY_TIMER, OS_Time() + MUTE_OFF_WAIT_TICKS);
+    188          //        }
+    189          //    }
+    190          //    else
+    191          //    {
+    192          //        if (Pwr_Fail_Is_Mute_Condition())
+    193          //        {
+    194          //            if((!PS_Full_System())
+    195          //		      &&(Sys_Is_RTC_Deep_Wakeup()))
+    196          //            {
+    197          //                Sys_Clear_Wakeup_Src_Flags();
+    198          //                Sys_Set_Low_Batt_Wakeup_Flag();
+    199          //                SY_Warm_Start();
+    200          //                pwr_fail_mute_is = true; 
+    201          //            }
+    202          //            /* trigger MUTE_DELAY_TIMER , delay 500ms unmute operation after recover from power fail*/
+    203          //            write_timer(MUTE_DELAY_TIMER, OS_Time() + MUTE_OFF_WAIT_TICKS);
+    204          //
+    205          //            /* inform RELAYS */
+    206          //            RL_Set_Pwr_Fail_Detected(pwr_fail_mute_is);
+    207          //        }
+    208          //        else
+    209          //        {
+    210          //            if (TMR_Is_Timer_Active(TELM_BATT_CHECK_TIMER))
+    211          //            {
+    212          //                TMR_Stop_Timer(TELM_BATT_CHECK_TIMER);
+    213          //            }
+    214          //        }
+    215          //    }
+    216          
+    217          //    /* check powerfail-reset: voltage range that allows reset (warm start) */
+    218          //    if (pwr_fail_reset_is)
+    219          //    {
+    220          //        /* powerfail reset still active? */
+    221          //    }
+    222          //    else
+    223          //    {
+    224          //        if (Pwr_Fail_Is_Reset_Condition())
+    225          //        {
+    226          //            pwr_fail_reset_is = true;
+    227          //            /* inform RELAYS */
+    228          //            RL_Set_Pwr_Fail_Detected(pwr_fail_reset_is);
+    229          //        }
+    230          //    }
+    231              
+    232              if (Pwr_Fail_Is_Int_Battery())
+    233              {
+    234                Sys_Set_Int_battery_Flag();
+    235              }
+    236              else if (Sys_Get_Int_battery_Flag())    
+    237              {
+    238                if(Pwr_Fail_AD_get_Voltage() > voltage_limits[V_EXT_LOW].lower_voltage)
+    239                {
+    240          #ifdef USE_DEBUG
+    241                  DEBUG_PRINT0(DEBUG_HIGH,"[Power]:Warm restart for ext battery on \n\r");
+    242          #endif        
+    243                  
+    244                  Sys_Clear_Int_battery_Flag();
+    245                  
+    246                  /* warm restart when power changes from internal battery to external */
+    247                  Sys_Clear_Wakeup_Src_Flags();
+    248                  Sys_Clear_Standby_Req_Flag();
+    249                  SY_Warm_Start();
+    250           
+    251          
+    252                }
+    253              }
+    254              else
+    255              {
+    256                /* do nothing */
+    257              }
+    258              
+    259          }
+    260          
+    261          /**********************************************************************
+    262          *
+    263          *    Function: Pwr_Fail_AD_get_Voltage
+    264          *
+    265          *  Parameters: none
+    266          *
+    267          *     Returns: void
+    268          *
+    269          * Description: get  the AD convertion result and convert to the value fo voltage.
+    270          *              example:1200 means 12.00v
+    271          **********************************************************************/
+    272          uint16_t Pwr_Fail_AD_get_Voltage(void)
+    273          {
+    274              uint16_t batt_voltage;
+    275          
+    276              batt_voltage = AD_Read(AD_EXT_BATTERY);
+    277          #if 0
+    278              DEBUG_PRINT1 (DEBUG_MEDIUM,"\r\n[SYSTEM]:EXT VOL AD=%d \r\n", batt_voltage);
+    279          #endif
+    280              if (batt_voltage==0)
+    281              {
+    282                  return 0;
+    283              }
+    284              else
+    285              {
+    286                  batt_voltage = (((uint32_t)(batt_voltage)) * 100)/(EXT_AD_GAIN());
+    287                  return batt_voltage;
+    288              }
+    289          }
+    290          
+    291          uint16_t Pwr_Fail_AD_get_Int_Voltage(void)
+    292          {
+    293              uint16_t batt_voltage;
+    294          
+    295              batt_voltage = AD_Read(AD_INT_BATTERY);
+    296              if (batt_voltage==0)
+    297              {
+    298                  return 0;
+    299              }
+    300              else
+    301              {
+    302                  batt_voltage = (((uint32_t)(batt_voltage)) * 100)/(INT_AD_GAIN());
+    303                  return batt_voltage;
+    304              }
+    305          }
+    306          
+    307          /**********************************************************************
+    308          *
+    309          *    Function: Pwr_Fail_Get_Voltage
+    310          *
+    311          *  Parameters: none
+    312          *
+    313          *     Returns: void
+    314          *
+    315          * Description: It is the average value of battery voltage in 20ms
+    316          **********************************************************************/
+    317          uint16_t Pwr_Fail_Get_Voltage(void)
+    318          {
+    319              return ext_batt_volt_avg_last;
+    320          }
+    321          
+    322          /**********************************************************************
+    323          *
+    324          *    Function: Pwr_Fail_Get_Int_Voltage
+    325          *
+    326          *  Parameters: none
+    327          *
+    328          *     Returns: void
+    329          *
+    330          * Description: It is the average value of battery voltage in 20ms
+    331          **********************************************************************/
+    332          uint16_t Pwr_Fail_Get_Int_Voltage(void)
+    333          {
+    334              return int_batt_volt_avg_last;
+    335          }
+    336          
+    337          /**********************************************************************
+    338          *
+    339          *    Function: Pwr_Fail_Check_Voltage
+    340          *
+    341          *  Parameters: none
+    342          *
+    343          *     Returns: void
+    344          *
+    345          * Description: Determine's if the voltage is above/below a certain votage.
+    346          *
+    347          **********************************************************************/
+    348          void Pwr_Fail_Check_Voltage(void)
+    349          {
+    350              static uint32_t period_slice = 0;
+    351              uint16_t ext_batt_voltage;
+    352              uint16_t int_batt_voltage;
+    353          
+    354              ext_batt_voltage = Pwr_Fail_AD_get_Voltage();
+    355              ext_batt_volt_avg += ext_batt_voltage;
+    356              int_batt_voltage = Pwr_Fail_AD_get_Int_Voltage();
+    357          //    int_batt_voltage=0;
+    358              int_batt_volt_avg += int_batt_voltage;
+    359              
+    360              period_slice ++;
+    361              if(period_slice%4 == 0)//20ms
+    362              {
+    363                  ext_batt_volt_avg_last = (ext_batt_volt_avg >> 2);
+    364                  ext_batt_volt_avg = 0;
+    365          
+    366                  int_batt_volt_avg_last = (int_batt_volt_avg >> 2);
+    367                  int_batt_volt_avg = 0;
+    368                  
+    369          //        if((!PS_Full_System())
+    370          //          &&(Sys_Is_RTC_Deep_Wakeup()))
+    371          //        {
+    372          //
+    373          //        }
+    374              }
+    375          
+    376              /* first check all LOW thresholds */
+    377              Pwr_Fail_Voltage_Hysteresis(ext_batt_voltage, V_EXT_LOW   );
+    378              Pwr_Fail_Voltage_Hysteresis(int_batt_voltage, V_INT_LOW   );
+    379          
+    380              /* then check all HIGH thresholds */
+    381              Pwr_Fail_Voltage_Hysteresis(ext_batt_voltage, V_EXT_HIGH   );
+    382              Pwr_Fail_Voltage_Hysteresis(int_batt_voltage, V_INT_HIGH   );
+    383          
+    384              /* then check ign thresholds on AN_BATTERY line */
+    385          //    Pwr_Fail_Voltage_Hysteresis(batt_voltage, V_IGN_PULSE   );
+    386          }
+    387          
+    388          /**********************************************************************
+    389          *
+    390          *    Function: Pwr_Fail_Voltage_Hysteresis
+    391          *
+    392          *  Parameters: uint16_t voltage - voltage to process
+    393          *              uint8_t index    - index to voltage threshold table
+    394          *
+    395          *     Returns: none
+    396          *
+    397          * Description: runs the voltage hysteresis
+    398          *
+    399          **********************************************************************/
+    400          static void Pwr_Fail_Voltage_Hysteresis (uint16_t voltage, uint8_t index)
+    401          {
+    402              uint8 debounce = 0;
+    403          
+    404              if(index == (uint8_t)V_IGN_PULSE)
+    405                  debounce = MAX_DEBOUNCE_WARNING_COUNT;
+    406              else
+    407                  debounce = MAX_DEBOUNCE_COUNT;
+    408          
+    409              if (voltage_data[index].lower_voltage_is == false)
+    410              {
+    411                  if (voltage < voltage_limits[index].lower_voltage)
+    412                  {/*count down if voltage below */
+    413                      if (!voltage_data[index].count--)
+    414                      {
+    415                          voltage_data[index].count = debounce;
+    416                          voltage_data[index].lower_voltage_is = true;
+    417                      }
+    418                  }
+    419                  else if (voltage_data[index].count < debounce)
+    420                  {/* count up if voltage above */
+    421                      voltage_data[index].count++;
+    422                  }
+    423              }
+    424              else
+    425              {
+    426                  if (voltage > voltage_limits[index].upper_voltage)
+    427                  {/*count down if voltage above */
+    428                      if (!voltage_data[index].count--)
+    429                      {
+    430                          voltage_data[index].count = debounce;
+    431                          voltage_data[index].lower_voltage_is = false;
+    432                      }
+    433                  }
+    434                  else if (voltage_data[index].count < debounce)
+    435                  {/*count up if voltage below */
+    436                      voltage_data[index].count++;
+    437                  }
+    438              }
+    439          }
+    440          
+    441          /**********************************************************************
+    442          *
+    443          *    Function: Pwr_Fail_Is_Mute_Condition
+    444          *
+    445          *  Parameters: none
+    446          *
+    447          *     Returns: true/false
+    448          *
+    449          * Description: returns powerfail mute condition
+    450          *
+    451          **********************************************************************/
+    452          bool Pwr_Fail_Is_Mute_Condition(void)
+    453          {
+    454              //return((voltage_data[MUTE_LOW].lower_voltage_is  == true) ||
+    455              //       (voltage_data[MUTE_HIGH].lower_voltage_is == false));
+    456              //return(voltage_data[MUTE_LOW].lower_voltage_is  == true) ;
+    457            return false;
+    458          }
+    459          
+    460          /**********************************************************************
+    461          *
+    462          *    Function: Pwr_Fail_Is_Reset_Condition
+    463          *
+    464          *  Parameters: none
+    465          *
+    466          *     Returns: true/false
+    467          *
+    468          * Description: returns powerfail reset condition
+    469          *
+    470          **********************************************************************/
+    471          bool Pwr_Fail_Is_Reset_Condition (void)
+    472          {
+    473            return((voltage_data[V_EXT_HIGH].lower_voltage_is == false) \
+    474                  || (voltage_data[V_INT_HIGH].lower_voltage_is == false));
+    475          }
+    476          
+    477          /**********************************************************************
+    478          *
+    479          *    Function: Pwr_Fail_Is_Shutdown
+    480          *
+    481          *  Parameters: none
+    482          *
+    483          *     Returns: true/false
+    484          *
+    485          * Description: returns powerfail and shut down condition
+    486          *
+    487          **********************************************************************/
+    488          bool Pwr_Fail_Is_Shutdown(void)
+    489          {
+    490            return(((voltage_data[V_EXT_LOW].lower_voltage_is  == true) 
+    491                      ||(voltage_data[V_EXT_HIGH].lower_voltage_is == false))
+    492                   && ((voltage_data[V_INT_LOW].lower_voltage_is  == true) 
+    493                       ||(voltage_data[V_INT_HIGH].lower_voltage_is == false))
+    494                     );
+    495          }
+    496          
+    497          /**********************************************************************
+    498          *
+    499          *    Function: Pwr_Fail_Is_Voltage_Good
+    500          *
+    501          *  Parameters: None
+    502          *
+    503          *     Returns: true/false
+    504          *
+    505          * Description: returns if the voltage is over a working threshold
+    506          *
+    507          *********************************************************************/
+    508          bool Pwr_Fail_Is_Voltage_Good (void)
+    509          {
+    510              //return(!Pwr_Fail_Is_Mute_Condition() && !timer_running(MUTE_DELAY_TIMER));
+    511            return true;
+    512          }
+    513          
+    514          /**********************************************************************
+    515          *
+    516          *    Function: Pwr_Fail_AD_ISR
+    517          *
+    518          *  Parameters: -
+    519          *
+    520          *     Returns: -
+    521          *
+    522          * Description: Interrupt Service Routine for Low Voltage Warning.
+    523          *              This interrupt is activated when the battery sense line
+    524          *              goes low.
+    525          *              A flag is set and the relay resoure is released.
+    526          *              The A/D interrupt be disabled to reduce the system load.
+    527          *              It will be reenabled if the voltage is in an allowed range.
+    528          *
+    529          **********************************************************************/
+    530          //void Pwr_Fail_AD_ISR(void)
+    531          //{
+    532          //    AD_Interrupt_Disable();
+    533          //
+    534          //    /* low voltage detected */
+    535          //    pwr_fail_reset_is = true;
+    536          //    pwr_fail_mute_is  = true;
+    537          //
+    538          //    /* set hysteresis state machine to start checking if U > 6.5V ! */
+    539          //    voltage_data[V_LOW].count = MAX_DEBOUNCE_COUNT;
+    540          //    voltage_data[V_LOW].lower_voltage_is = true;
+    541          //
+    542          //    voltage_data[MUTE_LOW].count = MAX_DEBOUNCE_COUNT;
+    543          //    voltage_data[MUTE_LOW].lower_voltage_is = true;
+    544          //
+    545          //    /* inform RELAYS */
+    546          //    /* trigger RELAYS task when powerfail status is updated */
+    547          //    OS_Release_Resource(RES_RELAYS);
+    548          //}
+    549          
+    550          
+    551          /**********************************************************************
+    552          *
+    553          *   Function: Pwr_Charge_Monitor
+    554          *
+    555          *   Parameters: None
+    556          *
+    557          *   Returns: None
+    558          *
+    559          *   Description: internal battery charging monitor
+    560          *
+    561          *********************************************************************/
+    562          void Pwr_Charge_Monitor (void)
+    563          {
+    564              static uint32_t period_slice = 0;
+    565              uint16_t vol_ext;
+    566              static uint16_t vol_int=0;
+    567          
+    568              vol_int += Pwr_Fail_Get_Int_Voltage();
+    569              
+    570              period_slice ++;
+    571              if(period_slice%8 == 0)//2.56s
+    572              {
+    573                  vol_ext = Pwr_Fail_Get_Voltage();
+    574                  vol_int = (vol_int >> 3);
+    575                  if ((vol_int < VI_CHARGE_LOW) && (vol_ext >= VE_WORK_LOW))
+    576                  {
+    577                    pwr_int_bat_charge_request = true;
+    578                  }
+    579                  else
+    580                  {
+    581                    pwr_int_bat_charge_request = false;
+    582                  }
+    583                  vol_int = 0;
+    584              }
+    585          }
+    586          
+    587          
+    588          /**********************************************************************
+    589          *
+    590          *   Function: Pwr_Is_Charge_Request
+    591          *
+    592          *   Parameters: None
+    593          *
+    594          *   Returns: true:request charge; false: not request
+    595          *
+    596          *   Description: internal battery charging monitor
+    597          *
+    598          *********************************************************************/
+    599          bool Pwr_Is_Charge_Request (void)
+    600          {
+    601              return (pwr_int_bat_charge_request == true);
+    602          }
+    603          
+    604          /**********************************************************************
+    605          *
+    606          *    Function: Pwr_Fail_Is_Int_Battery
+    607          *
+    608          *  Parameters: none
+    609          *
+    610          *     Returns: true/false
+    611          *
+    612          * Description: returns true if internal battery is used and external power down
+    613          *
+    614          **********************************************************************/
+    615          bool Pwr_Fail_Is_Int_Battery(void)
+    616          {
+    617              return((voltage_data[V_EXT_LOW].lower_voltage_is  == true) \
+    618                      && (voltage_data[V_INT_LOW].lower_voltage_is == false));
+    619          }
+    620          
+    621          /**********************************************************************
+    622           *
+    623           * Revision History
+    624           *
+    625           *********************************************************************
+    626           *
+    627           *********************************************************************/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   Pwr_Charge_Monitor
+         8   -> Pwr_Fail_Get_Int_Voltage
+         8   -> Pwr_Fail_Get_Voltage
+       8   Pwr_Fail_AD_get_Int_Voltage
+         8   -> AD_Read
+       8   Pwr_Fail_AD_get_Voltage
+         8   -> AD_Read
+      16   Pwr_Fail_Check_Voltage
+        16   -> Pwr_Fail_AD_get_Int_Voltage
+        16   -> Pwr_Fail_AD_get_Voltage
+        16   -> Pwr_Fail_Voltage_Hysteresis
+       0   Pwr_Fail_Get_Int_Voltage
+       0   Pwr_Fail_Get_Voltage
+       0   Pwr_Fail_Initialize
+       0   Pwr_Fail_Is_Int_Battery
+       0   Pwr_Fail_Is_Mute_Condition
+       0   Pwr_Fail_Is_Reset_Condition
+       0   Pwr_Fail_Is_Shutdown
+       0   Pwr_Fail_Is_Voltage_Good
+       8   Pwr_Fail_Monitor
+         8   -> Pwr_Fail_AD_get_Voltage
+         8   -> Pwr_Fail_Check_Voltage
+         8   -> Pwr_Fail_Is_Int_Battery
+         8   -> Restart
+         8   -> Sys_Clear_Int_battery_Flag
+         8   -> Sys_Clear_Standby_Req_Flag
+         8   -> Sys_Clear_Wakeup_Src_Flags
+         8   -> Sys_Get_Int_battery_Flag
+         8   -> Sys_Set_Int_battery_Flag
+         8   -> printf
+       0   Pwr_Fail_Shutdown
+       4   Pwr_Fail_Voltage_Hysteresis
+       0   Pwr_Is_Charge_Request
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable9
+       4  ??DataTable9_1
+       4  ??DataTable9_10
+       4  ??DataTable9_2
+       4  ??DataTable9_3
+       4  ??DataTable9_4
+       4  ??DataTable9_5
+       4  ??DataTable9_6
+       4  ??DataTable9_7
+       4  ??DataTable9_8
+       4  ??DataTable9_9
+      44  ?_0
+      94  Pwr_Charge_Monitor
+      36  Pwr_Fail_AD_get_Int_Voltage
+      36  Pwr_Fail_AD_get_Voltage
+     132  Pwr_Fail_Check_Voltage
+       6  Pwr_Fail_Get_Int_Voltage
+       6  Pwr_Fail_Get_Voltage
+       2  Pwr_Fail_Initialize
+      26  Pwr_Fail_Is_Int_Battery
+       4  Pwr_Fail_Is_Mute_Condition
+      26  Pwr_Fail_Is_Reset_Condition
+      42  Pwr_Fail_Is_Shutdown
+       4  Pwr_Fail_Is_Voltage_Good
+      68  Pwr_Fail_Monitor
+       2  Pwr_Fail_Shutdown
+     222  Pwr_Fail_Voltage_Hysteresis
+      18  Pwr_Is_Charge_Request
+       4  ext_batt_volt_avg
+       2  ext_batt_volt_avg_last
+       4  int_batt_volt_avg
+       2  int_batt_volt_avg_last
+       4  period_slice
+       4  period_slice
+       2  pwr_int_bat_charge_request
+       2  vol_int
+      40  voltage_data
+      20  voltage_limits
+
+ 
+  24 bytes in section .bss
+  40 bytes in section .data
+  64 bytes in section .rodata
+ 768 bytes in section .text
+ 
+ 768 bytes of CODE  memory
+  64 bytes of CONST memory
+  64 bytes of DATA  memory
+
+Errors: none
+Warnings: 2

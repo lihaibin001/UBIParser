@@ -1,0 +1,412 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:22
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\diag_task.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\diag_task.c
+#        -D VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\diag_task.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\diag_task.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\common\diag_task.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          
+     16          /**********************************************************************
+     17             Title                      : Diag_Task.C
+     18          
+     19             Module Description         : 
+     20          
+     21             Author                     : 
+     22          
+     23             Created                    : 2016-08-29
+     24          
+     25           **********************************************************************/
+     26          
+     27          /*********************************************************************/
+     28          /* Include header files                                              */
+     29          /*********************************************************************/
+     30          /*********************************************************************/
+     31          #include "standard.h"
+     32          #include "gps.h"
+     33          
+     34          #define USE_DEBUG
+     35          #include "Debug.h"
+     36          
+     37          /*********************************************************************/
+     38          /* File level pragmas                                                */
+     39          /*********************************************************************/
+     40          
+     41          /*********************************************************************/
+     42          /* Constant and Macro Definitions using #define                      */
+     43          /*********************************************************************/
+     44          /*USER DEFINITION*/
+     45          
+     46          #define  diag_current_state()       (diag_current_state)
+     47          
+     48          #define AD_EXT_BATTERY (13)
+     49          #define AD_INT_BATTERY (1)
+     50          
+     51          
+     52          #define EXT_LOW_VOLTAGE_ALARM_THRESHOLD (1150)
+     53          #define INT_LOW_VOLTAGE_ALARM_THRESHOLD (350)
+     54          
+     55          /*********************************************************************/
+     56          /* Enumerations and Structures and Typedefs                          */
+     57          /*********************************************************************/
+     58          
+     59          
+     60          /*********************************************************************/
+     61          /* Function Prototypes for Private Functions with File Level Scope   */
+     62          /*********************************************************************/
+     63          
+     64          /*event handler*/
+     65          static void diag_evt_nop(int16_t data);
+     66          
+     67          
+     68          /*********************************************************************/
+     69          /* Static Variables and Const Variables With File Level Scope        */
+     70          /*********************************************************************/
+     71          
+     72          // Definition of the event handler function pointer array.
+     73          static const void_int16_fptr event_handler[DIAG_NUM_EVENTS] = 
+     74          {
+     75          	diag_evt_nop,			   		   
+     76          };
+     77          
+     78          /*********************************************************************/
+     79          /* Global and Const Variable Defining Definitions / Initializations  */
+     80          /*********************************************************************/
+     81          static Self_Diag_T diag_result;
+     82          
+     83          /*********************************************************************/
+     84          /* ROM Const Variables With File Level Scope                         */
+     85          /*********************************************************************/
+     86          
+     87          /*********************************************************************/
+     88          /* Add User defined functions                                        */
+     89          /*********************************************************************/
+     90          // Test once
+     91          static void diag_test_flash(uint32_t address);
+     92          
+     93          // Test repeatly
+     94          static void diag_self_test(void);
+     95          static void diag_test_voltage(void);
+     96          
+     97          static void diag_test_gps(void);
+     98          static void diag_test_gprs(void);
+     99          
+    100          /**********************************************************************
+    101           *    Function: Diag_Task
+    102           *  Parameters: None
+    103           *     Returns: None
+    104           * Description: Main routine called by the operating system
+    105           *********************************************************************/
+    106          void Diag_Task(void *pvParameters)
+    107          {
+    108              Data_Message_T msg;          // Holds message received from the system
+    109              uint32_t csq_time = 0;
+    110              csq_time = OS_Time();
+    111          
+    112          #ifdef USE_DEBUG
+    113              DEBUG_PRINT0( DEBUG_MEDIUM, "[DIAG]:DIAG TASK Started!\r\n");
+    114          #endif
+    115              
+    116          #if 0
+    117              diag_test_flash(0);
+    118          #endif
+    119              while(PS_Running())
+    120              {
+    121                  if(E_OK == OS_Wait_Message(OS_DIAG_TASK,&msg.all,100))
+    122                  {
+    123                      if((msg.parts.msg > 0) && ((msg.parts.msg) < DIAG_NUM_EVENTS))
+    124                      {
+    125                          (*event_handler[msg.parts.msg])(msg.parts.data);       // Run event handler routine
+    126                      }
+    127                  }
+    128                  if ((csq_time + MSec_To_Ticks(3000)) < OS_Time())
+    129                  {
+    130                      diag_self_test();
+    131                      csq_time = OS_Time();
+    132                  }
+    133              }
+    134          
+    135              OS_Terminate_Task();
+    136          }
+    137          
+    138          
+    139          /**********************************************************************
+    140           * Description: Do nothing event handler
+    141           * Parameters: message data
+    142           *     Returns: None
+    143           *********************************************************************/
+    144          static void diag_evt_nop(int16_t data)
+    145          {
+    146          	
+    147          }
+    148          
+    149          static void diag_test_flash(uint32_t address)
+    150          {
+    151              uint8_t flash_test_result=1;
+    152              uint32_t test_flash_address=FLASH_RESERVED_OFFSET;
+    153              uint16_t test_flash_len=20;
+    154              uint8_t test_flash_data[]={0x01,0x02,0x03,0x04,0x05,
+    155                                       0x06,0x07,0x08,0x09,0x0A,
+    156                                       0x51,0x52,0x53,0x54,0x55,
+    157                                       0x56,0x57,0x58,0x59,0x5A};
+    158              uint8_t test_flash_read[20];
+    159              uint8_t i=0;
+    160          
+    161              sFLASH_Init();
+    162              if (sFLASH_GD25Q16C_ID!=sFLASH_ReadID())
+    163              {
+    164                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]Flash Wrong ID\n\r");
+    165                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]Flash test fail\n\r");
+    166              }
+    167          #if 0
+    168              sFLASH_EraseSector(test_flash_address);
+    169              sFLASH_WriteBuffer(test_flash_data,test_flash_address,test_flash_len);
+    170              sFLASH_ReadBuffer(test_flash_read,test_flash_address,test_flash_len);
+    171              for(i=0;i<test_flash_len;i++)
+    172              {
+    173                  if (test_flash_read[i]!=test_flash_data[i])
+    174                  {
+    175                      DEBUG_PRINT2(DEBUG_MEDIUM,"[DIAG] Flash write fail! [%x,%x]\n\r",test_flash_data[i],test_flash_read[i]);
+    176                      flash_test_result=0;
+    177                  }
+    178              }
+    179          #endif
+    180              if (flash_test_result)
+    181              {
+    182                  diag_result.flash_ok=1;
+    183                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]Flash test OK\n\r");
+    184              }
+    185              else
+    186              {
+    187                  diag_result.flash_ok=0;
+    188                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]Flash test fail\n\r");
+    189              }
+    190          }
+    191          
+    192          static void diag_test_voltage(void)
+    193          {
+    194              uint16_t vol=Pwr_Fail_Get_Voltage();
+    195              diag_result.ext_voltage=vol;
+    196              DEBUG_PRINT1(DEBUG_MEDIUM,"[DIAG]Ext Battery=%d\n\r",vol);
+    197              if (vol < EXT_LOW_VOLTAGE_ALARM_THRESHOLD)
+    198              {
+    199                  OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BATTERY_FAULT, 1));
+    200              }
+    201          #if 1
+    202              vol=Pwr_Fail_Get_Int_Voltage();
+    203              diag_result.int_voltage=vol;
+    204              DEBUG_PRINT1(DEBUG_MEDIUM,"[DIAG]Int Battery=%d\n\r",vol);
+    205              if (vol < INT_LOW_VOLTAGE_ALARM_THRESHOLD)
+    206              {
+    207                /* message type need to change for inner battery? */  
+    208                OS_Send_Message(OS_IOT_TASK,Build_Message(TM_EVT_BATTERY_FAULT, 1));
+    209              }
+    210          #endif
+    211          }
+    212          
+    213          static void diag_test_temp(void)
+    214          {
+    215          }
+    216          
+    217          static void diag_test_gps(void)
+    218          {
+    219              if (vGps_Get_Gps_Status())
+    220              {
+    221                  diag_result.gps_fixed=1;
+    222                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]GPS fixed\n\r");
+    223              }
+    224              else
+    225              {
+    226                  diag_result.gps_fixed=0;
+    227                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]GPS NOT fixed\n\r");
+    228              }
+    229          }
+    230          
+    231          static void diag_test_gprs(void)
+    232          {
+    233              if (0!=GPRS_server_connected())
+    234              {
+    235                  diag_result.network_connected=1;
+    236                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]Server connected\n\r");
+    237              }
+    238              else
+    239              {
+    240                  diag_result.network_connected=0;
+    241                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]Server NOT connected\n\r");
+    242              }
+    243          }
+    244          
+    245          static void diag_test_acc(void)
+    246          {
+    247              if (0!=GPRS_server_connected())
+    248              {
+    249                  diag_result.network_connected=1;
+    250                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]Server connected\n\r");
+    251              }
+    252              else
+    253              {
+    254                  diag_result.network_connected=0;
+    255                  DEBUG_PRINT0(DEBUG_MEDIUM,"[DIAG]Server NOT connected\n\r");
+    256              }
+    257          }
+    258          
+    259          static void diag_self_test(void)
+    260          {
+    261              diag_test_voltage();
+    262              diag_test_gps();
+    263              diag_test_gprs();
+    264          }
+    265          
+    266          void diag_get_result(Self_Diag_T *result)
+    267          {
+    268              memcpy(result, &diag_result, sizeof(Self_Diag_T));
+    269          }
+    270          
+    271          /********************************************************************** 
+    272           *                                                             
+    273           * REVISION RECORDS                                            
+    274           *                                                             
+    275          *********************************************************************/
+    276          /* $HISTROY$
+    277          
+    278           *********************************************************************/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      16   Diag_Task
+        16   -- Indirect call
+        16   -> OS_Wait_Message
+        16   -> PS_Running
+        16   -> diag_self_test
+        16   -> printf
+        16   -> vTaskSuspend
+        16   -> xTaskGetTickCountFromISR
+       0   diag_evt_nop
+       8   diag_get_result
+         8   -> __aeabi_memcpy
+       8   diag_self_test
+         8   -> diag_test_gprs
+         8   -> diag_test_gps
+         8   -> diag_test_voltage
+       8   diag_test_gprs
+         8   -> GPRS_server_connected
+         8   -> printf
+       8   diag_test_gps
+         8   -> printf
+         8   -> vGps_Get_Gps_Status
+       8   diag_test_voltage
+         8   -> Build_Message
+         8   -> OS_Send_Message
+         8   -> Pwr_Fail_Get_Int_Voltage
+         8   -> Pwr_Fail_Get_Voltage
+         8   -> printf
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable4
+       4  ??DataTable4_1
+       4  ??DataTable4_2
+       4  ??DataTable4_3
+       4  ??DataTable4_4
+       4  ??DataTable4_5
+       4  ??DataTable4_6
+       4  ??DataTable4_7
+       4  ??DataTable4_8
+      28  ?_0
+      24  ?_1
+      24  ?_2
+      20  ?_3
+      24  ?_4
+      28  ?_5
+      32  ?_6
+     104  Diag_Task
+       2  diag_evt_nop
+      16  diag_get_result
+      12  diag_result
+      16  diag_self_test
+      38  diag_test_gprs
+      38  diag_test_gps
+      94  diag_test_voltage
+       4  event_handler
+
+ 
+  12 bytes in section .bss
+ 184 bytes in section .rodata
+ 344 bytes in section .text
+ 
+ 344 bytes of CODE  memory
+ 184 bytes of CONST memory
+  12 bytes of DATA  memory
+
+Errors: none
+Warnings: 8

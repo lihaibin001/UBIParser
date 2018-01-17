@@ -1,0 +1,261 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:26
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\regulator.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\regulator.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\regulator.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\regulator.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\regulator.c
+      1          /* $Header:   regulator.c $*/
+      2          /**********************************************************************
+      3             Title                    : regulator.c
+      4          
+      5             Module Description       : This is the standard code file for regulator.
+      6                                        Other modules should use the interface provided
+      7                                        by regulator to turn on/off regulators.
+      8          
+      9             Author                   : 
+     10          
+     11             Created                  : 
+     12          
+     13             Configuration ID         : 
+     14          
+     15           *********************************************************************/
+     16          
+     17          /*********************************************************************/
+     18          /* Include header files                                              */
+     19          #include "standard.h"        /* include standard includes */
+     20          /*********************************************************************/
+     21          /* File level pragmas                                                */
+     22          /*********************************************************************/
+     23          
+     24          /*********************************************************************/
+     25          /* Constant and Macro Definitions using #define                      */
+     26          /*********************************************************************/
+     27          #define REG_IIC_REQUEST     0x1000
+     28          
+     29          #define REG_IIC_MASK        0x0007
+     30          #define REG_IIC_START_MASK  0x0001
+     31          
+     32          #define DSLR_HSD_WAIT_OFF_MSEC 50
+     33          #define DSLR_NORMAL_WAIT_OFF_MSEC 25
+     34          
+     35          #define DSLR_HSD_WAIT_ON_MSEC 20
+     36          #define DSLR_NORMAL_WAIT_ON_MSEC 20
+     37          
+     38          //#define DSLR_IIC_REFRESH_TICKS       (MSec_To_Ticks(250))
+     39          
+     40          /*********************************************************************/
+     41          /* Enumerations and Structures and Typedefs                          */
+     42          /*********************************************************************/
+     43          typedef union reg_status_tag
+     44          {
+     45             uint16_t all;
+     46             struct
+     47             {
+     48                uint8_t iic             : 8;      /*IIC controlled power supply*/
+     49                uint8_t pin            : 2;      /*for IO controlled power supply,2 in vip*/
+     50                uint8_t reserved1  : 6;   /*reserved for external io controlled power supply*/
+     51              } group;
+     52             struct
+     53             {
+     54                uint8_t dslr1_hsd      : 1;
+     55                uint8_t dslr1_vlr        : 1;
+     56                uint8_t dslr1_sw2en    : 1;
+     57                uint8_t unused1  : 5;
+     58                
+     59                uint8_t reg1    : 1;
+     60                uint8_t reg2    : 1;
+     61                uint8_t reg3    : 1;
+     62                uint8_t reg4    : 1;
+     63                uint8_t reg5    : 1;
+     64                uint8_t reg6    : 1;	  
+     65                uint8_t unused2  : 2;
+     66             } field; 
+     67          } reg_status_type;
+     68          /*********************************************************************/
+     69          /* Global and Const Variable Defining Definitions / Initializations  */
+     70          /*********************************************************************/
+     71          
+     72          /*********************************************************************/
+     73          /* Static Variables and Const Variables With File Level Scope        */
+     74          /*********************************************************************/
+     75          
+     76          static reg_status_type reg_status;
+     77          /*********************************************************************/
+     78          /* ROM Const Variables With File Level Scope                         */
+     79          /*********************************************************************/
+     80          
+     81          
+     82          /*********************************************************************/
+     83          /* Add User defined functions                                        */
+     84          /*********************************************************************/
+     85          
+     86          
+     87          /*********************************************************************/
+     88          /* ROM Const Variables With File Level Scope                         */
+     89          /*********************************************************************/
+     90          
+     91          /*********************************************************************/
+     92          /* Function Prototypes for Private Functions with File Level Scope   */
+     93          /*********************************************************************/
+     94          static Status_Type reg_tx_iic(uint8_t address, uint8_t data);
+     95          
+     96          /*********************************************************************/
+     97          /* Global Function Definitions                                       */
+     98          /*********************************************************************/
+     99          /**********************************************************************
+    100           * Description: Formats the PRM data IIC buffer and sends it to IIC_Write
+    101           *              for transmission.
+    102           *  Parameters: address = DSLR chip address value (either 1st DSLR or 2nd DSLR)
+    103           *              data = PRM data value
+    104           *     Returns: Status of the IIC write
+    105           *********************************************************************/
+    106          static Status_Type reg_tx_iic(uint8_t address, uint8_t data)
+    107          {
+    108             Status_Type status;
+    109          
+    110             status=E_OK;
+    111             return (status);
+    112          }
+    113          
+    114          /**********************************************************************
+    115           *    Function: Reg_Request
+    116           *
+    117           *  Parameters: reg - the bitwise or'd regulators involved in the request
+    118           *              reg_cmd - REG_OFF or REG_ON, depending on the caller's needs
+    119           *              reg_delay_format - one of REG_DELAY_IN_TICKS or NO_REG_DELAY 
+    120           *              depending on the caller's needs
+    121           *
+    122           *     Returns: Amount of delay needed (if any) for the regulator request,
+    123           *              in the format of the request (ticks).
+    124           *
+    125           * Description: This function is the interface to the ASPM regulators.
+    126           *              It will turn on or off the appropriate regulators based on
+    127           *              the caller's requests.  It will also optionally return a
+    128           *              delay value to allow the regulator(s) involved to settle.
+    129           *
+    130           **********************************************************************/
+    131          
+    132          void Reg_Request(Reg_Type reg, Reg_Command_Type reg_cmd)
+    133          {
+    134             uint16_t    old_reg_status;
+    135          
+    136             if (reg & REG_IIC_REQUEST)//control 
+    137             {
+    138                old_reg_status = reg_status.all;
+    139                if (REG_ON == reg_cmd)
+    140                {
+    141                   reg_status.all |= reg;
+    142                }
+    143                else if (REG_OFF == reg_cmd)
+    144                {
+    145                   reg_status.all &= ~reg;
+    146                }
+    147          
+    148                if (old_reg_status != reg_status.all)
+    149                {
+    150                   if (E_OK == reg_tx_iic(DSLR_CHIP_WR_ADDR,reg_status.group.iic))
+    151                   {
+    152                   }
+    153                   else
+    154                   {
+    155                      reg_status.all = old_reg_status;
+    156                   }
+    157                }
+    158             }
+    159          }
+    160          
+    161          
+    162          /*********************************************************************/
+    163          /* Local Function Definitions                                        */
+    164          /*********************************************************************/
+    165          
+    166          /**********************************************************************
+    167           *                  
+    168           * REVISION RECORDS 
+    169           *                  
+    170           *********************************************************************/
+    171          /*===========================================================================*\
+    172           *
+    173           *********************************************************************/
+    174          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   Reg_Request
+         8   -> reg_tx_iic
+       0   reg_tx_iic
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable0
+      78  Reg_Request
+       4  reg_status
+       6  reg_tx_iic
+
+ 
+  4 bytes in section .bss
+ 88 bytes in section .text
+ 
+ 88 bytes of CODE memory
+  4 bytes of DATA memory
+
+Errors: none
+Warnings: none

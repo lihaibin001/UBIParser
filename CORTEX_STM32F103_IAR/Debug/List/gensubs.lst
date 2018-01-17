@@ -1,0 +1,869 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:23
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\gensubs.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\gensubs.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\gensubs.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\gensubs.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\common\gensubs.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          
+     16          /**********************************************************************
+     17           * FileName       : GenSubs.c
+     18           * Author         : 
+     19           * Description    :
+     20           * Version        : Initial of SimpleRTOS
+     21           * Function List  :
+     22           * Config ID      : 
+     23          **********************************************************************/
+     24          #ifndef GENSUBS_C
+     25          #define GENSUBS_C
+     26          
+     27          /*********************************************************************/
+     28          /* Include files                                                     */
+     29          /*********************************************************************/
+     30          #include "standard.h"        /* include standard includes */
+     31                                                                                 
+     32          /*********************************************************************/
+     33          /* File level pragmas                                                */
+     34          /*********************************************************************/
+     35                                                                                 
+     36          /*********************************************************************/
+     37          /* Constant and Macro Definitions using #define                      */
+     38          /*********************************************************************/
+     39          #define  CHKSUM_OFFSET     0x5555
+     40          #define  CHECKSUM_SIZE     2                             //define number of bytes in a checksum
+     41          #define  UPDATE_CHECKSUM   true                          // update (change) checksum
+     42          #define  VERIFY_CHECKSUM   false                         // do not modifiy checksum
+     43          #define  NEW_CHECKSUM      true                          // Start a new checksum (not partial sum)
+     44          #define  RESET_CHECKSUM    true                          // Start a new checksum (not partial sum)
+     45          #define  CONTINUE_CHECKSUM false                         // Add to previous sum  (partial sum)
+     46          
+     47          /*********************************************************************/
+     48          /* Function Prototypes for Private Functions with File Level Scope   */
+     49          /*********************************************************************/
+     50                                                                                 
+     51          /*********************************************************************/
+     52          /* Enumerations and Structures and Typedefs                          */
+     53          /*********************************************************************/
+     54                                                                                 
+     55          /*********************************************************************/
+     56          /* Global and Const Variable Defining Definitions / Initializations  */
+     57          /*********************************************************************/
+     58                                                                                 
+     59          /*********************************************************************/
+     60          /* Static Variables and Const Variables With File Level Scope        */
+     61          /*********************************************************************/
+     62          static const uint8_t reverse_bits_TBL[16] =
+     63          {
+     64             0x00,
+     65             0x08,
+     66             0x04,
+     67             0x0C,
+     68             0x02,
+     69             0x0A,
+     70             0x06,
+     71             0x0E,
+     72             0x01,
+     73             0x09,
+     74             0x05,
+     75             0x0D,
+     76             0x03,
+     77             0x0B,
+     78             0x07,
+     79             0x0F,
+     80          };
+     81          
+     82          /*********************************************************************/
+     83          /* ROM Const Variables With File Level Scope                         */
+     84          /*********************************************************************/                                                                                                                                              
+     85          const uint8_t bits[8]     = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+     86          const uint8_t not_bits[8] = {0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe};                                                                       
+     87                                                                                 
+     88          /*********************************************************************/
+     89          /* Function Definitions                                              */
+     90          /*********************************************************************/
+     91          /**********************************************************************
+     92           * Function      : Assign_Bit
+     93           * Description   : to set or to clear a bit given an address and a bit offset - used to implement a packed array of booleans
+     94           * Parameters    : addr: address of object in which to set the bit
+     95                           : bitnum: the bit offset, counted from the lowest address, MSB
+     96                           : num_bits: size of bit array
+     97                           : Set_or_Clear: 0--clear; 1--set
+     98                           : RangeCheck: 0--no range check ; 1-- range check
+     99           * Returns       : 
+    100           * Description   : 
+    101           * Create&Verlog : Xinfen Zheng  Version: Initial of SimpleRTOS
+    102           *********************************************************************/
+    103          extern void Assign_Bit( void *addr, unsigned int bitnum, unsigned int num_bits, bool Set_or_Clear, bool RangeCheck)
+    104          {
+    105             uint8_t *bit_ptr = (uint8_t *)addr;
+    106          
+    107             if (!RangeCheck || (bitnum < (num_bits + 1) ))
+    108             {
+    109          	   if (Set_or_Clear)
+    110          	   {
+    111          	      *(bit_ptr + (bitnum / (8*sizeof(uint8_t)))) |= bits[bitnum % (8*sizeof(uint8_t))];
+    112          	   }
+    113          	   else
+    114          	   {
+    115          	      *(bit_ptr + (bitnum / (8*sizeof(uint8_t)))) &= not_bits[bitnum % (8*sizeof(uint8_t))];
+    116          	   }
+    117             }
+    118          }
+    119          
+    120          /**********************************************************************
+    121           * Purpose:
+    122           *   to read a bit given an address and a bit offset - used to implement
+    123           *   a packed array of booleans
+    124           *
+    125           * Parameters:
+    126           *   addr: address of object from which to read the bit
+    127           *   bit: the bit offset, counted from the lowest address, MSB
+    128           *
+    129           *   returns: 1 if bit set, 0 if bit clear
+    130           **********************************************************************/
+    131          bool Read_Bit_Subr( void *addr, unsigned int bitnum )
+    132          {
+    133             uint8_t *bit_ptr = (uint8_t *)addr;
+    134          
+    135            return (0 != (*(bit_ptr + (bitnum / (8*sizeof(uint8_t)))) & bits[bitnum % (8*sizeof(uint8_t))]));
+    136          }
+    137          
+    138          /**********************************************************************
+    139           * Purpose: To find and clear the first active bit from an array
+    140           *
+    141           * Parameters:
+    142           * array - the address of the array
+    143           * bit_size - the size of the array in bits (not bytes)
+    144           * consume_bit - if true the bit is cleared
+    145           *
+    146           * return: -1 if no bit is set, otherwise the offset, in bits, from the MSB
+    147           *         of the lowest addressed byte in the array
+    148           *          CLEARS the BIT
+    149           **********************************************************************/
+    150          extern int Find_First_Set_Bit(void *addr, size_t bit_size, bool consume_bit)
+    151          {
+    152             uint8_t *bit_ptr = (uint8_t *)addr;
+    153             int byte_index;
+    154             uint_fast8_t bit_index;
+    155          
+    156             for (byte_index = 0; (byte_index * 8) < bit_size; byte_index++)
+    157             {
+    158                if (0 != *bit_ptr)                                       // is byte non-zero?
+    159                {
+    160                   for   (bit_index = 0; bit_index < 8; bit_index++)     // search for bit within byte
+    161                   {
+    162                      if (0 != (bits[bit_index] & *bit_ptr))             // find it?
+    163                      {
+    164                         if (consume_bit)
+    165                         {
+    166                            *bit_ptr &= not_bits[bit_index];             // clear bit
+    167                         }
+    168                         if ( ((byte_index * 8) + bit_index) < bit_size)
+    169                         {
+    170                            return((byte_index * 8) + bit_index);
+    171                         }
+    172                         else
+    173                         {
+    174                            return(-1);                               // bit was past last valid bit in bit_ptr
+    175                         }
+    176                      }
+    177                   }
+    178                }
+    179                bit_ptr++;
+    180             }
+    181             return(-1);                                              // no bits set
+    182          }
+    183          
+    184          /**********************************************************************
+    185           * Purpose: To find next set bit in direction specified
+    186           *
+    187           * Parameters:
+    188           * addr - the address of the array
+    189           * bit_size - the size of the array in bits (not bytes)
+    190           * starting_bit - bit position to start from (does not look at starting position)
+    191           * up - 1 = look in up direction
+    192           *
+    193           * return: -1 if no bit is set, otherwise the offset, in bits, from the MSB
+    194           *         of the lowest addressed byte in the array
+    195           *
+    196           **********************************************************************/
+    197          extern int Find_Next_Bit_with_Wrap(void *addr, size_t bit_size, int current_bit, bool up)
+    198          {
+    199             uint8_t *bit_ptr = (uint8_t *)addr;
+    200             int    bits_tried = 0;
+    201             int    increment = (up ? 1 : -1);
+    202          
+    203             do
+    204             {
+    205                current_bit += increment;
+    206          
+    207                if (current_bit < 0)
+    208                {
+    209                   current_bit = bit_size - 1;
+    210                }
+    211                else if (current_bit >= bit_size)
+    212                {
+    213                   current_bit = 0;
+    214                }
+    215          
+    216                bits_tried++;
+    217          
+    218             } while ((0 == (*(bit_ptr + ((unsigned int)current_bit / (8*sizeof(uint8_t)))) &
+    219                             bits[(unsigned int)current_bit % (8*sizeof(uint8_t))])) &&
+    220                      (bits_tried < bit_size));
+    221          
+    222             if (bits_tried >= bit_size)
+    223             {
+    224                return(-1);                                              // no bits set
+    225             }
+    226             else
+    227             {
+    228                return(current_bit);
+    229             }
+    230          
+    231          }
+    232          
+    233          /**********************************************************************
+    234           *    Function:  GETSUM
+    235           *
+    236           *    Parameters: *Strt_Addr - pointer of begin address of data to be checksumed
+    237           *                bool update - true = update this checksum byte
+    238           *                bool initialize_chksum - true = write the new checksum value
+    239           *                *checksum - pointer to address of checksum
+    240           *
+    241           *     Returns:  Status_Type (E_OK or E_ERROR)
+    242           *
+    243           * Description:  This module will calculate a 16 bit checksum, and either update
+    244           *               the variable or not.  Has capability to calculate a continuation
+    245           *               of a previous call.  If 8 bit Checksum is only needed, then the
+    246           *               MSB can simply be ignored.
+    247           *
+    248           *
+    249           *********************************************************************/
+    250          Status_Type Getsum (const void *Strt_Addr, size_t size,
+    251                         bool update, bool initialize_chksum, uint16_t *checksum)
+    252          {
+    253             FAR const uint8_t *ptr = (FAR uint8_t *) Strt_Addr;   // pointer to start addr.
+    254             Status_Type cs_succ;
+    255             uint_fast16_t  chs_sum;                               // working summation
+    256             static uint16_t chs_build;                            // store checksum between calls
+    257          
+    258             chs_sum = (initialize_chksum) ? CHKSUM_OFFSET : chs_build;  // if not a continuation, then start with CHKSUM_OFFSET
+    259          
+    260             for (; (0 != size); size--)
+    261             {
+    262                chs_sum += *ptr++;                                 // add the bytes
+    263             }
+    264          
+    265             chs_build = chs_sum;
+    266          
+    267             if ((chs_build != *checksum))
+    268             {
+    269                cs_succ = E_ERROR;
+    270             }
+    271             else
+    272             {
+    273                cs_succ = E_OK;
+    274             }
+    275          
+    276             if (update)
+    277             {
+    278                *checksum = chs_build;                             // if update requested write in the calculated checksum
+    279             }
+    280          
+    281             return(cs_succ);
+    282          }
+    283          /**********************************************************************
+    284           * Function      : CS_Write
+    285           * Description   : writes 1 byte to checksum variable
+    286           * Parameters    : dest     adddress of old data
+    287                           : source   address  in new data
+    288                           : count    number of bytes changing
+    289                           : checksum address of checksum 
+    290           * Returns       : 
+    291           * Description   : 
+    292           * Create&Verlog : Xinfen Zheng  Version: Initial of SimpleRTOS
+    293           *********************************************************************/
+    294          void *CS_Write(void *dest, const void *source, size_t count, uint16_t *checksum)
+    295          {
+    296             uint8_t *dptr = (uint8_t *) dest;                  // pointer to dest addr
+    297             const FAR uint8_t*sptr = (FAR uint8_t *) source;   // pointer to source addr
+    298          
+    299             for (; (0 != count); count--)
+    300             {
+    301                *checksum  -= *dptr;                      // add the delta to the checksum
+    302                *checksum  += *sptr;
+    303                *dptr++ = *sptr++;                        // copy byte
+    304             }
+    305             return(dest);
+    306          }
+    307          
+    308          
+    309          /***********************************************************************
+    310           *    Function: limit_check
+    311           *
+    312           *  Parameters: value, min, and max
+    313           *
+    314           *     Returns: Limit checked value
+    315           *
+    316           * Description: Forces value to within min and max inclusive 
+    317           *
+    318           ***********************************************************************/
+    319          int Limit_Check (int value, int min, int max)
+    320          {
+    321             if (value < min)
+    322             {
+    323                value = min;
+    324             }
+    325             else if (value > max)
+    326             {
+    327                value = max;
+    328             }
+    329             return(value);
+    330          }
+    331          
+    332          #ifndef   ASSEMBLY_PROJECT_IS
+    333          /***********************************************************************
+    334           *    Function: Wrap_Check
+    335           *
+    336           *  Parameters: value, min, and max
+    337           *
+    338           *     Returns: wrapped value
+    339           *
+    340           * Description: wraps a value if out of limits (i.e > max goes to min)
+    341           *
+    342           ***********************************************************************/
+    343          int Wrap_Check(int value, int min, int max)
+    344          {
+    345             if (min > value)
+    346             {
+    347                value = max;
+    348             }
+    349             else if (max < value)
+    350             {
+    351                value = min;
+    352             }
+    353             return(value);
+    354          }
+    355          
+    356          /**********************************************************************
+    357           *    Function: BCD_To_Hex
+    358           *
+    359           *  Parameters: BCD_Value   BCD value to be convereed to hex
+    360           *
+    361           *     Returns: Equivalent value in hexidecimal format
+    362           *
+    363           * Description: This routine converts a received value in BCD and
+    364           *              converts it to a Hexidecimal value.
+    365           *              Hex_value = (BCD_value & F0h) * ?
+    366           *
+    367           **********************************************************************/
+    368          
+    369          uint8_t BCD_To_Hex (uint8_t BCD_Value)
+    370          {
+    371             return(((BCD_Value / 16) * 10) + (BCD_Value % 16));
+    372          }
+    373          #endif   //ASSEMBLY_PROJECT_IS
+    374          
+    375          /**********************************************************************
+    376           *    Function: Hex_To_BCD
+    377           *
+    378           *  Parameters: HexValue    Hexidecimal value to be converted to BCD
+    379           *
+    380           *     Returns: Equivalent value in BCD
+    381           *
+    382           * Description: This routine converts a received value in Hexidecimal
+    383           *              and converts it to a BCD value.  If the value is too
+    384           *              large a value of 99h is returned
+    385           *
+    386           *              BCD_Value = (HexValue / 10) * 10h  +  remainder
+    387           *                          interger division    int modulo division
+    388           **********************************************************************/
+    389          
+    390          uint8_t Hex_To_BCD (uint8_t HexValue)
+    391          {
+    392             if (99 < HexValue)     // overflow condition true if HexValue > 99
+    393             {
+    394                 return(0x99);
+    395             }
+    396             else
+    397             {
+    398                 return(((HexValue / 10) * 0x10) + (HexValue % 10));
+    399             }
+    400          }
+    401          
+    402          /**********************************************************************
+    403           *    Function: Hex_To_WBCD
+    404           *
+    405           *  Parameters: HexValue    Hexidecimal value to be converted to BCD
+    406           *
+    407           *     Returns: Equivalent value in packed BCD (0x000 .. 0x0255)
+    408           *
+    409           * Description: This routine converts a received value in Hexidecimal
+    410           *              and converts it to a word BCD value.
+    411           **********************************************************************/
+    412          uint16_t Hex_To_WBCD (uint8_t HexValue)
+    413          {
+    414             return(  ((HexValue / 100) * 0x100) +
+    415                     (((HexValue % 100) / 10) * 0x10) +
+    416                       (HexValue % 10));
+    417          }
+    418          
+    419          /**********************************************************************
+    420           *    Function: WHEX_To_WBCD
+    421           *
+    422           *  Parameters: 16 bit HexValue    Hexidecimal value to be converted to BCD
+    423           *
+    424           *     Returns: Equivalent value in packed BCD
+    425           *
+    426           * Description: This routine converts a 16 bit value in Hexidecimal
+    427           *              to a 16 bit BCD value.
+    428           **********************************************************************/
+    429          uint16_t WHEX_To_WBCD (uint16_t HexValue)
+    430          {
+    431             if (9999 < HexValue)
+    432             {
+    433                 return(0x9999);  // overflow condition true if HexValue > 9999
+    434             }
+    435             else
+    436             {
+    437                 return( (((HexValue % 10000) / 1000) * 0x1000) + 
+    438                         (((HexValue % 1000) / 100) * 0x100) +
+    439                         (((HexValue % 100) / 10) * 0x10) +
+    440                           (HexValue % 10));
+    441             }
+    442          }
+    443          
+    444          #ifndef   ASSEMBLY_PROJECT_IS
+    445          /**********************************************************************
+    446           *    Function: WBCD_To_Hex
+    447           *
+    448           *  Parameters: Word BCD value (000 - 255)
+    449           *
+    450           *     Returns: Equivalent value in hexidecimal format (1 byte)
+    451           *
+    452           * Description: This routine converts a received word length BCD 
+    453           *              value to a hex value (up to 255).
+    454           **********************************************************************/
+    455          uint8_t WBCD_To_Hex (uint16_t WBCD_value)
+    456          {
+    457             if (0x255 < WBCD_value)
+    458             {
+    459                 return(0xFF); // overflow condition true if WBCD_value > 255
+    460             }
+    461             else
+    462             {
+    463                 return((uint8_t) ((WBCD_value & 0x000F) + 
+    464                                  ((WBCD_value & 0x00F0) >> 4) * 10 +
+    465                                  ((WBCD_value & 0x0F00) >> 8) * 100) );
+    466             }
+    467          }
+    468          
+    469          /**********************************************************************
+    470           *    Function: WBCD_To_WHEX
+    471           *
+    472           *  Parameters: Word BCD value (0000 - 9999)
+    473           *
+    474           *     Returns: Equivalent value in hexidecimal format (2 byte)
+    475           *
+    476           * Description: This routine converts a received word length BCD 
+    477           *              value to a hex value (up to 9999).
+    478           **********************************************************************/
+    479          uint16_t WBCD_To_WHEX (uint16_t WBCD_value)
+    480          {
+    481             return(  (WBCD_value & 0x000F) 
+    482                   + ((WBCD_value & 0x00F0) >>  4) * 10
+    483                   + ((WBCD_value & 0x0F00) >>  8) * 100
+    484                   + ((WBCD_value & 0xF000) >> 12) * 1000);
+    485          }
+    486          
+    487          /**********************************************************************
+    488           *    Function: Is_BCD
+    489           *
+    490           *  Parameters: Potential_BCD_Value   BCD value to be convereed to hex
+    491           *
+    492           *     Returns: True if BCD, false if not BCD
+    493           *
+    494           * Description: This routine tests both nibbles to see if the value ia a
+    495           *              valid BCD value.
+    496           *
+    497           **********************************************************************/
+    498          
+    499          bool Is_BCD(uint8_t Potential_BCD_Value)
+    500          {
+    501             return( (Potential_BCD_Value <= 0x99) &&           // valid range 0x00 -- 0x99
+    502                     ((Potential_BCD_Value & 0x0F) <= 0x09));   // check lower nibble <= 9
+    503          }
+    504          
+    505          /**********************************************************************
+    506           *    Function: BCD_increment
+    507           *
+    508           *  Parameters: BCD_value:   BCD value to be incremented
+    509           *
+    510           *     Returns: BCD value incremented by one if valid BCD received.
+    511           *              0xFF if invalid BCD received.
+    512           *
+    513           * Description: This routine increments a received value in BCD and
+    514           *              returns the incremented value if valid, otherwise 0xFF
+    515           *
+    516           **********************************************************************/
+    517          
+    518          uint8_t BCD_increment(uint8_t BCD_value)
+    519          {
+    520             if (Is_BCD(BCD_value))                    // verify valid BCD value
+    521             {
+    522                if (BCD_value == 0x99)                 // test for rollover case
+    523                {
+    524                   BCD_value = 0x00;                   // correct for rollover case
+    525                }
+    526                else                                   // is not rollover case
+    527                {
+    528                   if ((BCD_value & 0x0F) == 0x09)     // test for last digit = 9
+    529                   {
+    530                      BCD_value += 0x07;               // add 7 for next valid BCD
+    531                   }
+    532                   else                                // last digit != 9
+    533                   {
+    534                      BCD_value++;                     // regular increment
+    535                   }
+    536                }
+    537             }
+    538             else                                      // invalid BCD
+    539             {
+    540                BCD_value = 0x99;                      // set value to max for return
+    541             }
+    542             return(BCD_value);                        // return inc'd BCD value
+    543          }
+    544          
+    545          /**********************************************************************
+    546           *    Function: BCD_decrement
+    547           *
+    548           *  Parameters: BCD_value:   BCD value to be decremented
+    549           *
+    550           *     Returns: BCD value decremented by one if valid BCD received.
+    551           *              0xFF if invalid BCD received.
+    552           *
+    553           * Description: This routine decrements a received value in BCD and
+    554           *              returns the decremented value if valid, otherwise 0xFF
+    555           *
+    556           **********************************************************************/
+    557          
+    558          uint8_t BCD_decrement(uint8_t BCD_value)
+    559          {
+    560             if ( Is_BCD(BCD_value) )                  // verify valid BCD value
+    561             {
+    562                if ( BCD_value == 0x00 )               // test for rollover case
+    563                {
+    564                   BCD_value = 0x99;                   // correct for rollover case
+    565                }
+    566                else                                   // is not rollover case
+    567                {
+    568                   if ( (BCD_value & 0x0F) == 0x00 )   // test for last digit = 0
+    569                   {
+    570                      BCD_value -= 0x07;               // sub. 7 for next valid BCD
+    571                   }
+    572                   else                                // last digit != 0
+    573                   {
+    574                      BCD_value--;                     // regular decrement
+    575                   }
+    576                }
+    577             }
+    578             else                                      // invalid BCD
+    579             {
+    580                BCD_value = 0x00;                      // set value to min for return
+    581             }
+    582             return(BCD_value);                        // return dec'd BCD value
+    583          }
+    584          
+    585          /**********************************************************************
+    586           *    Function: memcmpch
+    587           *
+    588           *  Parameters: src - pointer to beginning of string to compare
+    589           *              ch  - character to compare against
+    590           *              n   - how many bytes to compare
+    591           *
+    592           *     Returns: int
+    593           *
+    594           * Description: Compares src against a single character.  Returns 0 if
+    595           *              the src string matches n ch characters, non-0 otherwise.
+    596           *
+    597           **********************************************************************/
+    598          
+    599          int memcmpch(void *src, char ch, size_t n)
+    600          {
+    601              char *char_ptr = src;
+    602          
+    603              for (; (0 != n); n--)
+    604              {
+    605                 if (*char_ptr++ != ch)
+    606                 {
+    607                   break;
+    608                 }
+    609              }
+    610              return(n);
+    611          }
+    612          
+    613          /**********************************************************************
+    614           *    Function: memexch
+    615           *
+    616           *  Parameters: src1 - pointer to beginning of first area to exchange
+    617           *              src2 - pointer to beginning of second area to exchange
+    618           *              n    - how many bytes to exchange
+    619           *
+    620           *     Returns: void
+    621           *
+    622           * Description: exchanges n bytes between an object indicated by src1
+    623           *              and an object indicated by src2 provided they do not
+    624           *              overlap.
+    625           *
+    626           **********************************************************************/
+    627          
+    628          void memexch(void *src1, void *src2, size_t n)
+    629          {
+    630             char *pch1;
+    631             char *pch2;
+    632             char temp;
+    633             
+    634             if (src1 < src2)           // set lower address to ch1 
+    635             {
+    636                pch1 = (char *) src1;
+    637                pch2 = (char *) src2;
+    638             }                                                      
+    639             else
+    640             {
+    641                pch1 = (char *) src2;
+    642                pch2 = (char *) src1;
+    643             }
+    644          
+    645             if ((pch1 + n) <= pch2)    // check for address overlap
+    646             {
+    647                for (; (0 != n); n--)
+    648                {
+    649                   temp = *pch1;
+    650                   *pch1++ = *pch2;
+    651                   *pch2++ = temp;
+    652                }
+    653             }
+    654          }
+    655          
+    656          /**********************************************************************
+    657           *    Function: Convert_To_Big_Endian
+    658           *
+    659           *  Parameters: *from - pointer to half_word or word to be converted
+    660           *              *to - pointer to destination of the conversion
+    661           *              num_bytes - # of bytes to convert
+    662           *
+    663           *     Returns: None
+    664           *
+    665           * Description: Converts a half_word or word from Little Endian to Big Endian
+    666           *
+    667           **********************************************************************/
+    668          
+    669          void Convert_To_Big_Endian (void *to, const void *from, size_t num_bytes)
+    670          {
+    671             #if LITTLE_ENDIAN                       // If true, do the conversion
+    672          
+    673             char *temp_to = (char *)to;
+    674             const char *temp_from = ((const char *)from) + num_bytes;
+    675          
+    676             for ( ; 0 != num_bytes ; num_bytes--)
+    677             {
+    678                *(temp_to++) = *(--temp_from);
+    679             }
+    680             #else //LITTLE_ENDIAN                   // Else, temp_to = temp_from
+    681             memcpy(to, from, num_bytes);
+    682             #endif //LITTLE_ENDIAN
+    683          }
+    684          
+    685          /**********************************************************************
+    686           *    Function: Scale
+    687           *
+    688           *  Parameters: input   - value to be scaled
+    689           *              old_min - minimum value of old range
+    690           *              old_max - maximum value of old range
+    691           *              new_min - minimum value of new scaled range
+    692           *              new_max - maximum value of new scaled range
+    693           *
+    694           *     Returns: Scaled value
+    695           *
+    696           * Description: Scales a value from one range to another.
+    697           *
+    698           **********************************************************************/
+    699          
+    700          int Scale (int input, int old_min, int old_max, int new_min, int new_max)
+    701          {
+    702             int old_range = old_max - old_min;
+    703          
+    704             return(((((input - old_min) * (new_max - new_min)) + (old_range/2))
+    705                      / old_range) + new_min);
+    706          }
+    707          #endif   //ASSEMBLY_PROJECT_IS
+    708          
+    709          /**********************************************************************
+    710           *    Function: Reverse_Bits_In_Byte
+    711           *
+    712           *  Parameters: input - byte to be bit reversed
+    713           *
+    714           *     Returns: byte with reversed bits
+    715           *
+    716           * Description: reverses bits in a byte D7 D6 D5 D4 D3 D2 D1 D0
+    717           *                                      D0 D1 D2 D3 D4 D5 D6 D7
+    718           *
+    719           **********************************************************************/
+    720          uint8_t Reverse_Bits_In_Byte (uint8_t byte)
+    721          {
+    722             return( (reverse_bits_TBL[byte & 0x0F] << 4) | reverse_bits_TBL[byte >> 4] );
+    723          }
+    724          
+    725          /**********************************************************************
+    726           * REVISION RECORDS
+    727           *********************************************************************/
+    728          /*********************************************************************/
+    729          /*
+    730           *
+    731           *********************************************************************/
+    732          
+    733          #endif
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       4   Assign_Bit
+       0   BCD_To_Hex
+       8   BCD_decrement
+         8   -> Is_BCD
+       8   BCD_increment
+         8   -> Is_BCD
+      12   CS_Write
+       0   Convert_To_Big_Endian
+      12   Find_First_Set_Bit
+      16   Find_Next_Bit_with_Wrap
+       4   Getsum
+       0   Hex_To_BCD
+       8   Hex_To_WBCD
+       0   Is_BCD
+       0   Limit_Check
+       0   Read_Bit_Subr
+       0   Reverse_Bits_In_Byte
+       4   Scale
+       0   WBCD_To_Hex
+       0   WBCD_To_WHEX
+      16   WHEX_To_WBCD
+       0   Wrap_Check
+       4   memcmpch
+       4   memexch
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable5
+       4  ??DataTable5_1
+       4  ??DataTable5_2
+       4  ??DataTable5_3
+      64  Assign_Bit
+      32  BCD_To_Hex
+      48  BCD_decrement
+      52  BCD_increment
+      40  CS_Write
+      20  Convert_To_Big_Endian
+      88  Find_First_Set_Bit
+      70  Find_Next_Bit_with_Wrap
+      68  Getsum
+      40  Hex_To_BCD
+      62  Hex_To_WBCD
+      26  Is_BCD
+      16  Limit_Check
+      28  Read_Bit_Subr
+      26  Reverse_Bits_In_Byte
+      30  Scale
+      48  WBCD_To_Hex
+      48  WBCD_To_WHEX
+     122  WHEX_To_WBCD
+      16  Wrap_Check
+       8  bits
+       2  chs_build
+      30  memcmpch
+      46  memexch
+       8  not_bits
+      16  reverse_bits_TBL
+
+ 
+     2 bytes in section .bss
+    32 bytes in section .rodata
+ 1 036 bytes in section .text
+ 
+ 1 036 bytes of CODE  memory
+    32 bytes of CONST memory
+     2 bytes of DATA  memory
+
+Errors: none
+Warnings: none

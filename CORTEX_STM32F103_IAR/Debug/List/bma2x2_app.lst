@@ -1,0 +1,736 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:21
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Sensors\bma2x2_app.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Sensors\bma2x2_app.c
+#        -D VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\bma2x2_app.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\bma2x2_app.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\Sensors\bma2x2_app.c
+      1          /**********************************************************************
+      2           * Include files                                                       
+      3           *********************************************************************/
+      4          #include "relays.h"
+      5          #include "delay.h"
+      6          #include "debug.h"
+      7          #include "bma2x2_app.h"
+      8          /**********************************************************************
+      9           *  define
+     10           *********************************************************************/
+     11          /* BMA253 default config parameter*/
+     12          #define BMA253_DEF_COF_RANGE        (uint8_t)0x08   //default range 8g
+     13          #define BMA253_DEF_COF_HG_THRES     (uint8_t)200    //default high-g threshold 200*faciend  
+     14          
+     15          /* spi pin map */
+     16          #define prv_SPI                          SPI2
+     17          #define prv_SPI_CLK                      RCC_APB1Periph_SPI2
+     18          #define prv_SPI_SCK_PIN                  GPIO_Pin_13                  
+     19          #define prv_SPI_SCK_GPIO_PORT            GPIOB                       
+     20          #define prv_SPI_SCK_GPIO_CLK             RCC_APB2Periph_GPIOB
+     21          #define prv_SPI_MISO_PIN                 GPIO_Pin_14                 
+     22          #define prv_SPI_MISO_GPIO_PORT           GPIOB                       
+     23          #define prv_SPI_MISO_GPIO_CLK            RCC_APB2Periph_GPIOB
+     24          #define prv_SPI_MOSI_PIN                 GPIO_Pin_15                  
+     25          #define prv_SPI_MOSI_GPIO_PORT           GPIOB                       
+     26          #define prv_SPI_MOSI_GPIO_CLK            RCC_APB2Periph_GPIOB
+     27          #define prv_SPI_CS_PIN                       GPIO_Pin_12                 
+     28          #define prv_SPI_CS_GPIO_PORT                 GPIOB                       
+     29          #define prv_SPI_CS_GPIO_CLK                  RCC_APB2Periph_GPIOB
+     30          /* interrupt pin map */
+     31          #define BMA253_INT1_PORT                    GPIOC
+     32          #define BMA253_INT1_PIN                     GPIO_Pin_6
+     33          #define BMA253_INT1_GPIO_CLK                RCC_APB2Periph_GPIOC
+     34          /* function define */
+     35          #define BMA253_CS_LOW()       GPIO_ResetBits(prv_SPI_CS_GPIO_PORT, prv_SPI_CS_PIN)
+     36          #define BMA253_CS_HIGH()      GPIO_SetBits(prv_SPI_CS_GPIO_PORT, prv_SPI_CS_PIN)  
+     37          
+     38          /**********************************************************************
+     39           *  static variable                                                
+     40           *********************************************************************/
+     41          static struct bma2x2_t bma253;
+     42          BMA253_ConfigType BMA253_conf;
+     43          
+     44          /**********************************************************************
+     45           *  static function declaration                                                
+     46           *********************************************************************/
+     47          //static void BMA253_INT1_Init(void);
+     48          static s8 BMA253_SPI_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
+     49          static s8 BMA253_SPI_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
+     50          static s8 BMA253_SPI_burst_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u32 cnt);
+     51          static void BMA253_delay_msek(u32 msek);
+     52          static bool BMA253_fastCompensation(void);
+     53          static bool BMA253_SetConfig(void);
+     54          
+     55          
+     56          /**********************************************************************
+     57           *  global function prototype                                                
+     58           *********************************************************************/
+     59          /**********************************************************************
+     60           *  static function prototype                                                
+     61           *********************************************************************/
+     62          /*******************************************************************************
+     63          *    Function: BMA253_LowLevel_Init
+     64          *
+     65          *  Parameters:  none
+     66          *     Returns:  none
+     67          * Description:  Initialize the spi bus mapped to bma253
+     68          *******************************************************************************/
+     69          void BMA253_LowLevel_Init(void)
+     70          {
+     71              GPIO_InitTypeDef GPIO_InitStructure;
+     72              SPI_InitTypeDef  SPI_InitStructure;
+     73              
+     74              RCC_APB2PeriphClockCmd(prv_SPI_CS_GPIO_CLK | prv_SPI_MOSI_GPIO_CLK | prv_SPI_MISO_GPIO_CLK |
+     75                                   prv_SPI_SCK_GPIO_CLK, ENABLE);
+     76              RCC_APB1PeriphClockCmd(prv_SPI_CLK, ENABLE);
+     77            
+     78              GPIO_InitStructure.GPIO_Pin = prv_SPI_SCK_PIN;
+     79              GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+     80              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+     81              GPIO_Init(prv_SPI_SCK_GPIO_PORT, &GPIO_InitStructure);
+     82          
+     83              GPIO_InitStructure.GPIO_Pin = prv_SPI_MOSI_PIN;
+     84              GPIO_Init(prv_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
+     85          
+     86              GPIO_InitStructure.GPIO_Pin = prv_SPI_MISO_PIN;
+     87              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;  
+     88              GPIO_Init(prv_SPI_MISO_GPIO_PORT, &GPIO_InitStructure);
+     89            
+     90              GPIO_InitStructure.GPIO_Pin = prv_SPI_CS_PIN;
+     91              GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+     92              GPIO_Init(prv_SPI_CS_GPIO_PORT, &GPIO_InitStructure);
+     93              
+     94              SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+     95              SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+     96              SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
+     97              SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
+     98              SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
+     99              SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+    100              SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4; //24/4=6 MHz
+    101              SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+    102              SPI_InitStructure.SPI_CRCPolynomial = 7;
+    103              SPI_Init(prv_SPI, &SPI_InitStructure);
+    104          
+    105              SPI_Cmd(prv_SPI, ENABLE);  
+    106          //    BMA253_INT1_Init(); 
+    107          }
+    108          /*******************************************************************************
+    109          *    Function: BMA253_Init
+    110          *
+    111          *  Parameters:  None
+    112          *     Returns:  None
+    113          * Description:  initialize the bma253
+    114          *******************************************************************************/
+    115          bool BMA253_Init(void)
+    116          {
+    117              BMA253_CS_HIGH();
+    118          
+    119              bma253.bus_write = BMA253_SPI_bus_write;
+    120          	bma253.bus_read = BMA253_SPI_bus_read;
+    121              bma253.burst_read = BMA253_SPI_burst_read;
+    122          	bma253.delay_msec = BMA253_delay_msek;
+    123              
+    124              if(SUCCESS != bma2x2_init(&bma253))
+    125              {
+    126                  DEBUG_PRINT0(DEBUG_HIGH, "[BMA253] init err!\r\n");
+    127                  return false;
+    128              }
+    129              
+    130              if(!Sys_Is_Gsensor_Wakeup())
+    131              {
+    132                  
+    133                  if(SUCCESS != bma2x2_set_power_mode(BMA2x2_MODE_NORMAL))
+    134                  {
+    135                      DEBUG_PRINT0(DEBUG_HIGH, "[BMA253] init err set power mode!\r\n");
+    136                      return false;
+    137                  }
+    138                  
+    139                  if(false == BMA253_fastCompensation())
+    140                  {
+    141                      DEBUG_PRINT0(DEBUG_HIGH, "[BMA253] init err! fast compensation\r\n");
+    142                      return false;        
+    143                  }
+    144                  
+    145                  if(false == BMA253_SetConfig())
+    146                  {
+    147                      DEBUG_PRINT0(DEBUG_HIGH, "[BMA253] init err! Set config\r\n");
+    148                      return false;          
+    149                  }    
+    150              }
+    151              return true;
+    152          }
+    153          /*******************************************************************************
+    154          *    Function: BMA253_ReadFIFOxyz
+    155          *
+    156          *  Parameters:  dst point to a buffer which store the read data
+    157          *     Returns:  the byte count read
+    158          * Description:  read axix-x/y/z data from fifo buffer
+    159          *******************************************************************************/
+    160          uint8_t BMA253_ReadFIFOxyz(int16_t *dst)
+    161          {
+    162              uint8_t frameCnt = 0;
+    163              uint8_t i;
+    164              uint8_t src[BMA253_FIFO_RANGE * 6] = {0};
+    165              
+    166              if(SUCCESS != bma2x2_get_fifo_frame_count(&frameCnt))
+    167              {
+    168                  DEBUG_PRINT0(DEUBG_HIGH, "[BMA253] read fifo err!\r\n");
+    169                  return 0;
+    170              }
+    171              
+    172              if(SUCCESS != bma2x2_burst_read(BMA2x2_FIFO_DATA_OUTPUT_ADDR, src, frameCnt * 6))
+    173              {
+    174                  DEBUG_PRINT0(DEUBG_HIGH, "[BMA253] read fifo err!\r\n");
+    175                  return 0;        
+    176              }
+    177              
+    178              for(i = 0; i < frameCnt * 6; i += 2)
+    179              {
+    180                  *dst = *(int16_t *)(&src[i]) >> 4;
+    181                  dst++;
+    182              }
+    183              return frameCnt;
+    184          }
+    185          
+    186          /*******************************************************************************
+    187          *    Function: bma253_fastCompensation
+    188          *
+    189          *  Parameters:  none
+    190          *     Returns:  true or false
+    191          * Description:  Compensate  axix-x/y for 0g and axix-z for -1g
+    192          *******************************************************************************/
+    193          static bool BMA253_fastCompensation(void)
+    194          {
+    195              u8 cal_rdy = 0x00;
+    196              uint16_t timeout = 0xFFFF;
+    197              if(SUCCESS != bma2x2_set_range(BMA2x2_RANGE_2G))
+    198              {
+    199                  return false;
+    200              }
+    201              
+    202              do
+    203              {
+    204                  if(!--timeout)
+    205                  {
+    206                      // time out return fasle
+    207                      return  false;
+    208                  }
+    209                  bma2x2_get_cal_rdy(&cal_rdy);
+    210              }while(cal_rdy == 0);
+    211              
+    212              timeout = 0xFFFF;
+    213              /* Compensate axix-x*/
+    214              if(SUCCESS != bma2x2_set_offset_target(BMA2x2_OFFSET_TRIGGER_X, 0x00))
+    215              {
+    216                  return false;
+    217              }
+    218              
+    219              if(SUCCESS != bma2x2_set_cal_trigger(BMA2x2_OFFSET_TRIGGER_X))
+    220              {
+    221                  return false;
+    222              }
+    223              
+    224              do
+    225              {
+    226                  if(!--timeout)
+    227                  {
+    228                      // time out return fasle
+    229                      return  false;
+    230                  }
+    231                  bma2x2_get_cal_rdy(&cal_rdy);
+    232          
+    233              }while(cal_rdy == 0);
+    234              
+    235              timeout = 0xFFFF;
+    236              /* Compensate axix-x*/
+    237              if(SUCCESS != bma2x2_set_offset_target(BMA2x2_OFFSET_TRIGGER_Y, 0x00))
+    238              {
+    239                  return false;
+    240              }
+    241              
+    242              if(SUCCESS != bma2x2_set_cal_trigger(BMA2x2_OFFSET_TRIGGER_Y))
+    243              {
+    244                  return false;
+    245              }
+    246              
+    247              do
+    248              {
+    249                  if(!--timeout)
+    250                  {
+    251                      // time out return fasle
+    252                      return  false;
+    253                  }
+    254                  bma2x2_get_cal_rdy(&cal_rdy);
+    255          
+    256              }while(cal_rdy == 0);
+    257          
+    258              timeout = 0xFFFF;
+    259              /* Compensate axix-x*/
+    260              if(SUCCESS != bma2x2_set_offset_target(BMA2x2_OFFSET_TRIGGER_Z, 0x02))
+    261              {
+    262                  return false;
+    263              }
+    264              
+    265              if(SUCCESS != bma2x2_set_cal_trigger(BMA2x2_OFFSET_TRIGGER_Z))
+    266              {
+    267                  return false;
+    268              }
+    269              
+    270              do
+    271              {
+    272                  if(!--timeout)
+    273                  {
+    274                      // time out return fasle
+    275                      return  false;
+    276                  }
+    277                  bma2x2_get_cal_rdy(&cal_rdy);
+    278          
+    279              }while(cal_rdy == 0);
+    280                 
+    281          //    /* Compensate axix-y*/
+    282          //    bma2x2_set_offset_target(2, 0x00);
+    283          //    bma2x2_set_com_trigger(2);
+    284          //    timeout = 0xFFFF;
+    285          //    do   
+    286          //    {
+    287          //        if(!--timeout)
+    288          //        {
+    289          //            // time out return fasle
+    290          //            return  false;
+    291          //        }        
+    292          //        bma2x2_get_cal_rdy(&cal_rdy);
+    293          //    }while(cal_rdy == 0);
+    294          //    /* Compensate axix-z*/
+    295          //    bma2x2_set_offset_target(3, 0x02);
+    296          //    bma2x2_set_com_trigger(3);
+    297          //    timeout = 0xFFFF;
+    298          //    do
+    299          //    {
+    300          //        if(!--timeout)
+    301          //        {
+    302          //            // time out return fasle
+    303          //            return  false;
+    304          //        }
+    305          //        bma2x2_get_cal_rdy(&cal_rdy);
+    306          //    }while(cal_rdy == 0);
+    307              return true;
+    308          }
+    309          
+    310          /*******************************************************************************
+    311          *    Function: SPI_READ_WRITE_STRING
+    312          *
+    313          *  Parameters:  pSend point to the data sent to bus
+    314          *               pReceive point to a buffer which to stored the receive data
+    315          *               cnt express data's number to be sent
+    316          *     Returns:  0 sucess, 1 fail
+    317          * Description:  send then read a string by spi bus
+    318          *******************************************************************************/
+    319          #if 0
+    320          static uint8_t SPI_READ_WRITE_STRING(uint8_t *pSend, uint8_t *pReceive, uint16_t cnt)
+    321          {
+    322              BMA253_CS_LOW();     
+    323              while(cnt--)
+    324              {
+    325                  while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_TXE) == RESET);
+    326                  SPI_I2S_SendData(prv_SPI, *pSend);   
+    327                  /*!< Wait to receive a byte */
+    328                  while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_RXNE) == RESET);
+    329                  *pReceive = SPI_I2S_ReceiveData(prv_SPI);    
+    330                  pSend++;
+    331                  pReceive++;
+    332              }
+    333              BMA253_CS_HIGH();
+    334              return 0;
+    335          }
+    336          #endif
+    337          
+    338          /*******************************************************************************
+    339          *    Function: SPI_WRITE_STRING
+    340          *
+    341          *  Parameters:  pSend point to the data sent to bus
+    342          *               cnt express data's number to be sent
+    343          *     Returns:  0 sucess, 1 fail
+    344          * Description:  send then read a string by spi bus
+    345          *******************************************************************************/
+    346          static uint8_t SPI_WRITE_STRING(uint8_t *pSend, uint16_t cnt)
+    347          {
+    348              BMA253_CS_LOW();
+    349              while(cnt--)
+    350              {
+    351                  while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_TXE) == RESET);
+    352                  SPI_I2S_SendData(prv_SPI, *pSend);
+    353                  
+    354                  while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_RXNE) == RESET);        
+    355                  SPI_I2S_ReceiveData(prv_SPI);
+    356                  
+    357                  pSend++;
+    358              }
+    359              BMA253_CS_HIGH();
+    360              return 0;    
+    361          }
+    362          ///*******************************************************************************
+    363          //*    Function: bma253_INT1_Init
+    364          //*
+    365          //*  Parameters:  none
+    366          //*     Returns:  none
+    367          //* Description:  initialize the exti which mapped to the bma253 interrupt 1
+    368          //*******************************************************************************/
+    369          //static void BMA253_INT1_Init(void)
+    370          //{
+    371          //    EXTI_InitTypeDef   EXTI_InitStructure;
+    372          //    GPIO_InitTypeDef   GPIO_InitStructure;
+    373          //    NVIC_InitTypeDef   NVIC_InitStructure;    
+    374          //    
+    375          //    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+    376          //
+    377          //    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+    378          //    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    379          //    GPIO_Init(GPIOC, &GPIO_InitStructure);
+    380          //
+    381          //    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+    382          //
+    383          //    GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource6);
+    384          //
+    385          //    EXTI_InitStructure.EXTI_Line = EXTI_Line6;
+    386          //    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    387          //    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;  
+    388          //    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    389          //    EXTI_Init(&EXTI_InitStructure);
+    390          //
+    391          //    NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+    392          //    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+    393          //    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+    394          //    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    395          //    NVIC_Init(&NVIC_InitStructure);
+    396          //}
+    397          
+    398          /*******************************************************************************
+    399          *    Function: BMA253_SetConfig
+    400          *
+    401          *  Parameters:  none
+    402          *     Returns:  none
+    403          * Description:  configure the BMA253
+    404          *******************************************************************************/
+    405          bool BMA253_SetConfig(void)
+    406          {
+    407              //set interrupt latch mode 
+    408              
+    409              if(SUCCESS != bma2x2_set_latch_intr(BMA2x2_LATCH_DURN_LATCH))
+    410              {
+    411                  return false;
+    412              }
+    413              //map high-g_interrupt to intr1
+    414              if(SUCCESS != bma2x2_set_intr_high_g(BMA2x2_INTR1_HIGH_G, INTR_ENABLE))
+    415              {
+    416                  return false;
+    417              }
+    418              //map fifo_full_interrutp to intr1
+    419              if(SUCCESS != bma2x2_set_intr1_fifo_full(INTR_ENABLE))
+    420              {
+    421                  return false;
+    422              }
+    423          
+    424          #if 0
+    425              //map orient intrreutp to intr1
+    426              if(SUCCESS != bma2x2_set_intr_orient(BMA2x2_INTR1_ORIENT, INTR_ENABLE))
+    427              {
+    428                  return false;
+    429              }
+    430              //set orient mode to symmetrical
+    431              if(SUCCESS != bma2x2_set_orient_mode(0))
+    432              {
+    433                  return false;
+    434              }
+    435          #endif
+    436              
+    437              //set fifo mode as stream
+    438              if(SUCCESS != bma2x2_set_fifo_mode(0x02))
+    439              {
+    440                  return false;
+    441              }
+    442              //set fifo date select X/Y/Z
+    443              if(SUCCESS != bma2x2_set_fifo_data_select(0x00))
+    444              {
+    445                  return false;
+    446              }
+    447              
+    448              //enable high-g x interrupt
+    449              if(SUCCESS != bma2x2_set_intr_enable(BMA2x2_HIGH_G_X_INTR, INTR_ENABLE))
+    450              {
+    451                  return false;
+    452              }
+    453              //enable high-g y interrupt
+    454              if(SUCCESS != bma2x2_set_intr_enable(BMA2x2_HIGH_G_Y_INTR, INTR_ENABLE))
+    455              {
+    456                  return false;
+    457              }
+    458              //enable high-g z interrupt
+    459              if(SUCCESS != bma2x2_set_intr_enable(BMA2x2_HIGH_G_Z_INTR, INTR_ENABLE))
+    460              {
+    461                  return false;
+    462              }
+    463              //disable fifo full interrupt
+    464              if(SUCCESS != bma2x2_set_intr_fifo_full(INTR_DISABLE))
+    465              {
+    466                  return false;
+    467              }
+    468              return true;
+    469          }
+    470          
+    471          #define SPI_BUFFER_LEN 5
+    472          #define BMA2x2_BUS_READ_WRITE_ARRAY_INDEX	1
+    473          #define BMA2x2_SPI_BUS_WRITE_CONTROL_BYTE	0x7F
+    474          #define BMA2x2_SPI_BUS_READ_CONTROL_BYTE	0x80
+    475          
+    476          /*******************************************************************************
+    477          *    Function: BMA2x2_SPI_bus_read
+    478          *
+    479          *  Parameters:  dev_addr express the devcie address
+    480          *               reg_addr express the register address
+    481          *               reg_data point to a buffer which stored the data read out 
+    482          *               cnt express the data's number to be read
+    483          *     Returns:  0 sucess, otherwise fail
+    484          * Description:  read data from the specified register
+    485          *******************************************************************************/
+    486          #if 1
+    487          static s8 BMA253_SPI_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
+    488          {
+    489              BMA253_CS_LOW();
+    490              while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_TXE) == RESET);
+    491              SPI_I2S_SendData(prv_SPI, reg_addr | 0x80);
+    492              while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_RXNE) == RESET);
+    493              SPI_I2S_ReceiveData(prv_SPI);
+    494              while(cnt--)
+    495              {
+    496                  while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_TXE) == RESET);
+    497                  SPI_I2S_SendData(prv_SPI, 0);
+    498                  while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_RXNE) == RESET);
+    499                  *reg_data = SPI_I2S_ReceiveData(prv_SPI);
+    500                  reg_data++;
+    501              }
+    502              BMA253_CS_HIGH();   
+    503              return 0;
+    504          }
+    505          #endif
+    506          #if 0
+    507          static s8 BMA253_SPI_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
+    508          {
+    509          	s32 iError = BMA2x2_INIT_VALUE;
+    510          	u8 array[SPI_BUFFER_LEN] = {0xFF};
+    511          	u8 stringpos;
+    512          	array[BMA2x2_INIT_VALUE] = reg_addr|BMA2x2_SPI_BUS_READ_CONTROL_BYTE;
+    513              SPI_READ_WRITE_STRING(array, array, cnt+1);
+    514          	for (stringpos = BMA2x2_INIT_VALUE; stringpos < cnt; stringpos++) {
+    515          		*(reg_data + stringpos) = array[stringpos +
+    516          		BMA2x2_BUS_READ_WRITE_ARRAY_INDEX];
+    517          	}
+    518          	return (s8)iError;
+    519          }
+    520          #endif
+    521          
+    522          /*******************************************************************************
+    523          *    Function: BMA2x2_SPI_burst_read
+    524          *
+    525          *  Parameters:  dev_addr express the devcie address
+    526          *               reg_addr express the register address
+    527          *               reg_data point to a buffer which stored the data read out 
+    528          *               cnt express the data's number to be read
+    529          *     Returns:  0 sucess, otherwise fail
+    530          * Description:  read data  from the specified register
+    531          *******************************************************************************/
+    532          static s8 BMA253_SPI_burst_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u32 cnt)
+    533          {
+    534              BMA253_CS_LOW();
+    535              while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_TXE) == RESET);
+    536              SPI_I2S_SendData(prv_SPI, reg_addr | 0x80);
+    537              while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_RXNE) == RESET);
+    538              SPI_I2S_ReceiveData(prv_SPI);
+    539              while(cnt--)
+    540              {
+    541                  while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_TXE) == RESET);
+    542                  SPI_I2S_SendData(prv_SPI, 0);
+    543                  while (SPI_I2S_GetFlagStatus(prv_SPI, SPI_I2S_FLAG_RXNE) == RESET);
+    544                  *reg_data = SPI_I2S_ReceiveData(prv_SPI);
+    545                  reg_data++;
+    546              }
+    547              BMA253_CS_HIGH();   
+    548              return 0;
+    549          }
+    550          /*******************************************************************************
+    551          *    Function: BMA2x2_SPI_bus_write
+    552          *
+    553          *  Parameters:  dev_addr express the devcie address
+    554          *               reg_addr express the register address
+    555          *               reg_data point to a buffer which stored the data read out 
+    556          *               cnt express the data's number to be read
+    557          *     Returns:  0 sucess, otherwise fail
+    558          * Description:  write data to the specified register
+    559          *******************************************************************************/
+    560          static s8 BMA253_SPI_bus_write(uint8_t dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
+    561          {
+    562          	int32_t iError = BMA2x2_INIT_VALUE;
+    563          	uint8_t array[SPI_BUFFER_LEN * 2];
+    564          	uint8_t stringpos = BMA2x2_INIT_VALUE;
+    565              
+    566          	for (stringpos = BMA2x2_INIT_VALUE; stringpos < cnt; stringpos++) {
+    567          		array[stringpos * 2] = (reg_addr++) & \
+    568                                          BMA2x2_SPI_BUS_WRITE_CONTROL_BYTE;
+    569          		array[stringpos * 2 + BMA2x2_BUS_READ_WRITE_ARRAY_INDEX] = \
+    570                                                          *(reg_data + stringpos);
+    571          	}
+    572              iError = SPI_WRITE_STRING(array, cnt*2);
+    573          	return (int8_t)iError;
+    574          }
+    575          /*******************************************************************************
+    576          *    Function: BMA2x2_delay_msek
+    577          *
+    578          *  Parameters:  msek express msek millisecond 
+    579          *     Returns:  none
+    580          * Description:  delay mseck ms
+    581          *******************************************************************************/
+    582          static void BMA253_delay_msek(uint32_t msek)
+    583          {
+    584              uDelay(msek*1000);  
+    585          }
+    586          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   BMA253_Init
+         8   -> BMA253_SetConfig
+         8   -> BMA253_fastCompensation
+         8   -> GPIO_SetBits
+         8   -> Sys_Is_Gsensor_Wakeup
+         8   -> bma2x2_init
+         8   -> bma2x2_set_power_mode
+      32   BMA253_LowLevel_Init
+        32   -> GPIO_Init
+        32   -> RCC_APB1PeriphClockCmd
+        32   -> RCC_APB2PeriphClockCmd
+        32   -> SPI_Cmd
+        32   -> SPI_Init
+     208   BMA253_ReadFIFOxyz
+       208   -> __aeabi_memclr4
+       208   -> bma2x2_burst_read
+       208   -> bma2x2_get_fifo_frame_count
+      16   BMA253_SPI_burst_read
+        16   -> GPIO_ResetBits
+        16   -> GPIO_SetBits
+        16   -> SPI_I2S_GetFlagStatus
+        16   -> SPI_I2S_ReceiveData
+        16   -> SPI_I2S_SendData
+      16   BMA253_SPI_bus_read
+        16   -> GPIO_ResetBits
+        16   -> GPIO_SetBits
+        16   -> SPI_I2S_GetFlagStatus
+        16   -> SPI_I2S_ReceiveData
+        16   -> SPI_I2S_SendData
+      24   BMA253_SPI_bus_write
+        24   -> SPI_WRITE_STRING
+       8   BMA253_SetConfig
+         8   -> bma2x2_set_fifo_data_select
+         8   -> bma2x2_set_fifo_mode
+         8   -> bma2x2_set_intr1_fifo_full
+         8   -> bma2x2_set_intr_enable
+         8   -> bma2x2_set_intr_fifo_full
+         8   -> bma2x2_set_intr_high_g
+         8   -> bma2x2_set_latch_intr
+       8   BMA253_delay_msek
+         8   -> uDelay
+      16   BMA253_fastCompensation
+        16   -> bma2x2_get_cal_rdy
+        16   -> bma2x2_set_cal_trigger
+        16   -> bma2x2_set_offset_target
+        16   -> bma2x2_set_range
+      16   SPI_WRITE_STRING
+        16   -> GPIO_ResetBits
+        16   -> GPIO_SetBits
+        16   -> SPI_I2S_GetFlagStatus
+        16   -> SPI_I2S_ReceiveData
+        16   -> SPI_I2S_SendData
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable4
+       4  ??DataTable4_1
+       4  ??DataTable4_2
+     192  ?_0
+     120  BMA253_Init
+     200  BMA253_LowLevel_Init
+     100  BMA253_ReadFIFOxyz
+     128  BMA253_SPI_burst_read
+     130  BMA253_SPI_bus_read
+      70  BMA253_SPI_bus_write
+     140  BMA253_SetConfig
+       4  BMA253_conf
+      14  BMA253_delay_msek
+     238  BMA253_fastCompensation
+      84  SPI_WRITE_STRING
+      24  bma253
+
+ 
+    28 bytes in section .bss
+   192 bytes in section .rodata
+ 1 236 bytes in section .text
+ 
+ 1 236 bytes of CODE  memory
+   192 bytes of CONST memory
+    28 bytes of DATA  memory
+
+Errors: none
+Warnings: none

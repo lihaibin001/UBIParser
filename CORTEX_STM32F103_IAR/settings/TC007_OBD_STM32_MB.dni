@@ -1,0 +1,180 @@
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[Interrupts]
+Enabled=1
+[MemoryMap]
+Enabled=0
+Base=0
+UseAuto=0
+TypeViolation=1
+UnspecRange=1
+ActionState=1
+[JLinkDriver]
+WatchCond=_ 0
+Watch0=_ 0 "" 0 "" 0 "" 0 "" 0 0 0 0
+Watch1=_ 0 "" 0 "" 0 "" 0 "" 0 0 0 0
+CStepIntDis=_ 0
+[DebugChecksum]
+Checksum=732724013
+[Exceptions]
+StopOnUncaught=_ 0
+StopOnThrow=_ 0
+[SWOTraceHWSettings]
+OverrideDefaultClocks=0
+CpuClock=72000000
+ClockAutoDetect=0
+ClockWanted=2000000
+JtagSpeed=2000000
+Prescaler=36
+TimeStampPrescIndex=0
+TimeStampPrescData=0
+PcSampCYCTAP=1
+PcSampPOSTCNT=15
+PcSampIndex=0
+DataLogMode=0
+ITMportsEnable=0
+ITMportsTermIO=0
+ITMportsLogFile=0
+ITMlogFile=$PROJ_DIR$\ITM.log
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[struct_types]
+Fmt0=CAN_InitTypeDef-CAN_Prescaler	3	0
+Fmt1=CAN_InitTypeDef-CAN_SJW	4	0
+Fmt2=CanTxMsg-ExtId	4	0
+Fmt3=CanTxMsg-StdId	4	0
+Fmt4=Can_PduType-id	4	0
+[watch_formats]
+Fmt0={W}0:Data	4	0
+Fmt1={W}0:GPIO_Remap	4	0
+Fmt2={W}0:NewState	4	0
+Fmt3={W}0:RxCounter	3	0
+Fmt4={W}0:checksum	4	0
+Fmt5={W}0:msg_len	4	0
+Fmt6={W}0:ret	3	0
+Fmt7={W}0:tmpreg	4	0
+Fmt8={W}0:tq	3	0
+[PowerLog]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=0
+Title0=I0
+Setup0=0 1 0 500 2 0 4 0 0
+LiveEnabled=0
+LiveFile=PowerLogLive.log
+[DataLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[EventLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+Title0=ITM1
+Setup0=1 1 1 1
+Title1=ITM2
+Setup1=1 1 1 1
+Title2=ITM3
+Setup2=1 1 1 1
+Title3=ITM4
+Setup3=1 1 1 1
+SumSortOrder=0
+[InterruptLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+SumSortOrder=0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[SWOTraceWindow]
+PcSampling=0
+InterruptLogs=0
+ForcedTimeStamps=0
+EventCPI=0
+EventEXC=0
+EventFOLD=0
+EventLSU=0
+EventSLEEP=0
+[PowerProbe]
+Frequency=10000
+Probe0=I0
+ProbeSetup0=2 1 1 2 0 0
+[CallStackLog]
+Enabled=0
+[DriverProfiling]
+Enabled=0
+Mode=3
+Graph=0
+Symbiont=0
+Exclusions=
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[Disassemble mode]
+mode=0
+[Breakpoints2]
+Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\2G.c}.741.1" 0 0 1 "" 0 "" 0
+Bp1=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\2G.c}.741.1" 0 0 1 "" 0 "" 0
+Bp2=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\common\diag_task.c}.70.1" 0 0 1 "" 0 "" 0
+Bp3=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\common\periodic.c}.100.3" 0 0 1 "" 0 "" 0
+Bp4=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\common\rtos.c}.238.4" 0 0 1 "" 0 "" 0
+Bp5=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\ATProtocol.c}.2380.1" 0 0 1 "" 0 "" 0
+Bp6=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\ATProtocol.c}.2380.1" 0 0 1 "" 0 "" 0
+Bp7=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\Power\lowpower.c}.104.2" 0 0 1 "" 0 "" 0
+Bp8=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\drivers\stm32f10x_it.c}.285.5" 0 0 1 "" 0 "" 0
+Bp9=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.993.1" 0 0 1 "" 0 "" 0
+Bp10=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.970.1" 0 0 1 "" 0 "" 0
+Bp11=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.993.1" 0 0 1 "" 0 "" 0
+Bp12=_ 0 "EMUL_DATA" "encdataLen" 0 0 0 0 4294967295
+Bp13=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.765.1" 0 0 1 "" 0 "" 0
+Bp14=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.765.3" 0 0 1 "" 0 "" 0
+Bp15=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.970.1" 0 0 1 "" 0 "" 0
+Bp16=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.970.1" 0 0 1 "" 0 "" 0
+Bp17=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.890.5" 0 0 1 "" 0 "" 0
+Bp18=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\2G.c}.741.1" 0 0 1 "" 0 "" 0
+Bp19=_ 0 "EMUL_DATA" "OS_Cold_Start" 0 0 0 0 4294967295
+Bp20=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c}.876.14" 0 0 1 "" 0 "" 0
+Bp21=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\drivers\uart.c}.404.5" 0 0 1 "" 0 "" 0
+Bp22=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.834.1" 0 0 1 "" 0 "" 0
+Bp23=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\2G.c}.731.26" 0 0 1 "" 0 "" 0
+Bp24=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.834.1" 0 0 1 "" 0 "" 0
+Bp25=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.970.17" 0 0 1 "" 0 "" 0
+Bp26=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.993.17" 0 0 1 "" 0 "" 0
+Bp27=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.1049.1" 0 0 1 "" 0 "" 0
+Bp28=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.1049.13" 0 0 1 "" 0 "" 0
+Bp29=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\ATProtocol.c}.2380.1" 0 0 1 "" 0 "" 0
+Bp30=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\ATProtocol.c}.2380.1" 0 0 1 "" 0 "" 0
+Bp31=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\ATProtocol.c}.2380.1" 0 0 1 "" 0 "" 0
+Bp32=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\ATProtocol.c}.2380.1" 0 0 1 "" 0 "" 0
+Bp33=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.834.9" 0 0 1 "" 0 "" 0
+Bp34=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\ATProtocol.c}.2380.1" 0 0 1 "" 0 "" 0
+Bp35=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.1094.13" 0 0 1 "" 0 "" 0
+Bp36=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.802.5" 0 0 1 "" 0 "" 0
+Bp37=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\ATProtocol.c}.1088.4" 0 0 1 "" 0 "" 0
+Bp38=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.1321.17" 0 0 1 "" 0 "" 0
+Bp39=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\drivers\Gsensor.c}.681.2" 0 0 1 "" 0 "" 0
+Bp40=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\drivers\Gsensor.c}.694.5" 0 0 1 "" 0 "" 0
+Bp41=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\main_app\SIM800L\TelmProtocol.c}.2681.4" 0 0 1 "" 0 "" 0
+Count=42
+[Aliases]
+Count=0
+SuppressDialog=0

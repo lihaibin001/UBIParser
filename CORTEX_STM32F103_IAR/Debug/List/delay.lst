@@ -1,0 +1,175 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:22
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\delay.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\common\delay.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\delay.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\delay.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\common\delay.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          
+     16          /**********************************************************************
+     17             Title                    : DELAY.C
+     18          
+     19             Module Description       : This is the standard code file for DELAY.
+     20          
+     21             Author                   : 
+     22             Created                  : 
+     23          
+     24           *********************************************************************/
+     25          
+     26          /**********************************************************************
+     27           * Include header files                                                
+     28           *********************************************************************/
+     29          #include "standard.h"
+     30          
+     31          #ifndef configCPU_CLOCK_HZ
+     32              #error "cpu clock speed undefined."
+     33          #endif 
+     34          /*===========================================================================*\
+     35           * Function Prototypes for Private Functions with File Level Scope
+     36          \*===========================================================================*/
+     37          
+     38          /*===========================================================================*\
+     39           * ROM Const Variables With File Level Scope
+     40          \*===========================================================================*/
+     41          
+     42          
+     43          /*===========================================================================*\
+     44           * Function Definitions
+     45          \*===========================================================================*/
+     46          
+     47          /*===========================================================================*\
+     48           *    Function: uDelay
+     49           *
+     50           *  Parameters: number of uSec to DELAY
+     51           *
+     52           *     Returns: void
+     53           *
+     54           * Description: This routine will DELAY at least the amount of time in uSec
+     55           *              passes in as the DELAY time
+     56           *
+     57          \*===========================================================================*/
+     58          void uDelay(uint32_t usec)
+     59          {
+     60          	static uint32_t i;
+     61          	while(usec--)
+     62          	{
+     63          		i=1;
+     64          		while(i--);
+     65          		NOP();
+     66          		NOP();
+     67          		NOP();
+     68          		NOP();
+     69          		NOP();
+     70          		NOP();
+     71          		NOP();
+     72          		NOP();
+     73          		NOP();
+     74          		NOP();
+     75          		NOP();
+     76          		NOP();
+     77          		NOP();
+     78          		NOP();
+     79          		NOP();
+     80          		NOP();
+     81          		NOP();
+     82          	}
+     83          }
+     84          
+     85          /*===========================================================================*\
+     86           * File Revision History
+     87           *===========================================================================
+     88           *
+     89           * Date         userid    (Description on following lines)
+     90           * -----------  --------  ------------
+     91           *
+     92          \*===========================================================================*/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   uDelay
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  i
+      72  uDelay
+
+ 
+  4 bytes in section .bss
+ 72 bytes in section .text
+ 
+ 72 bytes of CODE memory
+  4 bytes of DATA memory
+
+Errors: none
+Warnings: none

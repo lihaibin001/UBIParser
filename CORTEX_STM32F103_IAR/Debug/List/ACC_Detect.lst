@@ -1,0 +1,599 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:19
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\ACC_Detect.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\ACC_Detect.c
+#        -D VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\ACC_Detect.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\ACC_Detect.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\Power\ACC_Detect.c
+      1          /* $Header:   ACC_Detect.h $*/
+      2          /*----------------------------------------------------------------------------/
+      3          *  (C)Dedao, 2017
+      4          *-----------------------------------------------------------------------------/
+      5          *
+      6          * Copyright (C) 2017, Dedao, all right reserved.
+      7          *
+      8          * 1. Redistributions of source code must retain the above copyright notice,
+      9          *    this condition and the following disclaimer.
+     10          *
+     11          * This software is provided by the copyright holder and contributors "AS IS"
+     12          * and any warranties related to this software are DISCLAIMED.
+     13          * The copyright owner or contributors be NOT LIABLE for any damages caused
+     14          * by use of this software.
+     15          *----------------------------------------------------------------------------*/
+     16          #include "ACC_Detect.h"
+     17          #include "timer.h"
+     18          /*******************************************************************************
+     19          * Definitions
+     20          ******************************************************************************/
+     21          typedef enum
+     22          {
+     23              ACC_off = 0,
+     24              ACC_Delay_1,
+     25              ACC_Delay_2,
+     26              ACC_Delay_3,
+     27              ACC_Delay_4,
+     28              ACC_Delay_5,
+     29              ACC_on,
+     30              ACC_Status_Num,
+     31          }ACC_Signal_Status;
+     32          typedef struct
+     33          {
+     34              uint32_t            time;  //express the acc on time
+     35              ACC_Signal_Status   status;
+     36          }ACC_Signal_StatusType;
+     37          
+     38          /*   */
+     39          typedef enum
+     40          {
+     41              ACC_Volt_Step_None = 0,
+     42              ACC_Volt_Step1,
+     43              ACC_Volt_Step2,
+     44              ACC_Volt_Step3,
+     45              ACC_Volt_Step_Num,
+     46          }ACC_Volt_Check;
+     47          
+     48          /* ACC source option */
+     49          typedef enum
+     50          {
+     51              ACC_None = 0,
+     52              ACC_EXT_Signal,
+     53              ACC_Volt_Pulse,
+     54              ACC_Volt_Level,
+     55              ACC_Source_Num,
+     56          }ACC_Source;
+     57          
+     58          typedef struct
+     59          {
+     60              // Ignition detection parameters
+     61              uint16_t option;
+     62              uint16_t ign_on_threshold_low;
+     63              uint16_t ign_on_threshold_high;
+     64              uint16_t ign_on_down_max;
+     65              uint16_t ign_on_up_max;
+     66              uint16_t ign_on_rise_time;
+     67              uint16_t ign_off_down_max;
+     68              uint16_t ign_on_abs;
+     69              uint16_t ign_off_abs;
+     70          }ACC_Config_t;
+     71          
+     72          /*******************************************************************************
+     73          * Variables
+     74          ******************************************************************************/
+     75          static ACC_Signal_StatusType ACC_Signal = {0, ACC_off};
+     76          
+     77          static ACC_Volt_Check ACC_volt_step = ACC_Volt_Step_None;
+     78          
+     79          static ACC_Config_t     ACC_Config;
+     80          
+     81          static Config_t         config_data;
+     82          
+     83          static uint16_t     check_timer = 0;
+     84          
+     85          /*******************************************************************************
+     86          * Code
+     87          ******************************************************************************/
+     88          /*******************************************************************************
+     89          *    Function: ACC_InitializeMonitor
+     90          *
+     91          *  Parameters: none
+     92          *     Returns: none
+     93          * Description: initialize the Battery Management System monitor
+     94          *******************************************************************************/
+     95          //void ACC_InitializeMonitor(void)
+     96          //{
+     97          //    port_pin_config_t portPinConfig = {0};
+     98          //    portPinConfig.pullSelect = kPORT_PullUp;
+     99          //    portPinConfig.mux = kPORT_MuxAsGpio;
+    100          //    
+    101          //    CLOCK_EnableClock(ACC_PORT_CLK);
+    102          //    PORT_SetPinConfig(ACC_PORT, ACC_GPIO_PIN, &portPinConfig);
+    103          //    PORT_SetPinInterruptConfig(ACC_PORT, ACC_GPIO_PIN, kPORT_InterruptEitherEdge); 
+    104          //    EnableIRQ(ACC_PORT_IRQ);
+    105          //}
+    106          /*******************************************************************************
+    107          *    Function: ACC_Signal_Monitor
+    108          *
+    109          *  Parameters: none
+    110          *     Returns: none
+    111          * Description: monitor the ACC signal
+    112          *******************************************************************************/
+    113          void ACC_Signal_Monitor(void)
+    114          {
+    115              uint8_t status = GPIO_ReadInputDataBit(ACC_GPIO, ACC_GPIO_PIN);
+    116              
+    117              if ((ACC_None==ACC_Config.option) || (ACC_EXT_Signal==ACC_Config.option))
+    118              {
+    119                  
+    120                  if(ACC_Signal.status <= ACC_off || ACC_Signal.status >= ACC_Status_Num)
+    121                  {
+    122                      ACC_Signal.status = ACC_off ;
+    123                  }
+    124                  
+    125                  /* ACC status is gonging to on */
+    126                  if(false == status)
+    127                  {
+    128                      if(ACC_Signal.status == ACC_on)
+    129                      {
+    130                          return;
+    131                      }
+    132                      else
+    133                      {
+    134                          /* if current ACC's signal is  */
+    135                          ACC_Signal.status++;
+    136                      }
+    137                  }
+    138                  else /* ACC status is gonging to off */
+    139                  {
+    140                      if(ACC_Signal.status == ACC_off)
+    141                      {
+    142                          return;
+    143                      }
+    144                      else
+    145                      {
+    146                          /* if current ACC's signal is  */
+    147                          ACC_Signal.status--;
+    148                      }
+    149                  }
+    150                  
+    151                  
+    152                  if(ACC_Signal.status == ACC_on)
+    153                  {
+    154                      rl_set_acc_status(ON);
+    155                      
+    156                      /* set ACC source option to ACC signal */
+    157                      if ((ACC_EXT_Signal != ACC_Config.option))    
+    158                      {
+    159                          ACC_Config.option = ACC_EXT_Signal;
+    160                          
+    161                          OS_Send_Message(OS_RECORD_TASK, RECORD_EVT_ACC_SOURCE_SET);
+    162                      }
+    163                  }
+    164                  else if(ACC_Signal.status == ACC_off)
+    165                  {
+    166                      rl_set_acc_status(OFF);
+    167                  }
+    168                  
+    169              }   
+    170              //
+    171              //  if(ACC_Status.status == ACC_off \
+    172              //        || ACC_Status.status == ACC_on \
+    173              //        || ACC_Status.status >= ACC_Status_Num)
+    174              //    {
+    175              //        return ;
+    176              //    }
+    177              //    else
+    178              //    {
+    179              ////        uint8_t status = GPIO_ReadInputDataBit(ACC_GPIO, ACC_GPIO_PIN);
+    180              //        if(ACC_Status.status < ACC_off)
+    181              //        {
+    182              //            /* ACC status is gonging to off */
+    183              //            if(1 == status)
+    184              //            {
+    185              //                /* if current ACC's signal is low */
+    186              //                ACC_Status.status++;
+    187              //            }
+    188              //            else
+    189              //            {
+    190              //                /* jump to ACC_Pre_on_1 */
+    191              //                ACC_Status.status = ACC_Pre_on_1;
+    192              //            }
+    193              //        }
+    194              //        else
+    195              //        {
+    196              //            if(0 == status)
+    197              //            {
+    198              //                ACC_Status.status++;
+    199              //            }
+    200              //            else
+    201              //            {
+    202              //                ACC_Status.status = ACC_Pre_off_1;
+    203              //            }
+    204              //        }
+    205              //    }
+    206          }
+    207          
+    208          /*******************************************************************************
+    209          *    Function: ACC_Is_Signal_On_After_Delay
+    210          *
+    211          *  Parameters: none
+    212          *     Returns: true express ACC is on after latch
+    213          * Description: Get the ACC status 
+    214          *******************************************************************************/
+    215          bool ACC_Is_Signal_On_After_Delay(void)
+    216          {
+    217              if(ACC_Signal.status == ACC_on)
+    218              {
+    219                  rl_set_acc_status(ON);
+    220                  return true;
+    221              }
+    222              return false;
+    223          }
+    224          
+    225          /*******************************************************************************
+    226          *    Function: ACC_Is_Signal_Off_After_Delay
+    227          *
+    228          *  Parameters: none
+    229          *     Returns: true express ACC is off after latch
+    230          * Description: Get the ACC status 
+    231          *******************************************************************************/
+    232          bool ACC_Is_Signal_Off_After_Delay(void)
+    233          {
+    234              if(ACC_Signal.status == ACC_off)
+    235              {
+    236                  rl_set_acc_status(OFF);
+    237                  return true;
+    238              }
+    239              return false;
+    240          }
+    241          
+    242          /*******************************************************************************
+    243          *    Function: ACC_Signal_GetCurrentSignalLevel
+    244          *
+    245          *  Parameters: none
+    246          *     Returns: true express the ACC on 
+    247          * Description: Get the current ACC signal level
+    248          *******************************************************************************/
+    249          bool ACC_Signal_GetCurrentSignalLevel(void)
+    250          {
+    251              if(GPIO_ReadInputDataBit(ACC_GPIO, ACC_GPIO_PIN))
+    252              {
+    253                  return false;
+    254              }
+    255              return true;
+    256          }
+    257          
+    258          /*******************************************************************************
+    259          *    Function: ACC_Set_Source
+    260          *
+    261          *  Parameters: None
+    262          *     Returns: true express the ACC on 
+    263          * Description: Get the current ACC signal level
+    264          *******************************************************************************/
+    265          bool ACC_Set_Source(void)
+    266          {
+    267              
+    268          //    ACC_Config.option = option;
+    269              config_data.structData.ignition_detection_source = ACC_Config.option;
+    270          
+    271              return Set_Config(config_data);
+    272          }
+    273          
+    274          
+    275          /*******************************************************************************
+    276          *    Function: ACC_Voltage_Change_Monitor
+    277          *
+    278          *  Parameters: None
+    279          *     Returns: None
+    280          * Description: Monitor ACC signal by detecting external voltage changes
+    281          *******************************************************************************/
+    282          void ACC_Voltage_Change_Monitor(void)
+    283          { 
+    284              static uint16_t     batt_volt_max = 0;
+    285              static uint16_t     batt_volt_min = 0;
+    286              static uint32_t     period_slice = 0;
+    287          //    static uint16_t     check_timer = 0;
+    288              static uint16_t     batt_volt = 0;
+    289              static uint16_t     volt_index = 0;
+    290              static uint16_t     batt_volt_latch[4];
+    291              static uint16_t     batt_volt_last = 0;
+    292              static uint32_t     latch_index = 0;
+    293              static uint32_t     batt_volt_avg=0;
+    294              
+    295              batt_volt = Pwr_Fail_Get_Voltage();
+    296          #if 0
+    297              DEBUG_PRINT1 (DEBUG_MEDIUM,"\r\n[SYSTEM]:Batt=%d V \r\n", batt_volt);
+    298          #endif
+    299              
+    300              latch_index = (volt_index++)%4 ;
+    301              batt_volt_latch[latch_index++] = batt_volt;
+    302              
+    303              if (latch_index >=4)
+    304              {
+    305                  latch_index = 0;
+    306              }
+    307              
+    308              if(batt_volt > batt_volt_max)
+    309              {
+    310                  batt_volt_max = batt_volt;
+    311              }
+    312              
+    313              if((batt_volt < batt_volt_min) ||(batt_volt_min == 0))
+    314              {
+    315                  batt_volt_min = batt_volt;
+    316              }  
+    317              
+    318              /* if ACC detection is not initialized or by voltage pulse */
+    319              if ((ACC_None==ACC_Config.option) || (ACC_Volt_Pulse==ACC_Config.option))
+    320              {  
+    321                  /* check the voltage threshold */
+    322                  if ((batt_volt > ACC_Config.ign_on_threshold_high)      \
+    323                      || (batt_volt < ACC_Config.ign_on_threshold_low))
+    324                  {
+    325                      batt_volt_max = 0;
+    326                      batt_volt_min = 0;
+    327                      period_slice = 0;
+    328                      
+    329                      volt_index = 0;
+    330                      batt_volt_last = 0;
+    331                      latch_index = 0;
+    332                      
+    333                      return ;
+    334                  }
+    335                  
+    336                  /* check the voltage pulse drop*/
+    337                  if(((batt_volt_max - batt_volt_min) > ACC_Config.ign_on_down_max) \
+    338                      && (ACC_volt_step == ACC_Volt_Step_None))
+    339                  {
+    340                      batt_volt_last = batt_volt_latch[latch_index] ; 
+    341                      
+    342                      //start to check the voltage
+    343                      ACC_volt_step = ACC_Volt_Step1;
+    344                      
+    345                      batt_volt_max = batt_volt;
+    346                      batt_volt_min = batt_volt; 
+    347                      period_slice = 0;
+    348                  }
+    349                  
+    350                  switch(ACC_volt_step)
+    351                  {
+    352                    case ACC_Volt_Step1:
+    353                      {
+    354                          period_slice ++;
+    355          
+    356                          if((period_slice % ACC_Config.ign_on_rise_time) == 0)//   
+    357                          {
+    358                              /*check if battery voltage , indicate that engine is starting up*/
+    359                              if((batt_volt > batt_volt_last) && ((batt_volt - batt_volt_last) >ACC_Config.ign_on_up_max))
+    360                              {
+    361                                  rl_set_acc_status(ON);    //ywf
+    362                                  ACC_volt_step = ACC_Volt_Step2;
+    363                                  period_slice = 0;
+    364                                  
+    365                                  if ((ACC_Volt_Pulse != ACC_Config.option))    
+    366                                  {
+    367                                      ACC_Config.option = ACC_Volt_Pulse; 
+    368                                      
+    369                                      OS_Send_Message(OS_RECORD_TASK, RECORD_EVT_ACC_SOURCE_SET);   
+    370                                  }
+    371                              }
+    372                              else
+    373                              {
+    374                                  ACC_volt_step = ACC_Volt_Step_None;
+    375                                  period_slice = 0;
+    376                              }
+    377                              
+    378                              batt_volt_max = batt_volt;
+    379                              batt_volt_min = batt_volt;           
+    380                          }
+    381                          else
+    382                          {
+    383                              // do nothing
+    384                          }
+    385                      }
+    386                      break;
+    387                      
+    388                    case ACC_Volt_Step2:
+    389                      {
+    390                          period_slice ++;
+    391                          if((period_slice%150) == 0)//3s
+    392                          {
+    393                              /*check if battery voltage delta>1V, indicate that engine is starting up*/
+    394                              if((batt_volt_max - batt_volt_min) >=ACC_Config.ign_off_down_max)
+    395                              {
+    396                                  rl_set_acc_status(OFF);    //
+    397                                  ACC_volt_step = ACC_Volt_Step_None;
+    398                                  period_slice = 0;
+    399                                  
+    400                                  batt_volt_max = batt_volt;
+    401                                  batt_volt_min = batt_volt;            
+    402                              }  
+    403                          }
+    404                      }
+    405                      break;
+    406                    default: 
+    407                      {
+    408                          ACC_volt_step = ACC_Volt_Step_None;
+    409                      }
+    410                  }
+    411              }
+    412              else if (ACC_Volt_Level==ACC_Config.option)
+    413              {
+    414                  /* ACC is detected by voltage level */
+    415                  batt_volt_avg = (batt_volt_latch[0] + batt_volt_latch[1] \
+    416                                  + batt_volt_latch[2] + batt_volt_latch[3]) >> 2;
+    417                  
+    418                  if (batt_volt_avg >= ACC_Config.ign_on_abs)
+    419                  {
+    420                      rl_set_acc_status(ON);    //ywf
+    421                  }
+    422                  else if (batt_volt_avg < ACC_Config.ign_off_abs)
+    423                  {
+    424                      rl_set_acc_status(OFF);    //ywf
+    425                  }        
+    426              }    
+    427          }
+    428          
+    429          /*******************************************************************************
+    430          *    Function: ACC_Is_Volt_Check
+    431          *
+    432          *  Parameters: None
+    433          *     Returns: true: ACC is in the check process; false: not checking 
+    434          * Description: check if ACC is in checking or not
+    435          *******************************************************************************/
+    436          bool ACC_Is_Volt_Checking(void)
+    437          {
+    438              return ((ACC_Volt_Pulse==ACC_Config.option)   \
+    439                      && (ACC_volt_step != ACC_Volt_Step_None));
+    440          }
+    441          /*******************************************************************************
+    442          *    Function: ACC_Initialize
+    443          *
+    444          *  Parameters: None
+    445          *     Returns: None 
+    446          * Description: Get the ACC setting from config
+    447          *******************************************************************************/
+    448          void ACC_initialize(void)
+    449          {
+    450              Get_config_data(&config_data);
+    451              
+    452              ACC_Config.option = config_data.structData.ignition_detection_source;
+    453              ACC_Config.ign_on_threshold_low = config_data.structData.ignition_on_threshold_low * 10;
+    454              ACC_Config.ign_on_threshold_high = config_data.structData.ignition_on_threshold_high * 10;
+    455              ACC_Config.ign_on_down_max = config_data.structData.ignition_on_down_max * 10;
+    456              ACC_Config.ign_on_up_max = config_data.structData.ignition_on_rise_max * 10;
+    457              ACC_Config.ign_on_rise_time = config_data.structData.ignition_on_rise_time;
+    458              ACC_Config.ign_off_down_max = config_data.structData.ignition_off_down_max * 10;
+    459              ACC_Config.ign_on_abs = config_data.structData.ignition_on_absolute_voltage * 10;
+    460              ACC_Config.ign_off_abs = config_data.structData.ignition_off_absolute_voltage * 10;
+    461          }
+    462          
+    463          /*******************************************************/
+    464          /*****************file end******************************/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       8   ACC_Is_Signal_Off_After_Delay
+         8   -> rl_set_acc_status
+       8   ACC_Is_Signal_On_After_Delay
+         8   -> rl_set_acc_status
+       0   ACC_Is_Volt_Checking
+      80   ACC_Set_Source
+        64   -> Set_Config
+        80   -> __aeabi_memcpy4
+       8   ACC_Signal_GetCurrentSignalLevel
+         8   -> GPIO_ReadInputDataBit
+       8   ACC_Signal_Monitor
+         8   -> GPIO_ReadInputDataBit
+         8   -> OS_Send_Message
+         8   -> rl_set_acc_status
+       8   ACC_Voltage_Change_Monitor
+         8   -> OS_Send_Message
+         8   -> Pwr_Fail_Get_Voltage
+         8   -> rl_set_acc_status
+       8   ACC_initialize
+         8   -> Get_config_data
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable7
+       4  ??DataTable7_1
+       4  ??DataTable7_10
+       4  ??DataTable7_11
+       4  ??DataTable7_12
+       4  ??DataTable7_13
+       4  ??DataTable7_2
+       4  ??DataTable7_3
+       4  ??DataTable7_4
+       4  ??DataTable7_5
+       4  ??DataTable7_6
+       4  ??DataTable7_7
+       4  ??DataTable7_8
+       4  ??DataTable7_9
+      20  ACC_Config
+      26  ACC_Is_Signal_Off_After_Delay
+      26  ACC_Is_Signal_On_After_Delay
+      26  ACC_Is_Volt_Checking
+      40  ACC_Set_Source
+       8  ACC_Signal
+      24  ACC_Signal_GetCurrentSignalLevel
+     178  ACC_Signal_Monitor
+     600  ACC_Voltage_Change_Monitor
+     110  ACC_initialize
+       1  ACC_volt_step
+       2  batt_volt
+       4  batt_volt_avg
+       2  batt_volt_last
+       8  batt_volt_latch
+       2  batt_volt_max
+       2  batt_volt_min
+      76  config_data
+       4  latch_index
+       4  period_slice
+       2  volt_index
+
+ 
+   135 bytes in section .bss
+ 1 086 bytes in section .text
+ 
+ 1 086 bytes of CODE memory
+   135 bytes of DATA memory
+
+Errors: none
+Warnings: 1

@@ -1,0 +1,296 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:24
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\FreeRTOS\list.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\FreeRTOS\list.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\list.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\list.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\FreeRTOS\list.c
+      1          /*
+      2              FreeRTOS V7.3.0 - Copyright (C) 2012 Real Time Engineers Ltd.
+      3          
+      4              FEATURES AND PORTS ARE ADDED TO FREERTOS ALL THE TIME.  PLEASE VISIT 
+      5              http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+      6          
+      7              ***************************************************************************
+      8               *                                                                       *
+      9               *    FreeRTOS tutorial books are available in pdf and paperback.        *
+     10               *    Complete, revised, and edited pdf reference manuals are also       *
+     11               *    available.                                                         *
+     12               *                                                                       *
+     13               *    Purchasing FreeRTOS documentation will not only help you, by       *
+     14               *    ensuring you get running as quickly as possible and with an        *
+     15               *    in-depth knowledge of how to use FreeRTOS, it will also help       *
+     16               *    the FreeRTOS project to continue with its mission of providing     *
+     17               *    professional grade, cross platform, de facto standard solutions    *
+     18               *    for microcontrollers - completely free of charge!                  *
+     19               *                                                                       *
+     20               *    >>> See http://www.FreeRTOS.org/Documentation for details. <<<     *
+     21               *                                                                       *
+     22               *    Thank you for using FreeRTOS, and thank you for your support!      *
+     23               *                                                                       *
+     24              ***************************************************************************
+     25          
+     26          
+     27              This file is part of the FreeRTOS distribution.
+     28          
+     29              FreeRTOS is free software; you can redistribute it and/or modify it under
+     30              the terms of the GNU General Public License (version 2) as published by the
+     31              Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
+     32              >>>NOTE<<< The modification to the GPL is included to allow you to
+     33              distribute a combined work that includes FreeRTOS without being obliged to
+     34              provide the source code for proprietary components outside of the FreeRTOS
+     35              kernel.  FreeRTOS is distributed in the hope that it will be useful, but
+     36              WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+     37              or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+     38              more details. You should have received a copy of the GNU General Public
+     39              License and the FreeRTOS license exception along with FreeRTOS; if not it
+     40              can be viewed here: http://www.freertos.org/a00114.html and also obtained
+     41              by writing to Richard Barry, contact details for whom are available on the
+     42              FreeRTOS WEB site.
+     43          
+     44              1 tab == 4 spaces!
+     45              
+     46              ***************************************************************************
+     47               *                                                                       *
+     48               *    Having a problem?  Start by reading the FAQ "My application does   *
+     49               *    not run, what could be wrong?"                                     *
+     50               *                                                                       *
+     51               *    http://www.FreeRTOS.org/FAQHelp.html                               *
+     52               *                                                                       *
+     53              ***************************************************************************
+     54          
+     55              
+     56              http://www.FreeRTOS.org - Documentation, training, latest versions, license 
+     57              and contact details.  
+     58              
+     59              http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+     60              including FreeRTOS+Trace - an indispensable productivity tool.
+     61          
+     62              Real Time Engineers ltd license FreeRTOS to High Integrity Systems, who sell 
+     63              the code with commercial support, indemnification, and middleware, under 
+     64              the OpenRTOS brand: http://www.OpenRTOS.com.  High Integrity Systems also
+     65              provide a safety engineered and independently SIL3 certified version under 
+     66              the SafeRTOS brand: http://www.SafeRTOS.com.
+     67          */
+     68          
+     69          
+     70          #include <stdlib.h>
+     71          #include "FreeRTOS.h"
+     72          #include "list.h"
+     73          
+     74          /*-----------------------------------------------------------
+     75           * PUBLIC LIST API documented in list.h
+     76           *----------------------------------------------------------*/
+     77          
+     78          void vListInitialise( xList *pxList )
+     79          {
+     80          	/* The list structure contains a list item which is used to mark the
+     81          	end of the list.  To initialise the list the list end is inserted
+     82          	as the only list entry. */
+     83          	pxList->pxIndex = ( xListItem * ) &( pxList->xListEnd );
+     84          
+     85          	/* The list end value is the highest possible value in the list to
+     86          	ensure it remains at the end of the list. */
+     87          	pxList->xListEnd.xItemValue = portMAX_DELAY;
+     88          
+     89          	/* The list end next and previous pointers point to itself so we know
+     90          	when the list is empty. */
+     91          	pxList->xListEnd.pxNext = ( xListItem * ) &( pxList->xListEnd );
+     92          	pxList->xListEnd.pxPrevious = ( xListItem * ) &( pxList->xListEnd );
+     93          
+     94          	pxList->uxNumberOfItems = ( unsigned portBASE_TYPE ) 0U;
+     95          }
+     96          /*-----------------------------------------------------------*/
+     97          
+     98          void vListInitialiseItem( xListItem *pxItem )
+     99          {
+    100          	/* Make sure the list item is not recorded as being on a list. */
+    101          	pxItem->pvContainer = NULL;
+    102          }
+    103          /*-----------------------------------------------------------*/
+    104          
+    105          void vListInsertEnd( xList *pxList, xListItem *pxNewListItem )
+    106          {
+    107          volatile xListItem * pxIndex;
+    108          
+    109          	/* Insert a new list item into pxList, but rather than sort the list,
+    110          	makes the new list item the last item to be removed by a call to
+    111          	pvListGetOwnerOfNextEntry.  This means it has to be the item pointed to by
+    112          	the pxIndex member. */
+    113          	pxIndex = pxList->pxIndex;
+    114          
+    115          	pxNewListItem->pxNext = pxIndex->pxNext;
+    116          	pxNewListItem->pxPrevious = pxList->pxIndex;
+    117          	pxIndex->pxNext->pxPrevious = ( volatile xListItem * ) pxNewListItem;
+    118          	pxIndex->pxNext = ( volatile xListItem * ) pxNewListItem;
+    119          	pxList->pxIndex = ( volatile xListItem * ) pxNewListItem;
+    120          
+    121          	/* Remember which list the item is in. */
+    122          	pxNewListItem->pvContainer = ( void * ) pxList;
+    123          
+    124          	( pxList->uxNumberOfItems )++;
+    125          }
+    126          /*-----------------------------------------------------------*/
+    127          
+    128          void vListInsert( xList *pxList, xListItem *pxNewListItem )
+    129          {
+    130          volatile xListItem *pxIterator;
+    131          portTickType xValueOfInsertion;
+    132          
+    133          	/* Insert the new list item into the list, sorted in ulListItem order. */
+    134          	xValueOfInsertion = pxNewListItem->xItemValue;
+    135          
+    136          	/* If the list already contains a list item with the same item value then
+    137          	the new list item should be placed after it.  This ensures that TCB's which
+    138          	are stored in ready lists (all of which have the same ulListItem value)
+    139          	get an equal share of the CPU.  However, if the xItemValue is the same as
+    140          	the back marker the iteration loop below will not end.  This means we need
+    141          	to guard against this by checking the value first and modifying the
+    142          	algorithm slightly if necessary. */
+    143          	if( xValueOfInsertion == portMAX_DELAY )
+    144          	{
+    145          		pxIterator = pxList->xListEnd.pxPrevious;
+    146          	}
+    147          	else
+    148          	{
+    149          		/* *** NOTE ***********************************************************
+    150          		If you find your application is crashing here then likely causes are:
+    151          			1) Stack overflow -
+    152          			   see http://www.freertos.org/Stacks-and-stack-overflow-checking.html
+    153          			2) Incorrect interrupt priority assignment, especially on Cortex-M3
+    154          			   parts where numerically high priority values denote low actual
+    155          			   interrupt priories, which can seem counter intuitive.  See
+    156          			   configMAX_SYSCALL_INTERRUPT_PRIORITY on http://www.freertos.org/a00110.html
+    157          			3) Calling an API function from within a critical section or when
+    158          			   the scheduler is suspended.
+    159          			4) Using a queue or semaphore before it has been initialised or
+    160          			   before the scheduler has been started (are interrupts firing
+    161          			   before vTaskStartScheduler() has been called?).
+    162          		See http://www.freertos.org/FAQHelp.html for more tips.
+    163          		**********************************************************************/
+    164          
+    165          		for( pxIterator = ( xListItem * ) &( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xValueOfInsertion; pxIterator = pxIterator->pxNext )
+    166          		{
+    167          			/* There is nothing to do here, we are just iterating to the
+    168          			wanted insertion position. */
+    169          		}
+    170          	}
+    171          
+    172          	pxNewListItem->pxNext = pxIterator->pxNext;
+    173          	pxNewListItem->pxNext->pxPrevious = ( volatile xListItem * ) pxNewListItem;
+    174          	pxNewListItem->pxPrevious = pxIterator;
+    175          	pxIterator->pxNext = ( volatile xListItem * ) pxNewListItem;
+    176          
+    177          	/* Remember which list the item is in.  This allows fast removal of the
+    178          	item later. */
+    179          	pxNewListItem->pvContainer = ( void * ) pxList;
+    180          
+    181          	( pxList->uxNumberOfItems )++;
+    182          }
+    183          /*-----------------------------------------------------------*/
+    184          
+    185          unsigned portBASE_TYPE uxListRemove( xListItem *pxItemToRemove )
+    186          {
+    187          xList * pxList;
+    188          
+    189          	pxItemToRemove->pxNext->pxPrevious = pxItemToRemove->pxPrevious;
+    190          	pxItemToRemove->pxPrevious->pxNext = pxItemToRemove->pxNext;
+    191          
+    192          	/* The list item knows which list it is in.  Obtain the list from the list
+    193          	item. */
+    194          	pxList = ( xList * ) pxItemToRemove->pvContainer;
+    195          
+    196          	/* Make sure the index is left pointing to a valid item. */
+    197          	if( pxList->pxIndex == pxItemToRemove )
+    198          	{
+    199          		pxList->pxIndex = pxItemToRemove->pxPrevious;
+    200          	}
+    201          
+    202          	pxItemToRemove->pvContainer = NULL;
+    203          	( pxList->uxNumberOfItems )--;
+    204          
+    205          	return pxList->uxNumberOfItems;
+    206          }
+    207          /*-----------------------------------------------------------*/
+    208          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   uxListRemove
+       0   vListInitialise
+       0   vListInitialiseItem
+       4   vListInsert
+       0   vListInsertEnd
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      38  uxListRemove
+      30  vListInitialise
+       6  vListInitialiseItem
+      54  vListInsert
+      28  vListInsertEnd
+
+ 
+ 156 bytes in section .text
+ 
+ 156 bytes of CODE memory
+
+Errors: none
+Warnings: none

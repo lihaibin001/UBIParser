@@ -1,0 +1,3212 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.80.2.11947/W32 for ARM       15/Sep/2017  09:59:20
+# Copyright 1999-2016 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\ATProtocol.c
+#    Command line =  
+#        D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\ATProtocol.c -D
+#        VECT_TAB_FLASH -D IAR_ARM_CM3 -lcN
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List
+#        --diag_suppress Pa050 -o
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.5\arm\INC\c\DLib_Config_Full.h"
+#        -I D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\.\ -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Diag_Factory\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\common\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\power\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\SysMan\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Protocol\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\include\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\FreeRTOS\portable\IAR\ARM_CM3\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\STM32F10x_StdPeriph_Driver\inc\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\drivers\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Arch\stm32f1\Libraries\CMSIS\CM3\CoreSupport\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\GPRS\
+#        -I
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\..\main_app\Sensors\
+#        -Ol --use_c++_inline --require_prototypes
+#    Locale       =  Chinese (Simplified)_People's Republic of China.936
+#    List file    =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\List\ATProtocol.lst
+#    Object file  =  
+#        D:\workspace\dr002\dr002_suming\v1_board\CORTEX_STM32F103_IAR\Debug\Obj\ATProtocol.o
+#
+###############################################################################
+
+D:\workspace\dr002\dr002_suming\v1_board\main_app\GPRS\ATProtocol.c
+      1          /*----------------------------------------------------------------------------/
+      2           *  (C)Dedao, 2016
+      3           *-----------------------------------------------------------------------------/
+      4           *
+      5           * Copyright (C) 2016, Dedao, all right reserved.
+      6           *
+      7           * 1. Redistributions of source code must retain the above copyright notice,
+      8           *    this condition and the following disclaimer.
+      9           *
+     10           * This software is provided by the copyright holder and contributors "AS IS"
+     11           * and any warranties related to this software are DISCLAIMED.
+     12           * The copyright owner or contributors be NOT LIABLE for any damages caused
+     13           * by use of this software.
+     14           *----------------------------------------------------------------------------*/
+     15          /*
+     16           * ATProtocol.c
+     17           * AT command handling and UART driver
+     18           */
+     19          /**********************************************************************
+     20           * Include files                                                       
+     21           *********************************************************************/
+     22          #include <standard.h>
+     23          #include <stdio.h>
+     24          #include "ATProtocol.h"
+     25          #include "ATApp.h"
+     26          #include "GPRS.h"
+     27          #include "uart.h"
+     28          
+     29          #include "spi_flash.h"
+     30          #include "TelmProtocol.h"
+     31          #include "gps.h"
+     32          #include "str_lib.h"
+     33          
+     34          #define USE_DEBUG
+     35          #include "Debug.h"
+     36          
+     37          /******************************************************************************
+     38          * Constant and Macro Definitions using #define
+     39          *****************************************************************************/
+     40          #define LF			(0x0A)   	//LF char ascii   new line
+     41          #define CR			(0x0D)   	//CR char ascii   carriage return
+     42          #define	CHAR_QUOTES	(0x22)		//'\"'
+     43          #define CHAR_COMMA	(0x2C)		//','
+     44          #define CHAR_O		(0x4F)		//'O'
+     45          #define CHAR_K		(0x4B)		//'K'
+     46          #define CHAR_PLUS	(0x2B)		//'+'
+     47          #define CHAR_COLON	(0x3A)  	//':'
+     48          #define CHAR_SMCLN	(0x3B)		//';'
+     49          #define CHAR_SPACE	(0x20)		//' '
+     50          #define CHAR_GREATER    (0x3E)          //'>'
+     51          #define CHAR_STOP    (0x2E)          //'.'
+     52          #define CHAR_CTRLZ   (0x1A) //ctrl-Z
+     53          #define CHAR_ESC     (0x1B)  //ESC
+     54          
+     55          #define TCOM_RX_BUF_SIZE	(1500)
+     56          //#define TCOM_RX_BUF_SIZE	(300)
+     57          #define TCOM_TX_BUF_SIZE	TCP_TX_MAX_LEN
+     58          #define TCOM_RX_BUF_PACKET_NUM	(5)
+     59          
+     60          #define TCP_RX_PARAM_BUFF_SIZE (5)
+     61          #define SMS_RX_PARAM_BUFF_SIZE (5)
+     62          
+     63          #define AT_LINK_NUM			(1)		//max link num in command 'IPOPEN,IPSEND'
+     64          #define ERROR_RETRY_MAX (20)
+     65          #define SEND_RETRY_MAX (10)
+     66          
+     67          #define DEFAULT_APN "cmnet"
+     68          #define DEFAULT_DOMAIN_NAME "obu1.deren.com"
+     69          
+     70          #define SMS_RECEIVE_LIMIT 20
+     71          
+     72          //#define TEST_ACK_TIMER
+     73          /*********************************************************************/
+     74          /* Enumerations and Structures and Typedefs                          */
+     75          /*********************************************************************/
+     76          typedef enum AT_Resp_Rx_State_tag
+     77          {
+     78              RX_IDLE,
+     79              START_RX_PREFIX,
+     80              START_RX_DATA,
+     81              START_RX_POSTFIX,
+     82              RX_STATE_NUM
+     83          }AT_Resp_Rx_State_t;
+     84          
+     85          typedef enum AT_Cmd_Tx_State_tag
+     86          {
+     87              TX_IDLE,                /* Waiting for message to transmit */
+     88              TX_CS_RETRANSMIT,     /* Waiting to retransmit data frame */
+     89              TX_CS_WAIT_FOR_RESP,   /* Waiting for response*/
+     90              TX_CS_NUM_STATES,
+     91          }AT_Cmd_Tx_State_t;
+     92          
+     93          typedef enum AT_Cmd_Type_tag
+     94          {
+     95              INVALID = 0,
+     96              BASIC = 1,
+     97              QUERY = 2,
+     98              CHECK = 4,
+     99              EXCUTE = 8,
+    100              FATAL = 16, //fatal command must be send ok, if failed must reset module
+    101          }AT_Cmd_Type_t;
+    102          
+    103          typedef enum TCP_Data_Mode_tag
+    104          {
+    105              TCP_IDLE = 0,
+    106              TCP_TXING, //Wait for ">"
+    107              TCP_TX_POSTDATA,
+    108              TCP_RXING, //Wait for RX length data.
+    109          }TCP_Data_Mode_t;
+    110          
+    111          typedef enum SMS_Data_Mode_tag
+    112          {
+    113              SMS_IDLE = 0,
+    114              SMS_RXING, //Wait for data
+    115          }SMS_Data_Mode_t;
+    116          
+    117          typedef void (*URC_Resp_Decode_fptr) (char* rx_buffer, uint8_t rx_count);          // encode function
+    118          typedef void (*AT_Resp_Decode_fptr) (void);			// encode function
+    119          
+    120          typedef struct GSM_Info_tag
+    121          {
+    122              bool	netActive;
+    123              uint8_t rssi; //0~30 is value. 31 is no signal
+    124              uint8_t srv_status; //0: no service, 1 is starting to send data, 2 is sending data, 3 is receiving data
+    125              char swver[32]; 
+    126              char imsi[15];
+    127              char imei[15];
+    128              uint8_t tcp_state; //network state
+    129              int8_t dev_temp;
+    130              uint8_t module_go_sleep;
+    131          }GSM_Info;
+    132          
+    133          typedef struct AT_Cmd_Info_tag
+    134          {
+    135          	int8_t AT_Retry_Max;
+    136          	char AT_Cmd_Name[16];
+    137          	uint32_t AT_Cmd_Type;//AT_Cmd_Type_t
+    138          	Tick_Type	timeout;
+    139          	bool Supported;
+    140          }AT_Cmd_Info_t;
+    141          
+    142          typedef struct AT_Resp_data_tag
+    143          {
+    144          	uint8_t Cmd_index;
+    145          	char	Resp_IT[100];
+    146          	uint8_t length;
+    147          }AT_Resp_data_t;
+    148          
+    149          /*
+    150          typedef struct AT_Rx_Resp_data_tag
+    151          {
+    152          	char response_char[MAX_RESPONSE_CHAR_LENGTH];
+    153          	uint8_t length; // length of  response char
+    154          }AT_Rx_Resp_data_t;
+    155          */
+    156          
+    157          typedef struct AT_URC_decode_tag
+    158          {
+    159          	const	uint8_t	URC_Index;
+    160          	const	char	URC[10];
+    161          	const	URC_Resp_Decode_fptr decode_routine;
+    162          	URC_Notify_fptr		 notify_urc;
+    163          }AT_URC_decode_t;
+    164          
+    165          typedef struct AT_Resp_decode_tag
+    166          {
+    167          	uint8_t	AT_Res_Index;
+    168          	AT_Resp_Decode_fptr decode_routine;
+    169          }AT_Resp_decode_t;
+    170          
+    171          // AT+QIRD patameters, not used
+    172          typedef struct AT_TCP_Rx_Param_tag
+    173          {
+    174              uint8_t id;
+    175              uint8_t sc;
+    176              uint8_t sid;
+    177          }AT_TCP_Rx_Param_t;
+    178          
+    179          // clock data
+    180          typedef struct AT_Clock_tag
+    181          {
+    182              uint8_t year[4];
+    183              uint8_t month[2];
+    184              uint8_t day[2];
+    185              uint8_t hour[2];
+    186              uint8_t min[2];
+    187              uint8_t sec[2];
+    188          }AT_Clock_t;
+    189          
+    190          
+    191          /**********************************************************************
+    192           * Function Prototypes for Private Functions with File Level Scope
+    193           *********************************************************************/
+    194          /* initialization */
+    195          
+    196          /* recieve process */
+    197          static void prvATProt_Rx_Resp_Assemble(uint8_t data);
+    198          static int16_t prvATProt_Uart_Get_Char (uint8_t*data);
+    199          
+    200          /* AT recieve decode entrance */
+    201          static void prvATProt_Resp_Common_Decode(char* tcom_rx_buffer, uint8_t rx_count);
+    202          /* AT URC Notify decode */
+    203          static bool prvATProt_URC_Decode		(char* rx_buffer, uint8_t rx_count);
+    204          static void prvATProt_URC_decode_nop	(char* rx_buffer, uint8_t rx_count);
+    205          static void prvATProt_URC_decode_CGreg	(char* rx_buffer, uint8_t rx_count);
+    206          static void prvATProt_URC_decode_Signal	(char* rx_buffer, uint8_t rx_count);
+    207          static void prvATProt_URC_decode_Recv(char* rx_buffer, uint8_t rx_count);
+    208          static void prvATProt_URC_decode_Gprs(char* rx_buffer, uint8_t rx_count);
+    209          static void prvATProt_URC_decode_Cmt(char* rx_buffer, uint8_t rx_count);
+    210          static void prvATProt_URC_decode_Sms(char* rx_buffer, uint8_t rx_count);
+    211          static void prvATProt_URC_decode_Sim(char* rx_buffer, uint8_t rx_count);
+    212          static void prvATProt_URC_decode_Sms_Got(char* rx_buffer, uint8_t rx_count);
+    213          static void prvATProt_URC_decode_Netreg(char* rx_buffer, uint8_t rx_count);
+    214          static void prvATProt_URC_decode_Pdp(char* rx_buffer, uint8_t rx_count);
+    215          static void prvATProt_URC_decode_Temp(char* rx_buffer, uint8_t rx_count);
+    216          static void prvATProt_URC_decode_Cme_Err(char* rx_buffer, uint8_t rx_count);
+    217          static void prvATProt_URC_decode_SMS_List(char* rx_buffer, uint8_t rx_count);
+    218          static void prvATProt_URC_decode_SMS_Recv(char* rx_buffer, uint8_t rx_count);
+    219          static void prvATProt_URC_decode_Net_Recv(char* rx_buffer, uint8_t rx_count);
+    220          static void prvATProt_URC_TCP_Recv(char* rx_buffer, uint8_t rx_count);
+    221          static void prvATProt_URC_decode_Clock(char* rx_buffer, uint8_t rx_count);
+    222          
+    223          static void prvATProt_parse_sms(char* rx_buffer, uint8_t rx_count);
+    224          
+    225          /* AT response decode */
+    226          static void prvATProt_Resp_Deep_Decode			(void);
+    227          static void prvATProt_Resp_Decode_SW_Ver(void);
+    228          static void prvATProt_Resp_Decode_IP_INIT_Execute	(void);
+    229          static void prvATProt_Resp_Decode_IP_REG_Execute	(void);
+    230          static void prvATProt_Resp_Decode_SET_Echo(void);
+    231          static void prvATProt_Resp_Decode_Answer_Call(void);
+    232          static void prvATProt_Resp_Decode_IMSI_Query(void);
+    233          static void prvATProt_Resp_Decode_IMEI_Query(void);
+    234          static void prvATProt_Resp_Decode_IP_Query(void);
+    235          
+    236          /* transmit sequence management */
+    237          static void prvATProt_Transmit(uint8_t AT_Cmd_index);
+    238          static void prvATProt_Retransmit(void);
+    239          static void prvATProt_Wait_Resp(void);
+    240          static void prvATProt_AT_Transmit_Reset(void);
+    241          static void prvATProt_AT_Var_Reset(void);
+    242          uint8_t prvATProt_Uart_Transmit(const char* tx_buf, uint16_t bytes);
+    243          
+    244          /* AT command encode */
+    245          static void prvATProt_AT_Command_Common_encode	(uint8_t AT_Cmd_index);
+    246          static void prvATProt_AT_Command_Deep_encode	(uint8_t AT_Cmd_index);
+    247          static void prvATProt_AT_Command_Deep_encode_SendSMS(void);
+    248          static void prvATProt_AT_Command_Deep_encode_SendPostdata(void);
+    249          static void prvATProt_AT_Command_Deep_encode_Init	(void);
+    250          static void prvATProt_AT_Command_Deep_encode_Open	(void);
+    251          static void prvATProt_AT_Command_Deep_encode_Send	(void);
+    252          
+    253          static void prvATProt_AT_Command_Deep_encode_Sendack	(void);
+    254          static void prvATProt_AT_Command_Deep_encode_Multiip	(void);
+    255          static void prvATProt_AT_Command_Deep_encode_Cfun	(void);
+    256          
+    257          static void prvATProt_AT_Command_Deep_encode_Rxget      (void);
+    258          
+    259          static void prvATProt_AT_Command_Deep_encode_QIOPEN	(void);
+    260          static void prvATProt_AT_Command_Deep_encode_QISEND	(void);
+    261          static void prvATProt_AT_Command_Deep_encode_QIRD	(void);
+    262          static void prvATProt_AT_Command_Deep_encode_QIREGAPP	(void);
+    263          static void prvATProt_AT_Command_Deep_encode_Delete_SMS	(void);
+    264          static void prvATProt_AT_Command_Deep_encode_ReadSMS	(void);
+    265          
+    266          /* AT Command queue management */
+    267          static void prvATProt_AT_Send_Set(AT_cmd_t send_cmd_index);
+    268          
+    269          static void prvATProt_Set_Recv_Len(uint16_t len);
+    270          static void prvATProt_Set_TCP_Mode(uint8_t mode);
+    271          static uint8_t prvATProt_Get_TCP_Mode(void);
+    272          
+    273          static uint8_t prvATProt_Decode_Ipdata(char *data, uint16_t len);
+    274          #ifndef USE_DOMAIN_NAME
+    275          static void get_server_ip(void);
+    276          #endif
+    277          static void get_server_port(void);
+    278          
+    279          
+    280          /*********************************************************************/
+    281          /* Static Variables and Const Variables With File Level Scope        */
+    282          /*********************************************************************/
+    283          AT_Cmd_Param_t	 	AT_Cmd_Param;
+    284          static uint16_t				tcom_tx_num_bytes;
+    285          static GSM_Info			net_Info;		
+    286          static AT_Cmd_Tx_State_t	AT_Cmd_Tx_State;
+    287          static AT_Resp_Rx_State_t	AT_Resp_Rx_State;
+    288          static char					tcom_tx_buffer[TCOM_TX_BUF_SIZE];
+    289          static char 				tcom_rx_buffer[TCOM_RX_BUF_SIZE];
+    290          static AT_Resp_data_t		AT_Resp_data;
+    291          static char 				IPDATA[TCOM_RX_BUF_SIZE];
+    292          static AT_cmd_t			AT_pending_tx_cmd;
+    293          static Tick_Type			AT_Resp_Timeout;
+    294          static AT_Cmd_Res			at_cmd_res;
+    295          static bool					tcom_receiving_frame;
+    296          static uint8_t				tcom_tx_queue[(AT_CMD_NUM+7)/8];
+    297          static uint8_t				tcom_frame_tx_attempts;
+    298          static char 				Net_Rx_Data[TCOM_RX_BUF_PACKET_NUM][TCOM_RX_BUF_SIZE];
+    299          static uint16_t 			Net_Rx_Data_Size[TCOM_RX_BUF_PACKET_NUM];
+    300          static uint8_t                  Net_Rx_Read_Index=0;
+    301          static uint8_t                  Net_Rx_Data_Num=0;
+    302          static uint8_t              current_sms_index=0;
+    303          static uint8_t              module_power_on=0;
+    304          
+    305          static uint8_t rx_pending_status = 0;
+    306          
+    307          #ifdef TCOM_SUPPORT_SMS
+    308          static SMS_glb_info SMS_back_data;
+    309          #endif
+    310          
+    311          TCP_data_t TCP_backup_data;
+    312          //static uint8_t tcp_mode = TCP_IDLE;
+    313          static uint16_t  tcp_rx_len = 0;
+    314          static uint8_t tcp_rx_comma_pos=0;
+    315          static Tick_Type tcp_mode_Timeout_timer;//MSec_To_Ticks(5000); //need check.
+    316          static uint16_t  rx_char_count = 0;//Modify to file static variable.
+    317          static uint8_t   tcp_tx_mode = 0; //0:data, 1:ack
+    318          static uint8_t sms_rx_mode=SMS_IDLE; //0:not reading; 1:reading
+    319          static AT_Clock_t clock_ref;
+    320          
+    321          static uint8_t ack_from_server = 0;
+    322          static uint8_t error_count = 0;
+    323          
+    324          static uint16_t  IPDataLen = 0;
+    325          static Tick_Type Response_Timeout_timer = MSec_To_Ticks(6000);
+    326          static uint8_t   AT_Tx_ATTEMPS = 6;
+    327          
+    328          static uint8_t total_sms_num=0;
+    329          
+    330          #ifdef TCOM_SUPPORT_SMS
+    331          #define SMS_SMSC_NO_START  (0)
+    332          #define SMS_SMSC_NO_LEN  (18)
+    333          #define SMS_MTI_MR_LEN  (4)
+    334          
+    335          #define SMS_RCV_NO_START  (22)
+    336          #define SMS_RCV_NO_LEN  (18)
+    337          
+    338          #define SMS_PID_START  (40)
+    339          #define SMS_PID_LEN    (6)
+    340          
+    341          #define SMS_DATA_LEN_START    (46)
+    342          #define SMS_DATA_BODY_START    (48)
+    343          #endif
+    344          
+    345          /* telmatics info encode function type */
+    346          typedef void (*AT_Cmd_Encode_Fun)(void);
+    347          
+    348          // SIMCOM AT Commands or QUECTEL Commands
+    349          static const AT_Cmd_Info_t AT_Cmd_Info_table[AT_CMD_NUM] =
+    350          {
+    351              /*AT_Retry_Max, AT_Cmd_Name,Cmd_Type, timeout,        Supported*/
+    352              { 0,  "None",           INVALID,  0,            FALSE}, /* AT_CMD_NONE */
+    353              { 10, "ATE0",           EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_NO_ECHO_SETTING */
+    354              { 20, "AT+CLIP=",       EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_SET_CLIP */
+    355              { 20, "AT",             EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_SET_ECHO */
+    356              { 20, "AT+GMR",         QUERY,    MSec_To_Ticks(1000),  TRUE},   /* AT_CMD_GET_SW_VER */
+    357          
+    358              { 20, "AT+CIMI",        EXCUTE,   MSec_To_Ticks(1000),  TRUE},   /* AT_CMD_GET_IMSI_NO */
+    359              { 20, "AT+GSN",         EXCUTE,   MSec_To_Ticks(1000),  TRUE},   /* AT_CMD_GET_IMEI_NO */
+    360              { 20, "AT+CGREG=",      EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_SET_CGREG */
+    361              { 20, "AT+CREG=2",      EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_SET_CREG */
+    362              { 5,  "",               EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_HANG_UP */
+    363          
+    364              { 5,  "ATD",            EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_DIAL */
+    365              { 5,  "AT+CMGS=",       EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_SEND_SMS */
+    366              { 1,  "",               EXCUTE,   MSec_To_Ticks(100),  TRUE},  /* AT_CMD_SEND_POST_DATA */
+    367              { 5,  "AT+CGACT=",      EXCUTE,   MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_ACTIVE_PDP_CONTEXT */
+    368              { 1,  "AT+CGATT=1",     EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_CGATT */
+    369          
+    370              { 5,  "ATH",            EXCUTE,   MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_ATH */
+    371              { 1,  "AT+CSQ",         BASIC,    MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_CSQ_QUERY */
+    372              { 2,  "AT+CSTT=",       EXCUTE,   MSec_To_Ticks(30000), TRUE},  /* AT_CMD_IP_INIT_EXCUTE */
+    373              { 3,  "AT+CSTT=?",      CHECK,    MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_IP_INIT_CHECK */
+    374              { 1,  "AT+CIPSTART=",   EXCUTE,   MSec_To_Ticks(20000), TRUE},  /* AT_CMD_IP_OPEN_EXCUTE */
+    375          
+    376              { 3,  "AT+CIPSHUT",     EXCUTE|FATAL,   MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_IPCLOSE_EXCUTE */
+    377              { 2,  "AT+CIPRXGET=",   EXCUTE,   MSec_To_Ticks(5000),  TRUE},  /* AT_CMD_IP_RX_MANUALLY_QUERY */
+    378              { 1,  "AT+QIOPEN=",     EXCUTE,    MSec_To_Ticks(75000),  TRUE},  /* AT_CMD_QIOPEN */
+    379              { 1,  "AT+QISEND=",     EXCUTE,    MSec_To_Ticks(300),  TRUE},  /* AT_CMD_QISEND */
+    380              { 1,  "AT+QICLOSE",     EXCUTE,    MSec_To_Ticks(300),  TRUE},  /* AT_CMD_QICLOSE */
+    381          
+    382              { 1,  "AT+QINDI=1",     EXCUTE,    MSec_To_Ticks(300),  TRUE},  /* AT_CMD_QINDI */
+    383              { 1,  "AT+QIRD=",       EXCUTE,    MSec_To_Ticks(300),  TRUE},  /* AT_CMD_QIRD */
+    384              { 1,  "AT+QIHEAD=1",    EXCUTE,    MSec_To_Ticks(300),  TRUE},  /* AT_CMD_IPD_HEAD_SET */
+    385              { 1,  "AT+QIREGAPP=",   EXCUTE,   MSec_To_Ticks(300), TRUE},  /* AT_CMD_QIREGAPP */
+    386              { 1,  "AT+CMGD=",       EXCUTE,   MSec_To_Ticks(1000), TRUE},  /* AT_CMD_DELETE_SMS */
+    387          
+    388              { 1,  "AT+CMGF=1",      EXCUTE,   MSec_To_Ticks(300), TRUE},  /* AT_CMD_SMS_FORMAT */
+    389              { 1,  "AT+CNMI=2,2",    EXCUTE,   MSec_To_Ticks(300), TRUE},  /* AT_CMD_NEW_SMS_SETTING */
+    390              { 1,  "AT+CTZU=3",      EXCUTE,   MSec_To_Ticks(300), TRUE},  /* AT_CMD_SYNC_RTC */
+    391              { 3,  "AT+CGACT?",      QUERY,    MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_CGACT_QUERY */
+    392              { 3,  "AT+CSTT?",       QUERY,    MSec_To_Ticks(5000),  TRUE},  /* AT_CMD_IP_INIT_QUERY */
+    393          
+    394              { 3,  "AT+CIPSTATUS",   QUERY,    MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_IP_OPEN_QUERY */
+    395              { 1,  "AT+CIPSEND=",    EXCUTE|FATAL,    MSec_To_Ticks(16000),  TRUE},  /* AT_CMD_IP_SEND_ACK_EXCUTE */
+    396              { 3,  "AT+CPIN?",       QUERY,    MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_DET_SIM_QUERY */
+    397              { 1,  "AT+CIICR",       EXCUTE,    MSec_To_Ticks(5000),  TRUE},  /* AT_CMD_IP_REG_EXCUTE */
+    398              { 3,  "AT+CIFSR",       QUERY,    MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_LOCAL_IP_ADDR */
+    399          
+    400              { 1,  "AT+CIPSEND=",    EXCUTE|FATAL,   MSec_To_Ticks(16000),  TRUE},  /* AT_CMD_IP_SEND_DATA_EXCUTE */
+    401              { 3,  "AT+CIPMUX=",     EXCUTE,   MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_IP_CONFIG_CONN_EXCUTE */
+    402              { 3,  "AT+CFUN=",       EXCUTE,   MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_FUNCTION */
+    403              { 3,  "AT+CGATT?",      QUERY,   MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_CHECK_GPRS */
+    404              { 3,  "AT+CMGR=",       EXCUTE,   MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_READ_SMS_QUERY */
+    405          
+    406              { 3,  "AT+CREG?",       QUERY,   MSec_To_Ticks(2000),  TRUE},  /* AT_CMD_CREG_QUERY */
+    407              { 3,  "AT+CIFSR",       QUERY,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_IP_QUERY */
+    408              { 3,  "AT+CSCLK=1",     EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_SLEEP */
+    409              { 3,  "AT+CSCLK?",      QUERY,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_SLEEP_QUERY */
+    410              { 3,  "AT+CPOWD=0",     EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_POWER_DOWN */
+    411          
+    412              { 3,  "ATA",            EXCUTE,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_ANSWER_CALL */
+    413              { 3,  "AT+CMTE?",       QUERY,   MSec_To_Ticks(1000),  TRUE},  /* AT_CMD_TEMP_READ */
+    414              { 3,  "AT+QLTS",        QUERY,   MSec_To_Ticks(300),  TRUE},  /* AT_CMD_CCLK */
+    415              { 1,  "AT+CIPHEAD=1",   EXCUTE,   MSec_To_Ticks(300),  TRUE},  /* AT_CMD_CIPHEAD */
+    416          };
+    417          
+    418          static const AT_Cmd_Encode_Fun ATProt_encode_table[] =
+    419          {
+    420              NULL,									/* AT_CMD_NONE					*/
+    421              NULL,	/* AT_CMD_ECHO_SETTING			*/
+    422              NULL,	/* AT_CMD_SET_CLIP				*/
+    423              NULL,  /* AT_CMD_SET_ECHO      */
+    424              NULL, /* AT_CMD_GET_SW_VER */
+    425          
+    426              NULL,                         /* AT_CMD_GET_IMSI_NO           */
+    427              NULL,									/* AT_CMD_GET_IMEI_NO */
+    428              NULL,									/* AT_CMD_SET_CGREG				*/
+    429              NULL,									/* AT_CMD_SET_CREG				*/
+    430              NULL,									/* AT_CMD_HANG_UP				*/
+    431          
+    432              NULL,	/* AT_CMD_DIAL					*/
+    433              prvATProt_AT_Command_Deep_encode_SendSMS, /* AT_CMD_SEND_SMS          */
+    434              prvATProt_AT_Command_Deep_encode_SendPostdata, /* AT_CMD_SEND_POST_DATA          */
+    435              NULL,	/* AT_CMD_ACTIVE_PDP_CONTEXT	*/
+    436              NULL,									/* AT_CMD_CGATT				*/
+    437          
+    438              NULL,                         /* AT_CMD_ATH */
+    439              NULL,									/* AT_CMD_CSQ_QUERY				*/
+    440              prvATProt_AT_Command_Deep_encode_Init,	/* AT_CMD_IP_INIT_EXCUTE		*/
+    441              NULL,									/* AT_CMD_IP_INIT_CHECK			*/
+    442              prvATProt_AT_Command_Deep_encode_Open,	/* AT_CMD_IP_OPEN_EXCUTE		*/
+    443          
+    444              NULL,    /* AT_CMD_IP_CLOSE_EXCUTE */
+    445              prvATProt_AT_Command_Deep_encode_Rxget,    /* AT_CMD_IP_RX_MANUALLY_QUERY */
+    446              prvATProt_AT_Command_Deep_encode_QIOPEN, /* AT_CMD_QIOPEN */
+    447              prvATProt_AT_Command_Deep_encode_QISEND,/* AT_CMD_QISEND */
+    448              NULL, /* AT_CMD_QICLOSE */
+    449          
+    450              NULL, /* AT_CMD_QINDI */
+    451              prvATProt_AT_Command_Deep_encode_QIRD,/* AT_CMD_QIRD */
+    452              NULL, /*AT_CMD_IPD_HEAD_SET*/
+    453              prvATProt_AT_Command_Deep_encode_QIREGAPP,/* AT_CMD_QIREGAPP */
+    454              prvATProt_AT_Command_Deep_encode_Delete_SMS,/* AT_CMD_DELETE_SMS */
+    455          
+    456              NULL,									/* AT_CMD_SMS_FORMAT			*/
+    457              NULL,    /* AT_CMD_NEW_SMS_SETTING */
+    458              NULL,    /* AT_CMD_SYNC_RTC */
+    459              NULL,									/* AT_CMD_CGACT_QUERY			*/
+    460              NULL,									/* AT_CMD_IP_INIT_QUERY			*/
+    461          
+    462              NULL,									/* AT_CMD_IP_OPEN_QUERY			*/
+    463              prvATProt_AT_Command_Deep_encode_Sendack,    /* AT_CMD_IP_SEND_ACK_EXCUTE */
+    464              NULL,    /* AT_CMD_DET_SIM_QUERY */
+    465              NULL,    /* AT_CMD_IP_INIT_EXCUTE */
+    466              NULL,    /* AT_CMD_LOCAL_IP_ADDR_QUERY */
+    467          
+    468              prvATProt_AT_Command_Deep_encode_Send,    /* AT_CMD_IP_SEND_DATA_EXCUTE */
+    469              prvATProt_AT_Command_Deep_encode_Multiip,    /* AT_CMD_IP_CONFIG_CONN_EXCUTE */
+    470              prvATProt_AT_Command_Deep_encode_Cfun,    /* AT_CMD_FUNCTION */
+    471              NULL,    /* AT_CMD_CHECK_GPRS */
+    472              prvATProt_AT_Command_Deep_encode_ReadSMS,    /* AT_CMD_READ_SMS_QUERY */
+    473          
+    474              NULL,    /* AT_CMD_CREG_QUERY */
+    475              NULL,    /* AT_CMD_IP_QUERY */
+    476              NULL,    /* AT_CMD_SLEEP */
+    477              NULL,    /* AT_CMD_SLEEP */
+    478              NULL,    /* AT_CMD_POWER_DOWN */
+    479          
+    480              NULL,    /* AT_CMD_ANSWER_CALL */
+    481              NULL,    /* AT_CMD_TEMP_READ */
+    482              NULL,    /* AT_CMD_CCLK */
+    483              NULL,    /* AT_CMD_CIPHEAD */
+    484          };
+    485          
+    486          static AT_URC_decode_t AT_URC_decode_table[AT_URC_NUM] = 
+    487          {
+    488             //
+    489             {AT_URC_NONE, "^NONE", prvATProt_URC_decode_nop, NULL},
+    490             {AT_URC_CGREG, "+CGREG:", prvATProt_URC_decode_CGreg, NULL},
+    491             {AT_URC_SIGNAL, "+CSQ:", prvATProt_URC_decode_Signal, NULL},
+    492             {AT_URC_RECV, "+CIPRXGET:", prvATProt_URC_decode_Recv, NULL},
+    493             {AT_URC_CGATT, "+CGATT:", prvATProt_URC_decode_Gprs,	NULL},
+    494             {AT_URC_CMT, "+CMT:", prvATProt_URC_decode_Cmt, NULL},
+    495             {AT_URC_CMGR, "+CMGR:", prvATProt_URC_decode_Sms, NULL},
+    496             {AT_URC_CPIN, "+CPIN:", prvATProt_URC_decode_Sim, NULL},
+    497             {AT_URC_CMTI, "+CMTI:", prvATProt_URC_decode_Sms_Got, NULL},
+    498             {AT_URC_CREG, "+CREG:", prvATProt_URC_decode_Netreg, NULL},
+    499             {AT_URC_PDP, "+PDP:", prvATProt_URC_decode_Pdp, NULL},
+    500             {AT_URC_CMTE, "+CMTE:", prvATProt_URC_decode_Temp, NULL},
+    501             {AT_URC_CME_ERR, "+CME", prvATProt_URC_decode_Cme_Err, NULL},
+    502             {AT_URC_CMGL, "+CMGL:", prvATProt_URC_decode_SMS_List, NULL},
+    503             {AT_URC_SMS_RECV, "+CIPRXGET:", prvATProt_URC_decode_SMS_Recv, NULL},
+    504             {AT_URC_RX_RECV, "+QIRDI:", prvATProt_URC_decode_Net_Recv, NULL},
+    505             {AT_URC_CCLK, "+QLTS:", prvATProt_URC_decode_Clock, NULL},
+    506          };
+    507          
+    508          static const AT_Resp_decode_t AT_Resp_decode_table[] = 
+    509          {
+    510              {AT_CMD_GET_SW_VER,     prvATProt_Resp_Decode_SW_Ver},  
+    511              {AT_CMD_IP_INIT_EXCUTE,	prvATProt_Resp_Decode_IP_INIT_Execute},
+    512              {AT_CMD_QIREGAPP,	    prvATProt_Resp_Decode_IP_REG_Execute},
+    513              {AT_CMD_SET_ECHO,       prvATProt_Resp_Decode_SET_Echo},
+    514              {AT_CMD_ANSWER_CALL,    prvATProt_Resp_Decode_Answer_Call},
+    515              {AT_CMD_GET_IMSI_NO,    prvATProt_Resp_Decode_IMSI_Query},
+    516              {AT_CMD_GET_IMEI_NO,    prvATProt_Resp_Decode_IMEI_Query},
+    517              {AT_CMD_IP_QUERY,       prvATProt_Resp_Decode_IP_Query}
+    518          };
+    519          
+    520          static const char* CME_ERROR_String = "+CME ERROR:";
+    521          static const char* CME_NW_OPENED_String = "ALREADY CONNECT";
+    522          static const char* OK_String = "OK";
+    523          static const char* CONNECT_OK_String = "CONNECT OK";
+    524          static const char* CONNECT_FAIL_String = "CONNECT FAIL";
+    525          static const char* SHUT_OK_String = "SHUT OK";
+    526          static const char* REMOTE_CLOSE_String = "CLOSED";
+    527          static const char* SEND_OK_String = "SEND OK";
+    528          static const char* READY_String = "READY";
+    529          static const char* DEACT_String = "+PDP: DEACT";
+    530          static const char* Callready_String = "Call Ready";
+    531          static const char* POWERDOWN_String = "NORMAL POWER DOWN";
+    532          #ifdef TCOM_ANSWER_CALL
+    533          static const char* RING_String = "RING";
+    534          #endif
+    535          
+    536          static const char* ERROR_String = "ERROR";
+    537          
+    538          //For day calibration day
+    539          //2000,2004,2008,2012,2016,2020,2024,2028,2032,2036,2040,2044,2048,2052,2056,2060,
+    540          //2064,2068,2072,2076,2080,2084,2088,2092,2096,2104,2108,2112,2116,2120,2124,2128,
+    541          //2132,2136,2140,2144,2148,2152,2156,2160,2164,2168,2172,2176,2180,2184,2188,2192,
+    542          //2196,2204
+    543          
+    544          #define TCOM_SEC_GATE_VALUE 30   //30second gate value
+    545          
+    546          
+    547          /*******************************************************************************
+    548          *    Function:  vATProt_Init
+    549          *
+    550          *  Parameters:  
+    551          *     Returns:  None
+    552          * Description:  necessary process when start up.
+    553          *******************************************************************************/
+    554          extern void vATProt_Init(void)
+    555          {
+    556              prvATProt_AT_Var_Reset();
+    557          
+    558              net_Info.module_go_sleep = 0;
+    559              Uart_Initialize(UART_GSM_CHANNEL);
+    560              net_Info.srv_status = TCP_IDLE;
+    561              net_Info.tcp_state = NET_INIT;
+    562          }
+    563          
+    564          /* Pull down PWRKEY to power on module */
+    565          extern void vATProt_Power_On(void)
+    566          {
+    567              IO_4V_CTRL_OUT(Bit_SET);
+    568              rl_delay_without_schedule(100);
+    569              IO_GSM_PWR_ON_OUT(Bit_SET); //LOW for 1.1s, this value is used for SIM800C
+    570              rl_delay_without_schedule(1100);
+    571              IO_GSM_PWR_ON_OUT(Bit_RESET);
+    572          //    rl_delay_without_schedule(1000);
+    573              module_power_on=1;
+    574          }
+    575          
+    576          extern void vATProt_Power_Off(void)
+    577          {
+    578              IO_GSM_PWR_ON_OUT(Bit_SET); //LOW for 1.2s, this value is used for SIM800C
+    579              rl_delay_without_schedule(1200);
+    580              IO_GSM_PWR_ON_OUT(Bit_RESET);
+    581              rl_delay_without_schedule(2000); // wait for logout net
+    582              IO_4V_CTRL_OUT(Bit_RESET);
+    583              module_power_on=0;
+    584          }
+    585          
+    586          extern uint8_t ATProt_Power_Status(void)
+    587          {
+    588              return module_power_on;
+    589          }
+    590          
+    591          /*******************************************************************************
+    592          *    Function:  vATProt_GoSleep
+    593          *
+    594          *  Parameters:  
+    595          *     Returns:  None
+    596          * Description:  necessary process when going to sleep.
+    597          *******************************************************************************/
+    598          extern void vATProt_GoSleep(void)
+    599          {
+    600              AT_Cmd_Param.fun_type = 0;
+    601              net_Info.module_go_sleep = 1;
+    602          
+    603              IO_GSM_PWR_ON_OUT(Bit_SET); //LOW for 0.8S
+    604              rl_delay_without_schedule(800);
+    605              IO_GSM_PWR_ON_OUT(Bit_RESET);
+    606              rl_delay_without_schedule(3000); // wait for logout net
+    607              IO_4V_CTRL_OUT(Bit_RESET);
+    608          }
+    609          
+    610          /*******************************************************************************
+    611          *    Function:  vATProt_WakeUp
+    612          *
+    613          *  Parameters:  
+    614          *     Returns:  None
+    615          * Description:  necessary process when wake up.
+    616          *******************************************************************************/
+    617          extern void vATProt_WakeUp(void)
+    618          {
+    619              Uart_Initialize(UART_GSM_CHANNEL);
+    620          }
+    621          /*******************************************************************************
+    622          *    Function:  vATProt_Com_Reset
+    623          *
+    624          *  Parameters:  
+    625          *     Returns:  None
+    626          * Description:  necessary process when start up.
+    627          *******************************************************************************/
+    628          extern void vATProt_Com_Reset(void)
+    629          {
+    630              vTelmApp_AT_Var_Reset();
+    631              prvATProt_AT_Var_Reset();
+    632          }
+    633          /*******************************************************************************
+    634          *    Function:  vATProt_Upgrade_Reset
+    635          *
+    636          *  Parameters:  
+    637          *     Returns:  None
+    638          * Description:  necessary process when start up.
+    639          *******************************************************************************/
+    640          extern void vATProt_Upgrade_Reset(void)
+    641          {
+    642          }
+    643          
+    644          /*******************************************************************************
+    645          *    Function:  prvATProt_Check_Transmit
+    646          *
+    647          *  Parameters:  None
+    648          *     Returns:  None
+    649          * Description:  check if data exists in rx ring buf. if true, send the data to Telematics module.
+    650          *******************************************************************************/
+    651          extern void vATProt_Check_Transmit(void)
+    652          {
+    653              int Pending_AT_Cmd;
+    654          
+    655              //Add TCP mode guard check.
+    656          /*    if ((TCP_RXING == prvATProt_Get_TCP_Mode())
+    657                  &&(OS_Time() > tcp_mode_Timeout_timer))
+    658              {
+    659                  prvATProt_Set_TCP_Mode(TCP_IDLE);
+    660                  AT_Resp_Rx_State = RX_IDLE; //IP RX message timer out, restart rx process
+    661                  tcom_receiving_frame = false;          
+    662              }
+    663              //end
+    664          
+    665              if(TCP_RXING == prvATProt_Get_TCP_Mode()) return;
+    666          */
+    667          
+    668              /*get a new AT commond to transmit if there isn't AT command is processing*/
+    669              if (AT_pending_tx_cmd > AT_CMD_NUM)
+    670              {
+    671                  prvATProt_AT_Transmit_Reset();
+    672              }
+    673          
+    674              if(AT_pending_tx_cmd == AT_CMD_NONE)
+    675              {
+    676                  Pending_AT_Cmd = Find_First_Set_Bit(tcom_tx_queue, AT_CMD_NUM, true);
+    677                  if(TCP_TX_POSTDATA == prvATProt_Get_TCP_Mode() && (AT_CMD_SEND_POST_DATA != Pending_AT_Cmd))
+    678                  {
+    679          //            DEBUG_PRINT0(DEBUG_HIGH,"[2G] IPSEND,Receive >,but no data is send, something wrong!!!\n\r");
+    680                      AT_pending_tx_cmd = AT_CMD_SEND_POST_DATA;
+    681                  }
+    682                  else if ((Pending_AT_Cmd > AT_CMD_NONE) && (Pending_AT_Cmd < AT_CMD_NUM))
+    683                  {
+    684                      AT_pending_tx_cmd = (AT_cmd_t)Pending_AT_Cmd;
+    685                  }
+    686                  else
+    687                  {
+    688                      NOP();
+    689                  }
+    690              }
+    691          /*
+    692              if (AT_pending_tx_cmd == AT_CMD_NONE)
+    693              {
+    694                  if ((TCP_IDLE == prvATProt_Get_TCP_Mode()) && (1 == rx_pending_status))
+    695                  {
+    696                      vATProt_sendAT_Command(AT_CMD_IP_RX_MANUALLY_QUERY, NULL, NULL);
+    697                  }
+    698              }
+    699          */
+    700              /*process the AT command*/
+    701              if ((AT_pending_tx_cmd > AT_CMD_NONE) && (AT_pending_tx_cmd < AT_CMD_NUM))
+    702              {
+    703                  switch (AT_Cmd_Tx_State)
+    704                  {
+    705                      case TX_IDLE:
+    706                           prvATProt_Transmit(AT_pending_tx_cmd);
+    707                           break;
+    708                      case TX_CS_RETRANSMIT:
+    709                           prvATProt_Retransmit();
+    710                           break;
+    711                      case TX_CS_WAIT_FOR_RESP:
+    712                           prvATProt_Wait_Resp();
+    713                           break;
+    714                      default:
+    715                           AT_Cmd_Tx_State = TX_IDLE;
+    716                           break;
+    717                  }
+    718              }
+    719          }
+    720          
+    721          /*******************************************************************************
+    722          *    Function:  vATProt_Check_Receive
+    723          *
+    724          *  Parameters:  None
+    725          *     Returns:  None
+    726          * Description:  check if data exists in rx ring buf. if true, send the data to Telematics module.
+    727          *******************************************************************************/
+    728          extern void vATProt_Check_Receive(void)
+    729          {
+    730              uint8_t data_byte;
+    731              /* Test UART buffer to see if data received */
+    732          
+    733              while((-1 != prvATProt_Uart_Get_Char(&data_byte)))
+    734              {
+    735                  //Feed_Dog();
+    736          //        DEBUG_PRINT1(DEBUG_MEDIUM,"%c",data_byte);
+    737                  prvATProt_Rx_Resp_Assemble(data_byte);
+    738              }
+    739          }
+    740          /*********************************************************
+    741          *Function Name: 	bATApp_isNetWorkActive
+    742          *Prototype: 		bATApp_isNetWorkActive()
+    743          *Called by: 		app
+    744          *Parameters:		void
+    745          *Returns:			void
+    746          *Description:		return if network is active
+    747          **********************************************************/
+    748          bool bATProt_isNetWorkActive(void)
+    749          {
+    750              return net_Info.netActive;
+    751          }
+    752          
+    753          /*********************************************************
+    754          *Function Name: 	pcATProt_getImsiData
+    755          *Prototype: 		pcATProt_getImsiData()
+    756          *Called by: 		app
+    757          *Parameters:		void
+    758          *Returns:			void
+    759          *Description:		return the pointer to IMSI string
+    760          **********************************************************/
+    761          char const * pcATProt_getImsiData(void)
+    762          {
+    763          #ifdef TCOM_CHECK_CARINFO_STANDALONE
+    764              return "461234561231234";//Set 
+    765              as 461234561231234 for test.
+    766          #else
+    767              return net_Info.imsi;
+    768          #endif
+    769          }
+    770          
+    771          char const * pcATProt_getImeiData(void)
+    772          {
+    773              return net_Info.imei;
+    774          }
+    775          
+    776          uint8_t pcATProt_getRSSI(void)
+    777          {
+    778              return net_Info.rssi;
+    779          }
+    780          
+    781          /*********************************************************
+    782          *Function Name: 	ucATProt_getRecivedData
+    783          *Prototype: 		ucATProt_getRecivedData()
+    784          *Called by: 		app
+    785          *Parameters:		uint8_t*:length of recieved data
+    786          *Returns:			char * const: buffer to store recieved data
+    787          *Description:		return recieved data
+    788          **********************************************************/
+    789          char const* pcATProt_getRecivedData(uint8_t *len)
+    790          {
+    791              *len = IPDataLen;
+    792              return IPDATA;
+    793          }
+    794          
+    795          /*********************************************************
+    796          *Function Name: 	vATProt_Add_URC_Listener
+    797          *Prototype: 		vATProt_Add_URC_Listener()
+    798          *Called by: 		app
+    799          *Parameters:		AT_URC_E		event Name
+    800          					URC_Notify_fptr	EventHandler
+    801          *Returns:			void
+    802          *Description:		set a function to Handle event 
+    803          					when it happen
+    804          **********************************************************/
+    805          void vATProt_Add_URC_Listener(AT_URC_E event, URC_Notify_fptr handler)
+    806          {
+    807              AT_URC_decode_table[event].notify_urc = handler;
+    808          }
+    809          
+    810          /*********************************************************
+    811          *Function Name: 	vATProt_Remove_URC_Listener
+    812          *Prototype: 		vATProt_Remove_URC_Listener()
+    813          *Called by: 		app
+    814          *Parameters:		AT_URC_E		event Name
+    815          *Returns:			void
+    816          *Description:		when it is no longer needed to notify
+    817          					URC event from protocol level, call
+    818          					this function to remove the listener
+    819          **********************************************************/
+    820          void vATProt_Remove_URC_Listener(AT_URC_E event)
+    821          {
+    822              AT_URC_decode_table[event].notify_urc = NULL;
+    823          }
+    824          
+    825          /*******************************************************************************
+    826          *    Function:  vATProt_sendAT_Command
+    827          *
+    828          *  Parameters:  
+    829          *     Returns:  None
+    830          * Description:  send AT command
+    831          *******************************************************************************/
+    832          void vATProt_sendAT_Command(AT_cmd_t cmd, AT_Cmd_Param_t const* data, callBack cb)
+    833          {
+    834              // Callback for transport reset
+    835          //    AT_Cmd_Callback[cmd] = cb;
+    836              // Handle data
+    837              // Send command
+    838              prvATProt_AT_Send_Set(cmd);
+    839          }
+    840          
+    841          /*********************************************************
+    842          *Function Name: 	prvATProt_Rx_Buffer_Filling
+    843          *Prototype: 		prvATProt_Rx_Buffer_Filling(uint8_t data)
+    844          *Called by: 		app
+    845          *Parameters:		filling data
+    846          *Returns:		true: buffer full, false: ok
+    847          *Description:		Add one byte "data" to rx buffer, with length check.
+    848          **********************************************************/
+    849          static bool prvATProt_Rx_Buffer_Filling(uint8_t data)
+    850          {
+    851              tcom_rx_buffer[rx_char_count++] = data;
+    852              //Important!!!!!! RX buffer overflow check.
+    853              //Current is overwrite the rx buffer, need double check
+    854              if(rx_char_count >= (TCOM_RX_BUF_SIZE - 1 )) 
+    855              {
+    856                  rx_char_count = 0; 
+    857                  return true;
+    858                  //AT_Resp_Rx_State = RX_IDLE;
+    859              }
+    860              return false;
+    861          }
+    862          
+    863          /*********************************************************
+    864          *Function Name: 	prvATProt_Rx_Resp_Assemble
+    865          *Prototype: 		prvATProt_Rx_Resp_Assemble(uint8_t data)
+    866          *Called by: 		app
+    867          *Parameters:		void
+    868          *Returns:			void
+    869          *Description:		assmble the response one bytes by one bytes.
+    870          **********************************************************/
+    871          static void prvATProt_Rx_Resp_Assemble(uint8_t data)
+    872          {
+    873              switch(AT_Resp_Rx_State)                   
+    874              {
+    875                  case RX_IDLE:
+    876                      rx_char_count = 0;
+    877                      tcp_rx_comma_pos=0;
+    878                      tcp_rx_len=0;
+    879                      memset(tcom_rx_buffer, 0x00, TCOM_RX_BUF_SIZE);
+    880          /*            if (TCP_RXING == prvATProt_Get_TCP_Mode())
+    881                      {
+    882                          if (rx_char_count < tcp_rx_len)
+    883                          {
+    884                              prvATProt_Rx_Buffer_Filling(data);
+    885                              AT_Resp_Rx_State = START_RX_DATA;
+    886                              tcom_receiving_frame = true;
+    887                          }
+    888                          else
+    889                          {
+    890                              tcom_receiving_frame = false;
+    891                              prvATProt_Decode_Ipdata(tcom_rx_buffer, tcp_rx_len);
+    892                          }
+    893                      }
+    894                      else */
+    895                      if(CR == data)
+    896                      {
+    897                          AT_Resp_Rx_State = START_RX_PREFIX;
+    898                      }
+    899                      else
+    900                      {
+    901                          /* not every package start with <CR><LF>,so reciving will
+    902                          still be started even if <CR><LF> doesn't exist */
+    903                          prvATProt_Rx_Buffer_Filling(data);
+    904                          AT_Resp_Rx_State = START_RX_DATA;
+    905                          tcom_receiving_frame = true;
+    906                      }
+    907                      break;
+    908                  case START_RX_PREFIX:
+    909                      if (LF == data)
+    910                      {
+    911                          AT_Resp_Rx_State = START_RX_DATA;
+    912                          tcom_receiving_frame = true;
+    913                      }
+    914                      break; 
+    915                  case START_RX_DATA:
+    916                      if (rx_char_count == 8)
+    917                      {
+    918                          uint8_t i=0;
+    919                          // With "IPD" header, shall be set with "AT+QIHEAD=1\n\r"
+    920                          if (strncmp(tcom_rx_buffer,"+IPD",4)==0)
+    921                          {
+    922                              for (i=0;i<9;i++)
+    923                              {
+    924                                  if(*(tcom_rx_buffer+i)==':')
+    925                                  {
+    926                                      tcp_rx_comma_pos=i;
+    927                                      break;
+    928                                  }
+    929                              }
+    930                              // index 5 to ':', data length
+    931                              for (i=5;i<tcp_rx_comma_pos;i++)
+    932                              {
+    933                                  if ((*(tcom_rx_buffer+i)>'9') || (*(tcom_rx_buffer+i)<'0'))
+    934                                      break;
+    935                                  tcp_rx_len=tcp_rx_len*10+*(tcom_rx_buffer+i)-'0';
+    936                              }
+    937                              prvATProt_Set_TCP_Mode(TCP_RXING);
+    938                          }
+    939                      }
+    940                      if (TCP_RXING == prvATProt_Get_TCP_Mode())
+    941                      {
+    942                          prvATProt_Rx_Buffer_Filling(data);
+    943                          if (rx_char_count < (tcp_rx_len+tcp_rx_comma_pos+1))
+    944                          {
+    945                              AT_Resp_Rx_State = START_RX_DATA;
+    946                              tcom_receiving_frame = true;
+    947                          }
+    948                          else
+    949                          {
+    950                              AT_Resp_Rx_State = RX_IDLE;
+    951                              tcom_receiving_frame = false;
+    952                              prvATProt_Decode_Ipdata(tcom_rx_buffer+tcp_rx_comma_pos+1, tcp_rx_len);
+    953                              prvATProt_Set_TCP_Mode(TCP_IDLE);
+    954                          }
+    955                      }
+    956                      else if ((CR == data) && tcom_receiving_frame)
+    957                      {
+    958                          AT_Resp_Rx_State = START_RX_POSTFIX;
+    959                          tcom_receiving_frame = FALSE;     
+    960                      }
+    961                      else if (TCP_TXING == prvATProt_Get_TCP_Mode())
+    962                      {//Get GREATER and SPACE together ,else SPACE will fill to next rx buffer.
+    963                          if ((CHAR_GREATER == tcom_rx_buffer[rx_char_count -1]) 
+    964                              && (CHAR_SPACE == data))
+    965                          {
+    966                              AT_Resp_Rx_State = RX_IDLE;
+    967                              prvATProt_Set_TCP_Mode(TCP_TX_POSTDATA);
+    968                              at_cmd_res = AT_CMD_RES_OK;
+    969                              vATProt_sendAT_Command(AT_CMD_SEND_POST_DATA, NULL, NULL);
+    970                          }
+    971                          else
+    972                          {
+    973                              prvATProt_Rx_Buffer_Filling(data);//Receive other messages, like "error"                
+    974                          }
+    975                      }
+    976                      else
+    977                      {
+    978                          prvATProt_Rx_Buffer_Filling(data);;
+    979                      }
+    980                      break;
+    981                  case START_RX_POSTFIX: 
+    982                      if (LF == data)
+    983                      {
+    984                          AT_Resp_Rx_State = RX_IDLE;
+    985                          prvATProt_Resp_Common_Decode(tcom_rx_buffer, rx_char_count);
+    986                      }
+    987                      break; 
+    988                  default:  
+    989                      AT_Resp_Rx_State = RX_IDLE;
+    990                      tcom_receiving_frame = false;
+    991                      break;
+    992              }
+    993          }
+    994          
+    995          /*******************************************************************************
+    996          * Function:  prvATProt_Resp_Common_Decode
+    997          *
+    998          * Parameters:  None
+    999          * Returns:  None
+   1000          * Description:  validate rx frame data normal response or unsolicited.
+   1001          *******************************************************************************/
+   1002          static void prvATProt_Resp_Common_Decode(char* tcom_rx_buffer, uint8_t rx_count)
+   1003          {
+   1004              uint16_t attach_data_len;
+   1005              bool at_cmd_end = false;
+   1006              /* check response is URC or not */
+   1007          #ifdef USE_DEBUG
+   1008              DEBUG_PRINT1(DEBUG_MEDIUM,"[2G rx]%s\n\r",tcom_rx_buffer);
+   1009          #endif
+   1010              if (SMS_IDLE != sms_rx_mode)
+   1011              {
+   1012                  prvATProt_parse_sms(tcom_rx_buffer, rx_count);
+   1013                  sms_rx_mode = SMS_IDLE;
+   1014                  return;
+   1015              }
+   1016              if(!prvATProt_URC_Decode(tcom_rx_buffer, rx_count))
+   1017              {
+   1018                  /* if response is NETWORK opened already for IPINIT, it's ok for network */
+   1019                  if (AT_pending_tx_cmd == AT_CMD_IP_OPEN_EXCUTE)
+   1020                  {   //For IP OPEN  error recovery
+   1021                      if((!strncmp((char*)tcom_rx_buffer, CME_NW_OPENED_String, strlen(CME_NW_OPENED_String)))
+   1022                          ||(!strncmp((char*)tcom_rx_buffer, CONNECT_OK_String, strlen(CONNECT_OK_String))))
+   1023                      {
+   1024                          at_cmd_res = AT_CMD_RES_OK; //set ok flag
+   1025                          at_cmd_end = true;
+   1026                          if (NET_TCP_CONNECTED>vATProt_Get_TCP_State())
+   1027                              vATProt_Set_TCP_State(NET_TCP_CONNECTED);
+   1028                      }
+   1029                      else if (!strncmp((char*)tcom_rx_buffer, CONNECT_FAIL_String, strlen(CONNECT_FAIL_String)))
+   1030                      {
+   1031                          at_cmd_res = AT_CMD_RES_OK; //set ok flag,Connect failed
+   1032                          at_cmd_end = true;
+   1033          //                vATProt_Set_TCP_State(NET_GPRS_ACTIVATED);
+   1034                          vATProt_Com_Reset();
+   1035                      }
+   1036                  }
+   1037                  /* if response is CME+error */
+   1038                  else if(!strncmp((char*)tcom_rx_buffer, CME_ERROR_String, strlen(CME_ERROR_String)))  //error received
+   1039                  {
+   1040                      at_cmd_res = AT_CMD_RES_CME_ERR;	//set error flag
+   1041                      at_cmd_end = true;
+   1042                  }
+   1043                  else if(!strncmp((char*)tcom_rx_buffer, DEACT_String, strlen(DEACT_String)))  //power down
+   1044                  {
+   1045                      at_cmd_res = AT_CMD_RES_OK;	//set error flag
+   1046                      at_cmd_end = true;
+   1047                      vATProt_Set_TCP_State(NET_GPRS_ATTACHED);
+   1048                      vATProt_Com_Reset();
+   1049                      prvATProt_Set_TCP_Mode(TCP_IDLE);
+   1050                      sms_rx_mode=SMS_IDLE;
+   1051                      DEBUG_PRINT0(DEBUG_HIGH,"[2G] PDP DEACT!\n\r");
+   1052                  }
+   1053                  else if(!strncmp((char*)tcom_rx_buffer, POWERDOWN_String, strlen(POWERDOWN_String)))  //power down
+   1054                  {
+   1055                      at_cmd_res = AT_CMD_RES_OK;	//set error flag
+   1056                      at_cmd_end = true;
+   1057                      if (net_Info.module_go_sleep != 1)
+   1058                      {
+   1059                          sms_rx_mode=SMS_IDLE;
+   1060                          vATProt_Com_Reset();
+   1061                          vATProt_Set_TCP_State(NET_INIT);
+   1062                          vATProt_Power_Off();
+   1063                          rl_delay_without_schedule(1000);
+   1064                          vATProt_Power_On();
+   1065          
+   1066                          vATProt_Com_Reset();
+   1067                      }
+   1068                      prvATProt_Set_TCP_Mode(TCP_IDLE);
+   1069                  }
+   1070                  else if(!strncmp((char*)tcom_rx_buffer, SHUT_OK_String, strlen(SHUT_OK_String)))
+   1071                  {
+   1072                      at_cmd_res = AT_CMD_RES_OK;	//set ok flag
+   1073                      at_cmd_end = true;
+   1074                      vATProt_Set_TCP_State(NET_INIT);
+   1075                      sms_rx_mode=SMS_IDLE;
+   1076                      vATProt_Com_Reset();
+   1077                      DEBUG_PRINT0(DEBUG_HIGH,"[2G] SHUT OK!\n\r");
+   1078                  }
+   1079                  /* if response is error */
+   1080                  else if(!strncmp((char*)tcom_rx_buffer, ERROR_String, strlen(ERROR_String)))
+   1081                  {
+   1082                      at_cmd_res = AT_CMD_RES_ERR;
+   1083                      at_cmd_end = true;
+   1084                      DEBUG_PRINT0(DEBUG_MEDIUM,"[2G] ERROR!\n\r");
+   1085                  
+   1086                      if ((AT_pending_tx_cmd == AT_CMD_IP_SEND_DATA_EXCUTE)
+   1087                          ||(AT_pending_tx_cmd == AT_CMD_IP_SEND_ACK_EXCUTE))
+   1088                      {//Drop the IP send error, we will resend the command.
+   1089                          at_cmd_res = AT_CMD_RES_NONE;
+   1090                      }
+   1091                      else
+   1092                      {
+   1093                          if (error_count > ERROR_RETRY_MAX)
+   1094                          {
+   1095                              vATProt_Com_Reset();
+   1096                              vATProt_Power_Off();
+   1097                              rl_delay_without_schedule(1000);
+   1098                              vATProt_Set_TCP_State(NET_INIT);
+   1099                              vATProt_Power_On();
+   1100          
+   1101                              vATProt_Com_Reset();
+   1102                              error_count = 0;
+   1103                          }
+   1104                      }
+   1105                  }
+   1106          #ifdef TCOM_ANSWER_CALL
+   1107          		else if(!strncmp((char*)tcom_rx_buffer, RING_String, strlen(RING_String)))
+   1108          		{
+   1109          			vATProt_sendAT_Command(AT_CMD_ANSWER_CALL, NULL, NULL);
+   1110          		}
+   1111          #endif
+   1112          		else if (!strncmp((char*)tcom_rx_buffer, SEND_OK_String, strlen(SEND_OK_String)))
+   1113          		{
+   1114          			at_cmd_res = AT_CMD_RES_OK;	//set ok flag
+   1115          			at_cmd_end = true;
+   1116          		} //drop "SEND OK", not each send command has a "send ok "response.
+   1117          		else if (!strncmp((char*)tcom_rx_buffer, REMOTE_CLOSE_String, strlen(REMOTE_CLOSE_String)))
+   1118          		{
+   1119          			at_cmd_res = AT_CMD_RES_OK;	//set ok flag
+   1120          			at_cmd_end = true;
+   1121                      vATProt_Set_TCP_State(NET_APN_REGISTERED);
+   1122          		}
+   1123          		else if (!strncmp((char*)tcom_rx_buffer, CONNECT_FAIL_String, strlen(CONNECT_FAIL_String)))
+   1124          		{
+   1125          			at_cmd_res = AT_CMD_RES_OK;	//set ok flag
+   1126          			at_cmd_end = true;
+   1127          		}
+   1128          		/* if response is ok */
+   1129          		else if (!strncmp((char*)tcom_rx_buffer, OK_String, strlen(OK_String)))
+   1130          		{
+   1131          			/*Copy ok response to rx buffer*/
+   1132          			at_cmd_res = AT_CMD_RES_OK;
+   1133          			at_cmd_end = true;
+   1134                      if (NET_POWER_ON == vATProt_Get_TCP_State())
+   1135                      {
+   1136                          vATProt_Set_TCP_State(NET_ECHO_CLOSED);
+   1137                      }
+   1138          		}
+   1139          		else if (AT_pending_tx_cmd == AT_CMD_IP_QUERY)
+   1140          		{//AT+CIFSR command has no "OK" response, so must set response to OK.
+   1141          			/*Copy ok response to rx buffer*/
+   1142          			at_cmd_res = AT_CMD_RES_OK;
+   1143          			at_cmd_end = true;
+   1144          		}
+   1145                  else if (!strncmp((char*)tcom_rx_buffer, Callready_String, strlen(Callready_String)))
+   1146                  {
+   1147                      vATProt_Set_TCP_State(NET_POWER_ON);
+   1148                  }
+   1149          #if 0
+   1150                  else if (!strncmp((char*)tcom_rx_buffer, ModuleReady_String, strlen(ModuleReady_String)))
+   1151                  {
+   1152                      vATProt_Set_TCP_State(NET_POWER_ON);
+   1153                  }
+   1154          #endif
+   1155                  /* if normal response */
+   1156          		else
+   1157          		{
+   1158          		    AT_Resp_data.Cmd_index = AT_pending_tx_cmd;
+   1159                      attach_data_len = min(strlen(tcom_rx_buffer), Num_Elems(AT_Resp_data.Resp_IT)-AT_Resp_data.length);
+   1160                      strncpy(&AT_Resp_data.Resp_IT[AT_Resp_data.length],tcom_rx_buffer,attach_data_len);   
+   1161                      AT_Resp_data.length += attach_data_len;
+   1162          		}
+   1163          
+   1164          		/* all of AT command response recieved, decode and notify */
+   1165          		if (at_cmd_end == true)
+   1166          		{
+   1167          			AT_Resp_data.Cmd_index = (uint8_t)AT_pending_tx_cmd;
+   1168          			AT_Resp_data.length = strlen(tcom_rx_buffer);
+   1169          			//strncpy(AT_Resp_data.Resp_RC + strlen(AT_Resp_data.Resp_RC), tcom_rx_buffer, AT_Resp_data.length);
+   1170          
+   1171          			prvATProt_Resp_Deep_Decode();
+   1172          		}
+   1173          	}
+   1174          }
+   1175          
+   1176          /*******************************************************************************
+   1177          *    Function:  prvATProt_URC_Decode
+   1178          *
+   1179          *  Parameters:  None
+   1180          *     Returns:  None
+   1181          * Description:  Decode_Unsolicited_Command
+   1182          *******************************************************************************/
+   1183          static bool prvATProt_URC_Decode(char* rx_buffer, uint8_t rx_count)
+   1184          {
+   1185          	bool Is_URC = false;
+   1186          	uint8_t index;
+   1187          //	uint8_t URC_length;
+   1188          
+   1189          	for( index = AT_URC_NONE + 1; index < AT_URC_NUM; index++)
+   1190          	{
+   1191          		if(!strncmp(tcom_rx_buffer, AT_URC_decode_table[index].URC,strlen(AT_URC_decode_table[index].URC)))
+   1192          		{
+   1193          			if((index > AT_URC_NONE) && (index < AT_URC_NUM))
+   1194          			{
+   1195          				if(NULL != AT_URC_decode_table[index].decode_routine)
+   1196          				{
+   1197          					AT_URC_decode_table[index].decode_routine(rx_buffer, rx_count);
+   1198          				}
+   1199          				if(NULL != AT_URC_decode_table[index].notify_urc)
+   1200          				{
+   1201          					AT_URC_decode_table[index].notify_urc();
+   1202          				}
+   1203          			}
+   1204          			
+   1205          			index = AT_URC_NUM;	//jump out the for loop
+   1206          			Is_URC = true;
+   1207          		}
+   1208          	}
+   1209          	return(Is_URC);
+   1210          }
+   1211          
+   1212          /*******************************************************************************
+   1213          *    Function:  prvATProt_URC_decode_nop
+   1214          *
+   1215          *  Parameters:  
+   1216          *     Returns:  None
+   1217          * Description:  TCOM_Decode_Unsol_Nop.
+   1218          *******************************************************************************/
+   1219          static void prvATProt_URC_decode_nop(char* rx_buffer, uint8_t rx_count)
+   1220          {
+   1221          }
+   1222          
+   1223          /*******************************************************************************
+   1224          *    Function:  prvATProt_URC_decode_Creg
+   1225          *
+   1226          *  Parameters:  
+   1227          *     Returns:  None
+   1228          * Description:  TCOM_Decode_Unsol_Orig.
+   1229          *******************************************************************************/
+   1230          static void prvATProt_URC_decode_CGreg(char* rx_buffer, uint8_t rx_count)
+   1231          {
+   1232              if ((rx_count > 8) && (rx_buffer[8] == '1'))
+   1233              {
+   1234                  net_Info.netActive = true;
+   1235              }
+   1236              else
+   1237              {
+   1238                  net_Info.netActive = false;
+   1239              }
+   1240          }
+   1241          
+   1242          /*******************************************************************************
+   1243          *    Function:  prvATProt_URC_decode_Signal
+   1244          *
+   1245          *  Parameters:  
+   1246          *     Returns:  None
+   1247          * Description:  prvATProt_URC_decode_Signal.
+   1248          *******************************************************************************/
+   1249          static void prvATProt_URC_decode_Signal(char* rx_buffer, uint8_t rx_count)
+   1250          {
+   1251              uint8_t dBm = 0;
+   1252          
+   1253              if ((rx_buffer[7] >=0x30) && (rx_buffer[7] <=0x39))
+   1254              {
+   1255                  dBm = (rx_buffer[6] - '0') * 10 + rx_buffer[7] - '0';
+   1256              }
+   1257              else
+   1258              {
+   1259                  dBm = rx_buffer[6] - '0';
+   1260              }
+   1261          
+   1262              if (dBm > 31)
+   1263              {
+   1264                  net_Info.rssi = 31;
+   1265              }
+   1266              else if (dBm <= 31)
+   1267              {
+   1268                  net_Info.rssi = dBm;
+   1269              }
+   1270              else
+   1271              {
+   1272                  net_Info.rssi = 0;
+   1273              }
+   1274          }
+   1275          
+   1276          #ifdef TCOM_GET_CCLK_EN
+   1277          /*********************************************************
+   1278          *Function Name: 	prvATProt_Resp_Decode_CCLK_Query
+   1279          *Prototype: 		prvATProt_Resp_Decode_CCLK_Query(void)
+   1280          *Called by: 		app
+   1281          *Parameters:		void
+   1282          *Returns:			void
+   1283          *Description:		prvATProt_Resp_Decode_CCLK_Query
+   1284          **********************************************************/
+   1285          static void prvATProt_decode_CCLK_Query(char* rx_buffer, uint8_t rx_count)
+   1286          {
+   1287              uint8_t i = 0;
+   1288              uint8_t len = 0;
+   1289          
+   1290              /* find the data part(after 1 colon), the value is start from space(0x20) */
+   1291              while((rx_buffer[i++] != CHAR_COLON) &&(i < rx_count))
+   1292              {
+   1293              }
+   1294              i++;
+   1295              len = min(rx_count - i,20);
+   1296              memcpy(net_Info.cclk_time, &rx_buffer[i], len);
+   1297          }
+   1298          #endif
+   1299          
+   1300          uint16_t ATProt_decode_rx(char *buffer)
+   1301          {
+   1302              uint16_t len = 0;
+   1303              char *tmp_ptr = &buffer[13];
+   1304              while ((*tmp_ptr != CR) && (*tmp_ptr != CHAR_COMMA))
+   1305              {
+   1306                  if ((*tmp_ptr >= '0') || (*tmp_ptr <= '9'))
+   1307                  {
+   1308                      len = len*10 + (*tmp_ptr - '0');
+   1309                  }
+   1310                  else
+   1311                  {
+   1312                      return 0;
+   1313                  }
+   1314                  tmp_ptr++;
+   1315              }
+   1316              while(*tmp_ptr != LF)
+   1317                  tmp_ptr++;
+   1318              tmp_ptr++;
+   1319              return len;
+   1320          }
+   1321          
+   1322          static void prvATProt_URC_decode_Recv(char* rx_buffer, uint8_t rx_count)
+   1323          {
+   1324              uint8_t mode = 0;
+   1325              mode = (rx_buffer[11] - '0');
+   1326          
+   1327              switch(mode)
+   1328              {
+   1329                  case 1:
+   1330                      /* Data received */
+   1331          //            if (TCP_IDLE == prvATProt_Get_TCP_Mode())
+   1332                      {
+   1333                          vATProt_Set_Rxtype(2);
+   1334          //                vATProt_sendAT_Command(AT_CMD_IP_RX_MANUALLY_QUERY, NULL, NULL);
+   1335                          DEBUG_PRINT0(DEBUG_MEDIUM,"[2G]: RX status 1!\n\r");
+   1336                          rx_pending_status = 1;
+   1337                      }
+   1338                      break;
+   1339                  case 2:
+   1340                      /* Parse data */
+   1341                      memset(IPDATA, 0x00, TCOM_RX_BUF_SIZE);
+   1342                      IPDataLen = min(ATProt_decode_rx(rx_buffer),TCOM_RX_BUF_SIZE);
+   1343                      rx_pending_status = 0;
+   1344                      if(IPDataLen > 0)
+   1345                      {
+   1346                          DEBUG_PRINT1(DEBUG_MEDIUM,"[2G]:ACK received [%d]!\n\r",IPDataLen);
+   1347                          if (ack_from_server == 0)
+   1348                              ack_from_server = 1;
+   1349                          prvATProt_Set_Recv_Len(IPDataLen);
+   1350          //                prvATProt_Set_TCP_Mode(TCP_RXING);
+   1351                      }
+   1352                      else if (IPDataLen == 0)
+   1353                      {
+   1354                      }
+   1355                      break;
+   1356                  default:
+   1357                      /* Invalid mode */
+   1358                      break;
+   1359              }
+   1360          }
+   1361          
+   1362          static void prvATProt_URC_decode_Gprs(char* rx_buffer, uint8_t rx_count)
+   1363          {
+   1364              uint8_t state = 0;
+   1365          
+   1366              state = (rx_buffer[8] - '0');
+   1367          
+   1368              if (state == 1)
+   1369              {
+   1370                  /* GPRS OK, go to attach network */
+   1371                  if (NET_GPRS_ATTACHED == vATProt_Get_TCP_State())
+   1372                      vATProt_Set_TCP_State(NET_APN_REGISTERED);
+   1373                  AT_Cmd_Param.gprs_ready=1;
+   1374              }
+   1375              else if (state == 0)
+   1376              {
+   1377                  /* GPRS not working, loop detect */
+   1378                  AT_Cmd_Param.gprs_ready=0;
+   1379              }
+   1380              else
+   1381              {
+   1382                  /* Nothing to do */
+   1383              }
+   1384          }
+   1385          
+   1386          static void prvATProt_URC_decode_Cmt(char* rx_buffer, uint8_t rx_count)
+   1387          {
+   1388            /* Nothing to do */
+   1389          }
+   1390          
+   1391          static void prvATProt_URC_decode_Sms(char* rx_buffer, uint8_t rx_count)
+   1392          {
+   1393              /* Parse data from rx_buffer[7] */
+   1394              sms_rx_mode=SMS_RXING;
+   1395          }
+   1396          
+   1397          static void prvATProt_URC_decode_Sim(char* rx_buffer, uint8_t rx_count)
+   1398          {
+   1399              /* Parse data from rx_buffer[7] */
+   1400              if (strncmp(READY_String, &rx_buffer[7],sizeof(READY_String)-1) == 0)
+   1401              {
+   1402                  /* SIM OK */
+   1403                  if (NET_ECHO_CLOSED == vATProt_Get_TCP_State())
+   1404                      vATProt_Set_TCP_State(NET_SIM_CONNECTED);
+   1405                  AT_Cmd_Param.sim_ready=1;
+   1406              }
+   1407              else
+   1408              {
+   1409                  DEBUG_PRINT0(DEBUG_HIGH,"[2G]:SIM Not Ready!\n\r");
+   1410                  /* SIM not OK */
+   1411                  AT_Cmd_Param.sim_ready=0;
+   1412              }
+   1413          }
+   1414          
+   1415          static void prvATProt_URC_decode_Sms_Got(char* rx_buffer, uint8_t rx_count)
+   1416          {
+   1417              uint8_t sms_num = 0;
+   1418          
+   1419              if ((rx_buffer[13]>='0') && (rx_buffer[13]<='9'))
+   1420              {
+   1421                  sms_num = ((rx_buffer[12] - '0')*10)+(rx_buffer[13] - '0');
+   1422              }
+   1423              else
+   1424              {
+   1425                  sms_num = (rx_buffer[12] - '0');
+   1426              }
+   1427          
+   1428              if (sms_num >= 1)
+   1429              {
+   1430                  /* Read SMS */
+   1431                  vATProt_sendAT_Command(AT_CMD_READ_SMS_QUERY, NULL, NULL);
+   1432                  current_sms_index=sms_num;
+   1433                  total_sms_num++;
+   1434              } 
+   1435              else
+   1436              {
+   1437                  /* error */
+   1438              }
+   1439          }
+   1440          
+   1441          static void prvATProt_URC_decode_Netreg(char* rx_buffer, uint8_t rx_count)
+   1442          {
+   1443              uint8_t netsts = 0;
+   1444              char *buf_ptr=rx_buffer;
+   1445              uint8_t *p_temp;
+   1446          
+   1447              if ((rx_buffer[9]<'0') || (rx_buffer[9]>'9'))
+   1448              {
+   1449                  netsts=0;
+   1450                  AT_Cmd_Param.netreg=netsts;
+   1451                  return;
+   1452              }
+   1453              netsts = (rx_buffer[9] - '0');
+   1454          
+   1455              if ((netsts == 1) || (netsts == 5))
+   1456              {
+   1457          //        if (NET_IMSI_GOT == vATProt_Get_TCP_State())
+   1458                  uint8_t len=0;
+   1459                  vATProt_Set_TCP_State(NET_REGISTERED);
+   1460                  p_temp=Get_Filed_Data_Pointer(buf_ptr,2);
+   1461                  len = Get_Next_Data_Len_Before_Comma(p_temp);
+   1462                  if (len>0)
+   1463                  {
+   1464          //            uint32_t lac=StrtoHex(p_temp+1,len-2);
+   1465                      AT_Cmd_Param.lac[0]=StrtoHex(p_temp+1);
+   1466                      AT_Cmd_Param.lac[1]=StrtoHex(p_temp+3);
+   1467                  }
+   1468                  p_temp=Get_Filed_Data_Pointer(buf_ptr,3);
+   1469                  len = Get_Next_Data_Len_Before_Comma(p_temp);
+   1470                  if (len>0)
+   1471                  {
+   1472                      AT_Cmd_Param.cell_id[0]=StrtoHex(p_temp+1);
+   1473                      AT_Cmd_Param.cell_id[1]=StrtoHex(p_temp+3);
+   1474                  }
+   1475              }
+   1476              else
+   1477              {
+   1478                  /* error */
+   1479                  DEBUG_PRINT1(DEBUG_MEDIUM,"[2G]:Wrong CREG [%d]!\n\r",netsts);
+   1480              }
+   1481              AT_Cmd_Param.netreg=netsts;
+   1482          }
+   1483          
+   1484          static void prvATProt_URC_decode_Pdp(char* rx_buffer, uint8_t rx_count)
+   1485          {
+   1486          }
+   1487          
+   1488          static void prvATProt_URC_decode_Temp(char* rx_buffer, uint8_t rx_count)
+   1489          {
+   1490              uint8_t data;
+   1491              if (rx_buffer[9] == '-')
+   1492              {
+   1493                  data = rx_buffer[10] - '0';
+   1494                  if ((rx_buffer[11] != '.') && (rx_buffer[11] != '\n'))
+   1495                  {
+   1496                      data *= 10;
+   1497                      data += rx_buffer[11] - '0';
+   1498                  }
+   1499                  net_Info.dev_temp = 0-data;
+   1500              }
+   1501              else
+   1502              {
+   1503                  data = rx_buffer[9] - '0';
+   1504                  if ((rx_buffer[10] != '.') && (rx_buffer[10] != '\n'))
+   1505                  {
+   1506                      data *= 10;
+   1507                      data += rx_buffer[10] - '0';
+   1508                  }
+   1509                  net_Info.dev_temp = data;
+   1510              }
+   1511              DEBUG_PRINT1(DEBUG_MEDIUM,"[2G]: temperature [%d]\n\r", net_Info.dev_temp);
+   1512          }
+   1513          
+   1514          static void prvATProt_URC_decode_Cme_Err(char* rx_buffer, uint8_t rx_count)
+   1515          {
+   1516              // handle CME error
+   1517          }
+   1518          
+   1519          static void prvATProt_URC_decode_SMS_List(char* rx_buffer, uint8_t rx_count)
+   1520          {
+   1521          }
+   1522          
+   1523          static void prvATProt_URC_decode_SMS_Recv(char* rx_buffer, uint8_t rx_count)
+   1524          {
+   1525              // Handle SMS data
+   1526              
+   1527          }
+   1528          
+   1529          static void prvATProt_URC_decode_Net_Recv(char* rx_buffer, uint8_t rx_count)
+   1530          {
+   1531          }
+   1532          /*
+   1533          static void prvATProt_URC_TCP_Recv(char* rx_buffer, uint8_t rx_count)
+   1534          {
+   1535              // Handle TCP data
+   1536              uint8_t i=0;
+   1537              uint8_t data_split_pos=0;
+   1538              uint16_t data_len=0;
+   1539              // With "IPD" header, shall be set with "AT+QIHEAD=1\n\r"
+   1540              if (strncmp(rx_buffer,"IPD",3)!=0)
+   1541              {
+   1542                  return;
+   1543              }
+   1544              for (i=0;i<(rx_count-1);i++)
+   1545              {
+   1546                  if(*(rx_buffer+i)==':')
+   1547                  {
+   1548                      data_split_pos=i;
+   1549                      break;
+   1550                  }
+   1551              }
+   1552              // index 3 to ':', data length
+   1553              for (i=3;i<data_split_pos;i++)
+   1554              {
+   1555                  if ((*(rx_buffer+i)>'9') || (*(rx_buffer+i)<'0'))
+   1556                      break;
+   1557                  data_len=data_len*10+*(rx_buffer+i)-'0';
+   1558              }
+   1559              // invalid length, exit
+   1560              if (data_len==0)
+   1561              {
+   1562                  return;
+   1563              }
+   1564              // Put data into parser
+   1565              prvATProt_Decode_Ipdata(rx_buffer+data_split_pos+1, data_len);
+   1566          }
+   1567          */
+   1568          
+   1569          static void prvATProt_URC_decode_Clock(char* rx_buffer, uint8_t rx_count)
+   1570          {
+   1571              if (rx_count<=25)
+   1572                  return;
+   1573              clock_ref.year[0]='2';
+   1574              clock_ref.year[1]='0';
+   1575              clock_ref.year[2]=*(rx_buffer+8);
+   1576              clock_ref.year[3]=*(rx_buffer+9);
+   1577              clock_ref.month[0]=*(rx_buffer+11);
+   1578              clock_ref.month[1]=*(rx_buffer+12);
+   1579              clock_ref.day[0]=*(rx_buffer+14);
+   1580              clock_ref.day[1]=*(rx_buffer+15);
+   1581              clock_ref.hour[0]=*(rx_buffer+17);
+   1582              clock_ref.hour[1]=*(rx_buffer+18);
+   1583              clock_ref.min[0]=*(rx_buffer+20);
+   1584              clock_ref.min[1]=*(rx_buffer+21);
+   1585              clock_ref.sec[0]=*(rx_buffer+23);
+   1586              clock_ref.sec[1]=*(rx_buffer+24);
+   1587          }
+   1588          
+   1589          static void prvATProt_parse_sms(char* rx_buffer, uint8_t rx_count)
+   1590          {
+   1591              char tmp_data[100];
+   1592              uint8_t data_len=0;
+   1593              uint8_t i=0;
+   1594              for (i=0;(i*2)<rx_count;i++)
+   1595              {
+   1596                  tmp_data[i]=StrtoHex(rx_buffer+(i*2));
+   1597                  data_len++;
+   1598              }
+   1599              prvATProt_Decode_Ipdata(tmp_data, data_len);
+   1600          }
+   1601          
+   1602          /*********************************************************
+   1603          *Function Name: 	prvATProt_Resp_Deep_Decode
+   1604          *Prototype: 		prvATProt_Resp_Deep_Decode(void)
+   1605          *Called by: 		app
+   1606          *Parameters:		void
+   1607          *Returns:			void
+   1608          *Description:		prvATProt_AT_Resp_Deep_Decode
+   1609          **********************************************************/
+   1610          static void prvATProt_Resp_Deep_Decode(void)
+   1611          {
+   1612              uint8_t cnt;
+   1613              for( cnt = 0; cnt < Num_Elems(AT_Resp_decode_table); cnt++)
+   1614              {// Deep decode table is not necessary for every command, so need check the table length, not the command length.
+   1615                  if(AT_Resp_data.Cmd_index == AT_Resp_decode_table[cnt].AT_Res_Index)
+   1616                  {
+   1617                      if(NULL != AT_Resp_decode_table[cnt].decode_routine)
+   1618                      {
+   1619                          AT_Resp_decode_table[cnt].decode_routine();
+   1620                      }
+   1621                      break;
+   1622                  }
+   1623              }
+   1624          }
+   1625          
+   1626          /*********************************************************
+   1627          *Function Name: 	prvATProt_Resp_Decode_IP_INIT_Execute
+   1628          *Prototype: 		prvATProt_Resp_Decode_IP_INIT_Execute(void)
+   1629          *Called by: 		app
+   1630          *Parameters:		void
+   1631          *Returns:			void
+   1632          *Description:		prvATProt_AT_Resp_Deep_Decode
+   1633          **********************************************************/
+   1634          static void prvATProt_Resp_Decode_IP_INIT_Execute(void)
+   1635          {
+   1636              if (NET_GPRS_ATTACHED == vATProt_Get_TCP_State())
+   1637                  vATProt_Set_TCP_State(NET_APN_REGISTERED);
+   1638          }
+   1639          /*********************************************************
+   1640          *Function Name: 	prvATProt_Resp_Decode_IP_REG_Execute
+   1641          *Prototype: 		prvATProt_Resp_Decode_IP_REG_Execute(void)
+   1642          *Called by: 		app
+   1643          *Parameters:		void
+   1644          *Returns:			void
+   1645          *Description:		prvATProt_AT_Resp_Deep_Decode
+   1646          **********************************************************/
+   1647          static void prvATProt_Resp_Decode_IP_REG_Execute(void)
+   1648          {
+   1649          //    if (NET_APN_REGISTERED == vATProt_Get_TCP_State())
+   1650              vATProt_Set_TCP_State(NET_APN_REGISTERED);
+   1651          }
+   1652          /*********************************************************
+   1653          *Function Name: 	prvATProt_Resp_Decode_SET_Echo
+   1654          *Prototype: 		prvATProt_Resp_Decode_SET_Echo(void)
+   1655          *Called by: 		app
+   1656          *Parameters:		void
+   1657          *Returns:			void
+   1658          *Description:		prvATProt_AT_Resp_Deep_Decode
+   1659          **********************************************************/
+   1660          static void prvATProt_Resp_Decode_SET_Echo(void)
+   1661          {
+   1662              if (NET_WAIT_AT == vATProt_Get_TCP_State())
+   1663                  vATProt_Set_TCP_State(NET_POWER_ON);
+   1664          }
+   1665          
+   1666          /*********************************************************
+   1667          *Function Name: 	prvATProt_Resp_Decode_Answer_Call
+   1668          *Prototype: 		prvATProt_Resp_Decode_Answer_Call(void)
+   1669          *Called by: 		app
+   1670          *Parameters:		void
+   1671          *Returns:			void
+   1672          *Description:		prvATProt_AT_Resp_Deep_Decode
+   1673          **********************************************************/
+   1674          static void prvATProt_Resp_Decode_Answer_Call(void)
+   1675          {
+   1676              DEBUG_PRINT0(DEBUG_LOW,"[2G]:Call coming, answered");
+   1677          }
+   1678          /*********************************************************
+   1679          *Function Name: 	prvATProt_Resp_Decode_IMSI_Query
+   1680          *Prototype: 		prvATProt_Resp_Decode_IMSI_Query(void)
+   1681          *Called by: 		app
+   1682          *Parameters:		void
+   1683          *Returns:			void
+   1684          *Description:		prvATProt_AT_Resp_Deep_Decode
+   1685          **********************************************************/
+   1686          static void prvATProt_Resp_Decode_IMSI_Query(void)
+   1687          {
+   1688              DEBUG_PRINT1(DEBUG_MEDIUM,"IMSI:%s\n\r",AT_Resp_data.Resp_IT);
+   1689              if ((AT_Resp_data.Resp_IT[0] >= '0') && (AT_Resp_data.Resp_IT[0] <= '9'))
+   1690              {
+   1691                  memcpy(net_Info.imsi, AT_Resp_data.Resp_IT, sizeof(net_Info.imsi));   
+   1692          //        vATProt_Set_TCP_State(NET_IMSI_GOT);
+   1693              }
+   1694          }
+   1695          /*********************************************************
+   1696          *Function Name: 	prvATProt_Resp_Decode_IMEI_Query
+   1697          *Prototype: 		prvATProt_Resp_Decode_IMEI_Query(void)
+   1698          *Called by: 		app
+   1699          *Parameters:		void
+   1700          *Returns:			void
+   1701          *Description:		prvATProt_AT_Resp_Deep_Decode
+   1702          **********************************************************/
+   1703          static void prvATProt_Resp_Decode_IMEI_Query(void)
+   1704          {
+   1705              uint8_t imei_tmp[16];
+   1706              uint8_t i=0;
+   1707              memcpy(net_Info.imei, AT_Resp_data.Resp_IT, sizeof(net_Info.imei));
+   1708              memcpy(imei_tmp,net_Info.imei,sizeof(net_Info.imei));
+   1709              imei_tmp[15]=0;
+   1710              DEBUG_PRINT1(DEBUG_MEDIUM,"IMEI:%s\n\r",net_Info.imei);
+   1711              imei_tmp[15]='f';
+   1712              for(i=0;i<8;i++)
+   1713              {
+   1714                  AT_Cmd_Param.imei[i]=StrtoHex(imei_tmp+(i*2));
+   1715              }
+   1716          }
+   1717          
+   1718          /*********************************************************
+   1719          *Function Name: 	prvATProt_Resp_Decode_IMEI_Query
+   1720          *Prototype: 		prvATProt_Resp_Decode_IMEI_Query(void)
+   1721          *Called by: 		app
+   1722          *Parameters:		void
+   1723          *Returns:			void
+   1724          *Description:		prvATProt_AT_Resp_Deep_Decode
+   1725          **********************************************************/
+   1726          static void prvATProt_Resp_Decode_IP_Query(void)
+   1727          {
+   1728              if (NET_GPRS_ACTIVATED == vATProt_Get_TCP_State())
+   1729              {
+   1730                  vATProt_Set_TCP_State(NET_IP_GOT);
+   1731                  //at_cmd_res = AT_CMD_RES_OK; 
+   1732                  DEBUG_PRINT1(DEBUG_MEDIUM,"%s\n\r",(char *)AT_Resp_data.Resp_IT);
+   1733              }
+   1734          }
+   1735          
+   1736          /*********************************************************
+   1737          *Function Name: 	prvATProt_Resp_Decode_SW_Ver
+   1738          *Prototype: 		prvATProt_Resp_Decode_SW_Ver(void)
+   1739          *Called by: 		app
+   1740          *Parameters:		void
+   1741          *Returns:			void
+   1742          *Description:		prvATProt_Resp_Decode_SW_Ver
+   1743          **********************************************************/
+   1744          static void prvATProt_Resp_Decode_SW_Ver(void)
+   1745          {
+   1746              memcpy(net_Info.swver, AT_Resp_data.Resp_IT, min(sizeof(net_Info.swver),sizeof(AT_Resp_data.Resp_IT)));
+   1747          }
+   1748          
+   1749          /*******************************************************************************
+   1750          *    Function:  prvATProt_Transmit
+   1751          *
+   1752          *  Parameters:  None
+   1753          *     Returns:  None
+   1754          * Description:  prvATProt_Transmit
+   1755          *******************************************************************************/
+   1756          static void prvATProt_Transmit(uint8_t AT_Cmd_index)
+   1757          {
+   1758              AT_Tx_ATTEMPS = AT_Cmd_Info_table[AT_Cmd_index].AT_Retry_Max;
+   1759              AT_Resp_data.Cmd_index = 0x00;
+   1760              AT_Resp_data.length = 0x00;
+   1761              memset(AT_Resp_data.Resp_IT, 0x00, 100);
+   1762          
+   1763              if((AT_Cmd_Info_table[AT_Cmd_index].AT_Cmd_Type != INVALID)&&(AT_Cmd_Info_table[AT_Cmd_index].Supported))
+   1764              {
+   1765                  prvATProt_AT_Command_Common_encode(AT_Cmd_index);//firstly encode AT command
+   1766          
+   1767                  if((AT_Cmd_Info_table[AT_Cmd_index].AT_Cmd_Type & EXCUTE) == EXCUTE)
+   1768                  {
+   1769                      prvATProt_AT_Command_Deep_encode(AT_Cmd_index);//application data to be sent
+   1770                  }
+   1771              }
+   1772          
+   1773              if(tcom_tx_num_bytes > TCOM_TX_BUF_SIZE -2)
+   1774              {
+   1775                  //Reserved 2bytes for LF,CR
+   1776                  tcom_tx_num_bytes = TCOM_TX_BUF_SIZE -2;
+   1777              }
+   1778              /*fix suffix CR and LF*/
+   1779              tcom_tx_buffer[tcom_tx_num_bytes ++] = CR;
+   1780              tcom_tx_buffer[tcom_tx_num_bytes ++] = LF;
+   1781          
+   1782          #ifdef USE_DEBUG
+   1783              DEBUG_PRINT1(DEBUG_MEDIUM,"[2F TX]%s",tcom_tx_buffer);
+   1784          #endif
+   1785              prvATProt_Uart_Transmit(tcom_tx_buffer, tcom_tx_num_bytes);
+   1786          
+   1787              Response_Timeout_timer = AT_Cmd_Info_table[AT_Cmd_index].timeout;
+   1788              AT_Resp_Timeout = OS_Time() + Response_Timeout_timer;   //set reception timer
+   1789              tcom_frame_tx_attempts ++;
+   1790          
+   1791              AT_Cmd_Tx_State = TX_CS_WAIT_FOR_RESP;
+   1792          }
+   1793          /*******************************************************************************
+   1794          *    Function:  prvATProt_Retransmit
+   1795          *
+   1796          *  Parameters:  None
+   1797          *     Returns:  None
+   1798          * Description:  prvATProt_Retransmit
+   1799          *******************************************************************************/
+   1800          static void prvATProt_Retransmit(void)
+   1801          {
+   1802              at_cmd_res = AT_CMD_RES_NONE;
+   1803              AT_Resp_Timeout = OS_Time() + Response_Timeout_timer;   //set reception timer
+   1804              AT_Cmd_Tx_State = TX_CS_WAIT_FOR_RESP;
+   1805              tcom_frame_tx_attempts++;
+   1806              prvATProt_Uart_Transmit(tcom_tx_buffer, tcom_tx_num_bytes);
+   1807          }
+   1808          
+   1809          /*******************************************************************************
+   1810          *    Function:  prvATProt_Wait_Resp
+   1811          *
+   1812          *  Parameters:  None
+   1813          *     Returns:  None
+   1814          * Description:  prvATProt_Wait_resp
+   1815          *******************************************************************************/
+   1816          static void prvATProt_Wait_Resp(void)
+   1817          {
+   1818              /* response timeout, response error/CME error: retry */
+   1819              /* check response for each command, we need to know which command sent. If get '>'
+   1820                 for data send, post data after the response. */
+   1821          
+   1822              if( (OS_Time() > AT_Resp_Timeout) ||(at_cmd_res == AT_CMD_RES_ERR))//||(at_cmd_res == AT_CMD_RES_CME_ERR) )
+   1823              {
+   1824                  if(AT_pending_tx_cmd == AT_CMD_SEND_POST_DATA)
+   1825                  {
+   1826                      prvATProt_AT_Transmit_Reset();
+   1827                  }
+   1828                  else if(tcom_frame_tx_attempts < AT_Tx_ATTEMPS)
+   1829                  {
+   1830                      AT_Cmd_Tx_State = TX_CS_RETRANSMIT; //set tx to retransmit state.
+   1831                  }
+   1832                  else
+   1833                  {
+   1834                      if((at_cmd_res == AT_CMD_RES_NONE) 
+   1835                        && ((AT_Cmd_Info_table[AT_pending_tx_cmd].AT_Cmd_Type & FATAL) == FATAL))
+   1836                      {//Fatal command, reset module if failed.
+   1837                          prvATProt_AT_Transmit_Reset();
+   1838                          vATProt_Com_Reset();
+   1839                          vATProt_Power_Off();
+   1840                          rl_delay_without_schedule(1000);
+   1841                          vATProt_Set_TCP_State(NET_INIT);
+   1842                          vATProt_Power_On();
+   1843                      }
+   1844                      else if((at_cmd_res == AT_CMD_RES_NONE) 
+   1845                      && ((AT_Cmd_Info_table[AT_pending_tx_cmd].AT_Cmd_Type & BASIC) != BASIC))
+   1846                      {
+   1847                          /* if no responsed from modem,reset it */
+   1848                          prvATProt_AT_Transmit_Reset();
+   1849                      }
+   1850                      else
+   1851                      {
+   1852                          prvATProt_AT_Transmit_Reset();
+   1853                      }
+   1854                  }
+   1855              }
+   1856              else if(AT_pending_tx_cmd == AT_CMD_SEND_POST_DATA)
+   1857              {
+   1858                  if(TCP_TX_POSTDATA == prvATProt_Get_TCP_Mode())
+   1859                  {
+   1860                      prvATProt_AT_Transmit_Reset();
+   1861                  }
+   1862              }
+   1863              else if (at_cmd_res == AT_CMD_RES_OK)
+   1864              {
+   1865                  prvATProt_AT_Transmit_Reset();
+   1866              }
+   1867          }
+   1868          /*********************************************************
+   1869          *Function Name: 	prvATProt_AT_Transmit_Reset
+   1870          *Prototype: 		prvATProt_AT_Transmit_Reset(void)
+   1871          *Called by: 		app
+   1872          *Parameters:		void
+   1873          *Returns:			void
+   1874          *Description:		prvATProt_Transmit_Reset
+   1875          **********************************************************/
+   1876          static void prvATProt_AT_Transmit_Reset(void)
+   1877          {
+   1878              /* notify app */
+   1879          /*    if (AT_Cmd_Callback[AT_pending_tx_cmd] != NULL)
+   1880              {
+   1881                  AT_Cmd_Callback[AT_pending_tx_cmd](at_cmd_res);
+   1882              }*/
+   1883              at_cmd_res = AT_CMD_RES_NONE;
+   1884              AT_Cmd_Tx_State = TX_IDLE;
+   1885              AT_Resp_Rx_State = RX_IDLE;
+   1886              AT_pending_tx_cmd = AT_CMD_NONE;
+   1887              tcom_frame_tx_attempts = 0;
+   1888              tcom_receiving_frame = false;
+   1889          }
+   1890          
+   1891          static void prvATProt_AT_Var_Reset(void)
+   1892          {
+   1893              at_cmd_res = AT_CMD_RES_NONE;
+   1894              AT_Cmd_Tx_State = TX_IDLE;
+   1895              AT_pending_tx_cmd = AT_CMD_NONE;
+   1896              tcom_frame_tx_attempts = 0;
+   1897              tcom_receiving_frame = false;
+   1898              AT_Resp_Rx_State = RX_IDLE;
+   1899              memset(tcom_tx_queue,0,sizeof(tcom_tx_queue));
+   1900              memset(tcom_tx_buffer, 0x00, TCOM_TX_BUF_SIZE);
+   1901              AT_Cmd_Param.sim_ready=0;
+   1902              AT_Cmd_Param.gprs_ready=0;
+   1903              memcpy(AT_Cmd_Param.APN,DEFAULT_APN,strlen(DEFAULT_APN));
+   1904          
+   1905          #ifdef TCOM_SUPPORT_SMS
+   1906              SMS_back_data.SMS_Len = 0;
+   1907              SMS_back_data.receive_no = 0;
+   1908              memset(SMS_back_data.SMS_data, 0x00, SMS_DATA_MAX_LEN);
+   1909          #endif
+   1910          
+   1911              net_Info.netActive = false;
+   1912          //   memset(net_Info.linkSts,0x00,sizeof(net_Info.linkSts));
+   1913          
+   1914              prvATProt_Set_TCP_Mode(TCP_IDLE);//Clear TCP mode after module reset.
+   1915          }
+   1916          
+   1917          /***********************************************************************************
+   1918          *Function Name: 	prvATProt_AT_Command_Common_encode
+   1919          *Prototype: 		prvATProt_AT_Command_Common_encode(uint8_t AT_Cmd_index)
+   1920          *Called by: 		app
+   1921          *Parameters:		void
+   1922          *Returns:			void
+   1923          *Description:		common encode
+   1924          ************************************************************************************/
+   1925          static void prvATProt_AT_Command_Common_encode(uint8_t AT_Cmd_index)
+   1926          {
+   1927              uint8_t Cmd_Name_length;
+   1928          
+   1929              /*Get the command name length*/
+   1930              Cmd_Name_length = strlen(AT_Cmd_Info_table[AT_Cmd_index].AT_Cmd_Name);
+   1931              /*Copy command name to tx buffer*/
+   1932              strncpy(tcom_tx_buffer, AT_Cmd_Info_table[AT_Cmd_index].AT_Cmd_Name, Cmd_Name_length);
+   1933              tcom_tx_num_bytes = Cmd_Name_length;
+   1934          }
+   1935          
+   1936          /***********************************************************************************
+   1937          *Function Name: 	prvATProt_AT_Command_Deep_encode_SendSMS
+   1938          *Prototype: 		prvATProt_AT_Command_Deep_encode_SendSMS(void)
+   1939          *Called by: 		app
+   1940          *Parameters:		void
+   1941          *Returns:			void
+   1942          *Description:		common encode
+   1943          ************************************************************************************/
+   1944          static void prvATProt_AT_Command_Deep_encode_SendSMS(void)
+   1945          {
+   1946          #ifdef TCOM_SUPPORT_SMS
+   1947             uint8_t Cmd_Data_length;
+   1948          
+   1949             Cmd_Data_length = sprintf(&tcom_tx_buffer[tcom_tx_num_bytes],"%d",SMS_back_data.SMS_Len);
+   1950             tcom_tx_num_bytes = tcom_tx_num_bytes + Cmd_Data_length;
+   1951             
+   1952             tcom_tx_buffer[tcom_tx_num_bytes] = CR;
+   1953             tcom_tx_num_bytes++;
+   1954          #endif
+   1955          }
+   1956          
+   1957          #ifdef TEST_ACK_TIMER
+   1958          static void prvATProt_Reconnect(void)
+   1959          {
+   1960              //prvATProt_AT_Transmit_Reset();
+   1961              vATProt_sendAT_Command(AT_CMD_IPCLOSE_EXCUTE, NULL, NULL);
+   1962          }
+   1963          #endif
+   1964          
+   1965          /***********************************************************************************
+   1966          *Function Name: 	prvATProt_AT_Command_Deep_encode_SendPostdata
+   1967          *Prototype: 		prvATProt_AT_Command_Deep_encode_SendPostdata(void)
+   1968          *Called by: 		app
+   1969          *Parameters:		void
+   1970          *Returns:			void
+   1971          *Description:		common encode
+   1972          ************************************************************************************/
+   1973          static void prvATProt_AT_Command_Deep_encode_SendPostdata(void)
+   1974          {
+   1975              uint16_t tcp_data_len;
+   1976          
+   1977              if( 1 == tcp_tx_mode)//Send ACK
+   1978              {
+   1979                  tcp_data_len = TCP_backup_data.ACK_Len;
+   1980                  if((tcom_tx_num_bytes + tcp_data_len) < TCOM_TX_BUF_SIZE - 3 )//keep 3 bytes: 0x1A,0x0D,0x0A
+   1981                  {
+   1982                      memcpy(&tcom_tx_buffer[tcom_tx_num_bytes],TCP_backup_data.Ack_data,tcp_data_len);
+   1983                      tcom_tx_num_bytes = tcom_tx_num_bytes+tcp_data_len;
+   1984                      tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_CTRLZ;
+   1985                      tcom_tx_num_bytes++;
+   1986                  }
+   1987              }
+   1988              else//Send Command
+   1989              {
+   1990                  tcp_data_len = TCP_backup_data.TCP_Len;
+   1991                  if((tcom_tx_num_bytes + tcp_data_len) < TCOM_TX_BUF_SIZE - 3 )//keep 3 bytes: 0x1A,0x0D,0x0A
+   1992                  {
+   1993                      memcpy(&tcom_tx_buffer[tcom_tx_num_bytes],TCP_backup_data.TCP_data,tcp_data_len);
+   1994                      tcom_tx_num_bytes = tcom_tx_num_bytes+tcp_data_len;
+   1995                      tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_CTRLZ;
+   1996                      tcom_tx_num_bytes++;
+   1997                  }
+   1998                  else
+   1999                  {
+   2000                      if(tcom_tx_num_bytes > TCOM_TX_BUF_SIZE -3)//keep 3 bytes: 0x1B,0x0D,0x0A
+   2001                      {
+   2002                          //Reserved 2bytes for LF,CR
+   2003                          tcom_tx_num_bytes = TCOM_TX_BUF_SIZE -3;
+   2004                      }
+   2005                      tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_ESC;
+   2006                      tcom_tx_num_bytes++;
+   2007                      DEBUG_PRINT0(DEBUG_HIGH,"[2G]:ERROR:Tx Buffer Overflow!!\n\r");        
+   2008                  }
+   2009          #ifdef TEST_ACK_TIMER
+   2010                  if (TMR_Is_Timer_Stop(GPRS_CONN_TIMER))
+   2011                      TMR_Start_Timer(GPRS_CONN_TIMER, 60000 , prvATProt_Reconnect);
+   2012          #endif
+   2013              }
+   2014              prvATProt_Set_TCP_Mode(TCP_IDLE);//Clear TCP mode, after send out post data.
+   2015              //at_cmd_res = AT_CMD_RES_OK; //Delete it, do not set response ok manually. Send post data will wait 100ms timer out.
+   2016          }
+   2017          
+   2018          /***********************************************************************************
+   2019          *Function Name: 	prvATProt_AT_Command_Deep_encode_Init
+   2020          *Prototype: 		prvATProt_AT_Command_Deep_encode_Init(void)
+   2021          *Called by: 		app
+   2022          *Parameters:		void
+   2023          *Returns:			void
+   2024          *Description:		common encode
+   2025          ************************************************************************************/
+   2026          static void prvATProt_AT_Command_Deep_encode_Init(void)
+   2027          {
+   2028              //uint8_t Cmd_Data_length;
+   2029              //Cmd_Data_length = strlen(AT_Cmd_Data.APN);
+   2030              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2031              tcom_tx_num_bytes++;
+   2032          
+   2033              /*Copy command data to tx buffer*/
+   2034              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, DEFAULT_APN,sizeof(DEFAULT_APN)-1);
+   2035              tcom_tx_num_bytes = tcom_tx_num_bytes+sizeof(DEFAULT_APN)-1;
+   2036          
+   2037              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2038              tcom_tx_num_bytes++;
+   2039          }
+   2040          #ifdef TCOM_GET_CCLK_EN
+   2041          /***********************************************************************************
+   2042          *Function Name: 	prvATProt_AT_Command_Deep_encode_SetCCLk
+   2043          *Prototype: 		prvATProt_AT_Command_Deep_encode_SetCCLk(void)
+   2044          *Called by: 		app
+   2045          *Parameters:		void
+   2046          *Returns:			void
+   2047          *Description:		common encode
+   2048          ************************************************************************************/
+   2049          static void prvATProt_AT_Command_Deep_encode_SetCCLk(void)
+   2050          {
+   2051              uint8_t Cmd_Data_length;
+   2052          
+   2053              Cmd_Data_length = strlen(Tcom_cclk_cal_time);
+   2054          
+   2055              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2056              tcom_tx_num_bytes++;
+   2057              /*Copy command data to tx buffer*/
+   2058              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, Tcom_cclk_cal_time,Cmd_Data_length);
+   2059              tcom_tx_num_bytes = tcom_tx_num_bytes+Cmd_Data_length;
+   2060          
+   2061              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2062              tcom_tx_num_bytes++;
+   2063          }
+   2064          #endif
+   2065          /***********************************************************************************
+   2066          *Function Name: 	prvATProt_AT_Command_Deep_encode_Open
+   2067          *Prototype: 		prvATProt_AT_Command_Deep_encode_Open(void)
+   2068          *Called by: 		app
+   2069          *Parameters:		void
+   2070          *Returns:			void
+   2071          *Description:		common encode
+   2072          ************************************************************************************/
+   2073          static void prvATProt_AT_Command_Deep_encode_Open(void)
+   2074          {
+   2075              uint8_t Cmd_Data_length;
+   2076              strncpy(AT_Cmd_Param.IP_Open_Setting.IP_LinkType,"TCP",4);
+   2077          
+   2078              Get_IP_config(AT_Cmd_Param.IP_Open_Setting.Dest_IP, AT_Cmd_Param.IP_Open_Setting.Dest_port);
+   2079          
+   2080              // Copy link type
+   2081              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2082              Cmd_Data_length = strlen(AT_Cmd_Param.IP_Open_Setting.IP_LinkType);
+   2083              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, AT_Cmd_Param.IP_Open_Setting.IP_LinkType,Cmd_Data_length);
+   2084              tcom_tx_num_bytes = tcom_tx_num_bytes+Cmd_Data_length;
+   2085              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2086          
+   2087              // ---add "," ---
+   2088              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_COMMA;
+   2089          
+   2090              // Copy dest IP
+   2091              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2092              Cmd_Data_length = strlen(AT_Cmd_Param.IP_Open_Setting.Dest_IP);
+   2093              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, AT_Cmd_Param.IP_Open_Setting.Dest_IP,Cmd_Data_length);
+   2094              tcom_tx_num_bytes = tcom_tx_num_bytes+Cmd_Data_length;
+   2095              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2096          
+   2097              // ---add "," ---
+   2098              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_COMMA;
+   2099          
+   2100              // Copy dest port
+   2101              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2102              Cmd_Data_length = strlen(AT_Cmd_Param.IP_Open_Setting.Dest_port);
+   2103              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, AT_Cmd_Param.IP_Open_Setting.Dest_port,Cmd_Data_length);
+   2104              tcom_tx_num_bytes = tcom_tx_num_bytes+Cmd_Data_length;
+   2105              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2106          }
+   2107          
+   2108          /***********************************************************************************
+   2109          *Function Name: 	prvATProt_AT_Command_Deep_encode_Send
+   2110          *Prototype: 		prvATProt_AT_Command_Deep_encode_Send(void)
+   2111          *Called by: 		app
+   2112          *Parameters:		void
+   2113          *Returns:			void
+   2114          *Description:		common encode
+   2115          ************************************************************************************/
+   2116          static void prvATProt_AT_Command_Deep_encode_Send(void)
+   2117          {
+   2118             uint16_t Cmd_Data_length = 0;
+   2119          
+   2120             Cmd_Data_length = DECtoStr((uint8_t *)(tcom_tx_buffer+tcom_tx_num_bytes),(uint8_t *)(&(TCP_backup_data.TCP_Len)),2);
+   2121             tcom_tx_num_bytes = tcom_tx_num_bytes+Cmd_Data_length;
+   2122             tcp_tx_mode = 0;//send command
+   2123             prvATProt_Set_TCP_Mode(TCP_TXING);
+   2124          }
+   2125          
+   2126          /***********************************************************************************
+   2127          *Function Name: 	prvATProt_AT_Command_Deep_encode
+   2128          *Prototype: 		prvATProt_AT_Command_Deep_encode(uint8_t AT_Cmd_index)
+   2129          *Called by: 		app
+   2130          *Parameters:		void
+   2131          *Returns:			void
+   2132          *Description:		common encode
+   2133          ************************************************************************************/
+   2134          static void prvATProt_AT_Command_Deep_encode(uint8_t AT_Cmd_index)
+   2135          {
+   2136              if (ATProt_encode_table[AT_Cmd_index] != NULL)
+   2137              {
+   2138                  ATProt_encode_table[AT_Cmd_index]();
+   2139              }
+   2140          }
+   2141          
+   2142          static void prvATProt_AT_Command_Deep_encode_Sendack(void)
+   2143          {
+   2144          }
+   2145          
+   2146          static void prvATProt_AT_Command_Deep_encode_Multiip(void)
+   2147          {
+   2148              tcom_tx_buffer[tcom_tx_num_bytes++] = '1';
+   2149          }
+   2150          
+   2151          static void prvATProt_AT_Command_Deep_encode_Cfun(void)
+   2152          {
+   2153          }
+   2154          
+   2155          static void prvATProt_AT_Command_Deep_encode_Rxget(void)
+   2156          {
+   2157          }
+   2158          
+   2159          // AT command for server connection
+   2160          static void prvATProt_AT_Command_Deep_encode_QIOPEN	(void)
+   2161          {
+   2162              uint8_t Cmd_Data_length;
+   2163              strncpy(AT_Cmd_Param.IP_Open_Setting.IP_LinkType,"TCP",4);
+   2164          
+   2165              Get_IP_config(AT_Cmd_Param.IP_Open_Setting.Dest_IP,AT_Cmd_Param.IP_Open_Setting.Dest_port);
+   2166          
+   2167              // Copy link type
+   2168              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2169              Cmd_Data_length = strlen(AT_Cmd_Param.IP_Open_Setting.IP_LinkType);
+   2170              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, AT_Cmd_Param.IP_Open_Setting.IP_LinkType,Cmd_Data_length);
+   2171              tcom_tx_num_bytes = tcom_tx_num_bytes+Cmd_Data_length;
+   2172              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2173          
+   2174              // ---add "," ---
+   2175              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_COMMA;
+   2176          
+   2177              // Copy dest IP
+   2178              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2179              Cmd_Data_length = strlen(AT_Cmd_Param.IP_Open_Setting.Dest_IP);
+   2180              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, AT_Cmd_Param.IP_Open_Setting.Dest_IP,Cmd_Data_length);
+   2181              tcom_tx_num_bytes = tcom_tx_num_bytes+Cmd_Data_length;
+   2182              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2183          
+   2184              // ---add "," ---
+   2185              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_COMMA;
+   2186          
+   2187              // Copy dest port
+   2188              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2189              Cmd_Data_length = strlen(AT_Cmd_Param.IP_Open_Setting.Dest_port);
+   2190              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, AT_Cmd_Param.IP_Open_Setting.Dest_port,Cmd_Data_length);
+   2191              tcom_tx_num_bytes = tcom_tx_num_bytes+Cmd_Data_length;
+   2192              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_QUOTES;
+   2193          }
+   2194          
+   2195          // AT command for data send
+   2196          static void prvATProt_AT_Command_Deep_encode_QISEND	(void)
+   2197          {
+   2198              uint16_t Cmd_Data_length = 0;
+   2199          
+   2200              Cmd_Data_length = DECtoStr((uint8_t *)(tcom_tx_buffer+tcom_tx_num_bytes),(uint8_t *)(&(TCP_backup_data.TCP_Len)),2);
+   2201              tcom_tx_num_bytes = tcom_tx_num_bytes+Cmd_Data_length;
+   2202              tcp_tx_mode = 0;//send command
+   2203              prvATProt_Set_TCP_Mode(TCP_TXING);
+   2204          }
+   2205          
+   2206          // AT command for data read, not used
+   2207          static void prvATProt_AT_Command_Deep_encode_QIRD	(void)
+   2208          {
+   2209          }
+   2210          
+   2211          // APN setting
+   2212          static void prvATProt_AT_Command_Deep_encode_QIREGAPP	(void)
+   2213          {
+   2214              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2215              tcom_tx_num_bytes++;
+   2216          
+   2217              /*Copy command data to tx buffer*/
+   2218              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, AT_Cmd_Param.APN,strlen(AT_Cmd_Param.APN));
+   2219              tcom_tx_num_bytes = tcom_tx_num_bytes+strlen(AT_Cmd_Param.APN);
+   2220          
+   2221              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2222              tcom_tx_num_bytes++;
+   2223          
+   2224              // ---add "," ---
+   2225              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_COMMA;
+   2226          
+   2227              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2228              tcom_tx_num_bytes++;
+   2229          
+   2230              /*Copy command data to tx buffer*/
+   2231              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, AT_Cmd_Param.APN_user,strlen(AT_Cmd_Param.APN_user)-1);
+   2232              tcom_tx_num_bytes = tcom_tx_num_bytes+strlen(AT_Cmd_Param.APN_user)-1;
+   2233          
+   2234              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2235              tcom_tx_num_bytes++;
+   2236          
+   2237              // ---add "," ---
+   2238              tcom_tx_buffer[tcom_tx_num_bytes++] = CHAR_COMMA;
+   2239          
+   2240              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2241              tcom_tx_num_bytes++;
+   2242          
+   2243              /*Copy command data to tx buffer*/
+   2244              strncpy(tcom_tx_buffer+tcom_tx_num_bytes, AT_Cmd_Param.APN_pwd,strlen(AT_Cmd_Param.APN_pwd)-1);
+   2245              tcom_tx_num_bytes = tcom_tx_num_bytes+strlen(AT_Cmd_Param.APN_pwd)-1;
+   2246          
+   2247              tcom_tx_buffer[tcom_tx_num_bytes] = CHAR_QUOTES;
+   2248              tcom_tx_num_bytes++;
+   2249          }
+   2250          
+   2251          // Delete all SMS
+   2252          static void prvATProt_AT_Command_Deep_encode_Delete_SMS	(void)
+   2253          {
+   2254              // Delete all SMS in SIM card
+   2255              tcom_tx_buffer[tcom_tx_num_bytes++] = '1';
+   2256              tcom_tx_buffer[tcom_tx_num_bytes++] = ',';
+   2257              tcom_tx_buffer[tcom_tx_num_bytes++] = '4';
+   2258          }
+   2259          
+   2260          static void prvATProt_AT_Command_Deep_encode_ReadSMS	(void)
+   2261          {
+   2262              if(current_sms_index<=9)
+   2263              {
+   2264                  tcom_tx_buffer[tcom_tx_num_bytes++] = current_sms_index+'0';
+   2265              }
+   2266              else
+   2267              {
+   2268                  tcom_tx_buffer[tcom_tx_num_bytes++] = (current_sms_index/10)+'0';
+   2269                  tcom_tx_buffer[tcom_tx_num_bytes++] = (current_sms_index%10)+'0';
+   2270              }
+   2271          //    tcom_tx_num_bytes++;
+   2272          }
+   2273          
+   2274          /*******************************************************************************
+   2275          * Function:  prvATProt_AT_Send
+   2276          *
+   2277          * Parameters:  None
+   2278          * Returns:  None
+   2279          * Description:  send cmd to Telematics module
+   2280          *******************************************************************************/
+   2281          static void prvATProt_AT_Send_Set(AT_cmd_t send_cmd_index)
+   2282          {
+   2283              Set_Bit_RNGE_Check(tcom_tx_queue, send_cmd_index, AT_CMD_NUM);
+   2284          }
+   2285          
+   2286          /*******************************************************************************
+   2287          * Function: prvATProt_Uart_Get_Char
+   2288          *
+   2289          * Parameters: &data
+   2290          * Returns: 8-bit data or -1 if buffer is empty
+   2291          * Description: The SIPPROT specific UART receive routine which complements
+   2292          *              Com_Put_Char. See that function for more information.
+   2293          *******************************************************************************/
+   2294          static int16_t prvATProt_Uart_Get_Char (uint8_t*data)
+   2295          {
+   2296              int16_t ret_value;
+   2297          
+   2298              if (Uart_Get_Char(UART_GSM_CHANNEL, data)) 
+   2299              {
+   2300                  ret_value = (int16_t) (*data);
+   2301              }
+   2302              else
+   2303              {
+   2304                  ret_value = -1;
+   2305              }
+   2306          
+   2307              return ret_value;
+   2308          }
+   2309          
+   2310          /*******************************************************************************
+   2311          * Function:  prvATProt_Uart_Transmit
+   2312          *
+   2313          * Parameters:  None
+   2314          * Returns:  None
+   2315          * Description:  
+   2316          *******************************************************************************/
+   2317          uint8_t prvATProt_Uart_Transmit(const char* tx_buf, uint16_t bytes)
+   2318          {
+   2319              uint8_t ret = 0;
+   2320              uint16_t i;
+   2321          
+   2322              for(i = 0; i < bytes; i++)
+   2323              {
+   2324                  Uart_Put_Char(UART_GSM_CHANNEL,*(tx_buf + i));
+   2325              }
+   2326          
+   2327              return ret;
+   2328          }
+   2329          
+   2330          void vATProt_Set_TCP_State(uint8_t state)
+   2331          {
+   2332              if(net_Info.tcp_state !=state )
+   2333              {
+   2334                  /*if(( state == NET_APN_REGISTERED)
+   2335                      ||( state == NET_GPRS_ACTIVATED)
+   2336                      ||( state == NET_IP_GOT))*/
+   2337                  {
+   2338          //            vATApp_Retry_Clear();            
+   2339                  }
+   2340                  if (state < NET_STATE_NUM)
+   2341                  {
+   2342                      net_Info.tcp_state = state;    
+   2343                  }
+   2344                  if (state >= NET_TCP_CONNECTED)
+   2345                  {
+   2346                      net_Info.netActive = true;
+   2347                  }
+   2348                  else
+   2349                  {
+   2350                      net_Info.netActive = false;
+   2351                  }
+   2352              }
+   2353          }
+   2354          
+   2355          uint8_t vATProt_Get_TCP_State(void)
+   2356          {
+   2357              return net_Info.tcp_state;
+   2358          }
+   2359          
+   2360          void vATProt_Set_Rxtype(uint8_t type)
+   2361          {
+   2362              AT_Cmd_Param.rx_type = type;
+   2363          }
+   2364          
+   2365          static void prvATProt_Set_Recv_Len(uint16_t len)
+   2366          {
+   2367              if (len > TCOM_RX_BUF_SIZE)
+   2368                  tcp_rx_len = TCOM_RX_BUF_SIZE;
+   2369              else
+   2370                  tcp_rx_len = len;
+   2371          }
+   2372          
+   2373          static void prvATProt_Set_TCP_Mode(uint8_t mode)
+   2374          {
+   2375              net_Info.srv_status = mode;
+   2376              if(TCP_IDLE != net_Info.srv_status)
+   2377              {
+   2378                  tcp_mode_Timeout_timer = OS_Time()+MSec_To_Ticks(5000);
+   2379              }
+   2380          }
+   2381          
+   2382          static uint8_t prvATProt_Get_TCP_Mode(void)
+   2383          {
+   2384              return net_Info.srv_status;
+   2385          }
+   2386          
+   2387          static uint8_t prvATProt_Decode_Ipdata(char *data, uint16_t len)
+   2388          {
+   2389              if (len > 0)
+   2390              {
+   2391                  vTelmProt_informData((uint8_t *)data, len);
+   2392          //        prvATProt_Set_TCP_Mode(TCP_IDLE);
+   2393          #ifdef TEST_ACK_TIMER
+   2394                  TMR_Stop_Timer(GPRS_CONN_TIMER);
+   2395          #endif
+   2396              }
+   2397              return 0;
+   2398          }
+   2399          
+   2400          uint8_t ATProt_Sim_OK(void)
+   2401          {
+   2402              if (net_Info.tcp_state >= NET_SIM_CONNECTED)
+   2403                  return 1;
+   2404              else
+   2405                  return 0;
+   2406          }
+   2407          
+   2408          uint8_t ATProt_GPRS_Connect(void)
+   2409          {
+   2410          /*    if (net_Info.tcp_state >= NET_GPRS_ACTIVATED)
+   2411                  return 1;
+   2412              else
+   2413                  return 0;*/
+   2414              return 1;
+   2415          }
+   2416          
+   2417          uint8_t ATProt_ACK_Got(void)
+   2418          {
+   2419              return ack_from_server;
+   2420          }
+   2421          
+   2422          // Get IP string
+   2423          #ifndef USE_DOMAIN_NAME
+   2424          static void get_server_ip()
+   2425          {
+   2426              uint8_t config[38];
+   2427              char ip_str[16];
+   2428              uint8_t ip_len = 0;
+   2429              memset(ip_str, 0, 17);
+   2430          //    get_sys_config(config);
+   2431              ip_len = DECtoStr((unsigned char *)ip_str, &config[1], 1);
+   2432              ip_str[ip_len] = CHAR_STOP;
+   2433              ip_len++;
+   2434              ip_len += DECtoStr((unsigned char *)&ip_str[ip_len], &config[2], 1);
+   2435              ip_str[ip_len] = CHAR_STOP;
+   2436              ip_len++;
+   2437              ip_len += DECtoStr((unsigned char *)&ip_str[ip_len], &config[3], 1);
+   2438              ip_str[ip_len] = CHAR_STOP;
+   2439              ip_len++;
+   2440              ip_len += DECtoStr((unsigned char *)&ip_str[ip_len], &config[4], 1);
+   2441              ip_len++;
+   2442              strncpy(AT_Cmd_Param.IP_Open_Setting.Dest_IP,ip_str,ip_len);    
+   2443          }
+   2444          #endif
+   2445          
+   2446          // Get port string
+   2447          static void get_server_port()
+   2448          {
+   2449              uint8_t config[38];
+   2450              uint8_t port_str[6];
+   2451              uint8_t port_len = 0;
+   2452              memset(port_str, 0, 6);
+   2453          //    get_sys_config(config);
+   2454              port_len = DECtoStr(port_str, &config[5], 2);
+   2455              port_len++;
+   2456              strncpy(AT_Cmd_Param.IP_Open_Setting.Dest_port,(char *)port_str,port_len);
+   2457          }
+   2458          
+   2459          void accept_call(void)
+   2460          {
+   2461              vATProt_sendAT_Command(AT_CMD_ANSWER_CALL, NULL, NULL);
+   2462          }
+   2463          
+   2464          uint8_t module_alive(void)
+   2465          {
+   2466              if (net_Info.module_go_sleep == 1)
+   2467              {
+   2468          /*        if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_11) == 0)
+   2469                  {
+   2470                      DEBUG_PRINT0(DEBUG_MEDIUM, "[2G]:2G module Off\n\r");
+   2471                      return 0;
+   2472                  }
+   2473                  else*/
+   2474                      return 1;
+   2475              }
+   2476              else
+   2477              {
+   2478                  return 1;
+   2479              }
+   2480          }
+   2481          
+   2482          /* Report 2G module temperature */
+   2483          int8_t ATProt_Get_Temp(void)
+   2484          {
+   2485              return net_Info.dev_temp;
+   2486          }
+   2487          
+   2488          uint8_t ATProt_Rx_Buf_Empty(void)
+   2489          {
+   2490              if ((Net_Rx_Data_Num==0) || (Net_Rx_Data_Num==Net_Rx_Read_Index))
+   2491                  return 1;
+   2492              else
+   2493                  return 0;
+   2494          }
+   2495          
+   2496          uint8_t ATProt_Rx_Buf_Full(void)
+   2497          {
+   2498              if ((Net_Rx_Data_Num==(TCOM_RX_BUF_PACKET_NUM-1)) && 
+   2499                  (Net_Rx_Data_Num>Net_Rx_Read_Index))
+   2500                  return 1;
+   2501              else
+   2502                  return 0;
+   2503          }
+   2504          
+   2505          void ATProt_Rx_Buf_Clear(void)
+   2506          {
+   2507              uint8_t i=0;
+   2508              Net_Rx_Data_Num=0;
+   2509              Net_Rx_Read_Index=0;
+   2510              for (i=0;i<TCOM_RX_BUF_PACKET_NUM;i++)
+   2511              {
+   2512                  memset(Net_Rx_Data[i],0,TCOM_RX_BUF_SIZE);
+   2513                  Net_Rx_Data_Size[i]=0;
+   2514              }
+   2515          }
+   2516          
+   2517          uint8_t ATProt_Push_Rx_Buf(uint8_t *rx_buf, uint16_t length)
+   2518          {
+   2519          //    uint8_t rt=0;
+   2520              if (ATProt_Rx_Buf_Full())
+   2521                  return 0;
+   2522              if (Net_Rx_Data_Num<TCOM_RX_BUF_PACKET_NUM)
+   2523              {
+   2524                  memcpy(Net_Rx_Data[Net_Rx_Data_Num],rx_buf,TCOM_RX_BUF_SIZE);
+   2525                  Net_Rx_Data_Size[Net_Rx_Data_Num]=length;
+   2526                  Net_Rx_Data_Num++;
+   2527              }
+   2528              return 1;
+   2529          }
+   2530          
+   2531          uint16_t ATProt_Get_Rx_Buf(uint8_t *rx_buf)
+   2532          {
+   2533              if (Net_Rx_Data_Num>Net_Rx_Read_Index)
+   2534              {
+   2535                  uint16_t rt=Net_Rx_Data_Size[Net_Rx_Read_Index];
+   2536                  memcpy(rx_buf,Net_Rx_Data[Net_Rx_Read_Index],TCOM_RX_BUF_SIZE);
+   2537                  Net_Rx_Read_Index++;
+   2538                  return rt;
+   2539              }
+   2540              else
+   2541              {
+   2542                  ATProt_Rx_Buf_Clear();
+   2543                  return 0;
+   2544              }
+   2545          }
+   2546          
+   2547          uint8_t ATProt_Sim_Ready(void)
+   2548          {
+   2549              return AT_Cmd_Param.sim_ready;
+   2550          }
+   2551          
+   2552          uint8_t ATProt_GPRS_Ready(void)
+   2553          {
+   2554              return AT_Cmd_Param.gprs_ready;
+   2555          }
+   2556          
+   2557          void ATProt_Get_Loc(uint8_t *lac,uint8_t *cell_id)
+   2558          {
+   2559              memcpy(lac,AT_Cmd_Param.lac,2);
+   2560              memcpy(cell_id,AT_Cmd_Param.cell_id,2);
+   2561          }
+   2562          
+   2563          uint8_t ATProt_Get_Netreg(void)
+   2564          {
+   2565              return AT_Cmd_Param.netreg;
+   2566          }
+   2567          
+   2568          void ATProt_Get_Imei(uint8_t *imei)
+   2569          {
+   2570              memcpy(imei, AT_Cmd_Param.imei, 8);
+   2571          }
+   2572          
+   2573          void ATProt_Get_Imsi(uint8_t *imsi)
+   2574          {
+   2575              memcpy(imsi, AT_Cmd_Param.imsi, 8);
+   2576          }
+   2577          
+   2578          uint8_t ATProt_Get_Clock(uint8_t *clk)
+   2579          {
+   2580              if (clock_ref.year[0]=='2')
+   2581              {
+   2582                  memcpy(clk, &clock_ref, sizeof(AT_Clock_t));
+   2583                  return 1;
+   2584              }
+   2585              else
+   2586              {
+   2587                  return 0;
+   2588              }
+   2589          }
+   2590          
+   2591          /*
+   2592          void ATProt_test_decode(void)
+   2593          {
+   2594              uint8_t test_data[]={0x55,
+   2595              };
+   2596              prvATProt_Decode_Ipdata(test_data,1);
+   2597          }*/
+   2598          
+   2599          /*=======================================================================================*\
+   2600           * File Revision History
+   2601           *=======================================================================================
+   2602           * ----------  ------   ---------------------------------------------
+   2603           *
+   2604          \*=======================================================================================*/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   ATProt_ACK_Got
+       0   ATProt_GPRS_Connect
+       0   ATProt_GPRS_Ready
+       8   ATProt_Get_Clock
+         8   -> __aeabi_memcpy
+       8   ATProt_Get_Imei
+         8   -> __aeabi_memcpy
+       8   ATProt_Get_Imsi
+         8   -> __aeabi_memcpy
+      16   ATProt_Get_Loc
+        16   -> __aeabi_memcpy
+       0   ATProt_Get_Netreg
+      16   ATProt_Get_Rx_Buf
+        16   -> ATProt_Rx_Buf_Clear
+        16   -> __aeabi_memcpy
+       0   ATProt_Get_Temp
+       0   ATProt_Power_Status
+      16   ATProt_Push_Rx_Buf
+        16   -> ATProt_Rx_Buf_Full
+        16   -> __aeabi_memcpy
+      16   ATProt_Rx_Buf_Clear
+        16   -> __aeabi_memset
+       0   ATProt_Rx_Buf_Empty
+       0   ATProt_Rx_Buf_Full
+       0   ATProt_Sim_OK
+       0   ATProt_Sim_Ready
+       0   ATProt_decode_rx
+       8   accept_call
+         8   -> vATProt_sendAT_Command
+       0   bATProt_isNetWorkActive
+       0   module_alive
+       0   pcATProt_getImeiData
+       0   pcATProt_getImsiData
+       0   pcATProt_getRSSI
+       0   pcATProt_getRecivedData
+      16   prvATProt_AT_Command_Common_encode
+        16   -> strlen
+        16   -> strncpy
+       8   prvATProt_AT_Command_Deep_encode
+         8   -- Indirect call
+       0   prvATProt_AT_Command_Deep_encode_Cfun
+       0   prvATProt_AT_Command_Deep_encode_Delete_SMS
+       8   prvATProt_AT_Command_Deep_encode_Init
+         8   -> strncpy
+       0   prvATProt_AT_Command_Deep_encode_Multiip
+       8   prvATProt_AT_Command_Deep_encode_Open
+         8   -> Get_IP_config
+         8   -> strlen
+         8   -> strncpy
+       8   prvATProt_AT_Command_Deep_encode_QIOPEN
+         8   -> Get_IP_config
+         8   -> strlen
+         8   -> strncpy
+       0   prvATProt_AT_Command_Deep_encode_QIRD
+       8   prvATProt_AT_Command_Deep_encode_QIREGAPP
+         8   -> strlen
+         8   -> strncpy
+       8   prvATProt_AT_Command_Deep_encode_QISEND
+         8   -> DECtoStr
+         8   -> prvATProt_Set_TCP_Mode
+       0   prvATProt_AT_Command_Deep_encode_ReadSMS
+       0   prvATProt_AT_Command_Deep_encode_Rxget
+       8   prvATProt_AT_Command_Deep_encode_Send
+         8   -> DECtoStr
+         8   -> prvATProt_Set_TCP_Mode
+      16   prvATProt_AT_Command_Deep_encode_SendPostdata
+        16   -> __aeabi_memcpy
+        16   -> printf
+        16   -> prvATProt_Set_TCP_Mode
+       8   prvATProt_AT_Command_Deep_encode_SendSMS
+         8   -> sprintf
+       0   prvATProt_AT_Command_Deep_encode_Sendack
+       8   prvATProt_AT_Send_Set
+         8   -> Assign_Bit
+       0   prvATProt_AT_Transmit_Reset
+       8   prvATProt_AT_Var_Reset
+         8   -> __aeabi_memcpy
+         8   -> __aeabi_memset
+         8   -> prvATProt_Set_TCP_Mode
+       8   prvATProt_Decode_Ipdata
+         8   -> vTelmProt_informData
+       0   prvATProt_Get_TCP_Mode
+      16   prvATProt_Resp_Common_Decode
+        16   -> printf
+        16   -> prvATProt_Resp_Deep_Decode
+        16   -> prvATProt_Set_TCP_Mode
+        16   -> prvATProt_URC_Decode
+        16   -> prvATProt_parse_sms
+        16   -> rl_delay_without_schedule
+        16   -> strlen
+        16   -> strncmp
+        16   -> strncpy
+        16   -> vATProt_Com_Reset
+        16   -> vATProt_Get_TCP_State
+        16   -> vATProt_Power_Off
+        16   -> vATProt_Power_On
+        16   -> vATProt_Set_TCP_State
+       0   prvATProt_Resp_Decode_Answer_Call
+      24   prvATProt_Resp_Decode_IMEI_Query
+        24   -> StrtoHex
+        24   -> __aeabi_memcpy
+        24   -> printf
+       8   prvATProt_Resp_Decode_IMSI_Query
+         8   -> __aeabi_memcpy
+         8   -> printf
+       8   prvATProt_Resp_Decode_IP_INIT_Execute
+         8   -> vATProt_Get_TCP_State
+         8   -> vATProt_Set_TCP_State
+       8   prvATProt_Resp_Decode_IP_Query
+         8   -> printf
+         8   -> vATProt_Get_TCP_State
+         8   -> vATProt_Set_TCP_State
+       8   prvATProt_Resp_Decode_IP_REG_Execute
+         8   -> vATProt_Set_TCP_State
+       8   prvATProt_Resp_Decode_SET_Echo
+         8   -> vATProt_Get_TCP_State
+         8   -> vATProt_Set_TCP_State
+       8   prvATProt_Resp_Decode_SW_Ver
+         8   -> __aeabi_memcpy
+       8   prvATProt_Resp_Deep_Decode
+         8   -- Indirect call
+       8   prvATProt_Retransmit
+         8   -> prvATProt_Uart_Transmit
+         8   -> xTaskGetTickCountFromISR
+       0   prvATProt_Rx_Buffer_Filling
+      16   prvATProt_Rx_Resp_Assemble
+        16   -> __aeabi_memset
+        16   -> prvATProt_Decode_Ipdata
+        16   -> prvATProt_Get_TCP_Mode
+        16   -> prvATProt_Resp_Common_Decode
+        16   -> prvATProt_Rx_Buffer_Filling
+        16   -> prvATProt_Set_TCP_Mode
+        16   -> strncmp
+        16   -> vATProt_sendAT_Command
+       0   prvATProt_Set_Recv_Len
+       8   prvATProt_Set_TCP_Mode
+         8   -> xTaskGetTickCountFromISR
+      16   prvATProt_Transmit
+        16   -> __aeabi_memset
+        16   -> printf
+        16   -> prvATProt_AT_Command_Common_encode
+        16   -> prvATProt_AT_Command_Deep_encode
+        16   -> prvATProt_Uart_Transmit
+        16   -> xTaskGetTickCountFromISR
+      24   prvATProt_URC_Decode
+        24   -- Indirect call
+        24   -> strlen
+        24   -> strncmp
+       0   prvATProt_URC_decode_CGreg
+       0   prvATProt_URC_decode_Clock
+       0   prvATProt_URC_decode_Cme_Err
+       0   prvATProt_URC_decode_Cmt
+       8   prvATProt_URC_decode_Gprs
+         8   -> vATProt_Get_TCP_State
+         8   -> vATProt_Set_TCP_State
+       0   prvATProt_URC_decode_Net_Recv
+      16   prvATProt_URC_decode_Netreg
+        16   -> Get_Filed_Data_Pointer
+        16   -> Get_Next_Data_Len_Before_Comma
+        16   -> StrtoHex
+        16   -> printf
+        16   -> vATProt_Set_TCP_State
+       0   prvATProt_URC_decode_Pdp
+      16   prvATProt_URC_decode_Recv
+        16   -> ATProt_decode_rx
+        16   -> __aeabi_memset
+        16   -> printf
+        16   -> prvATProt_Set_Recv_Len
+        16   -> vATProt_Set_Rxtype
+       0   prvATProt_URC_decode_SMS_List
+       0   prvATProt_URC_decode_SMS_Recv
+       0   prvATProt_URC_decode_Signal
+       8   prvATProt_URC_decode_Sim
+         8   -> printf
+         8   -> strncmp
+         8   -> vATProt_Get_TCP_State
+         8   -> vATProt_Set_TCP_State
+       0   prvATProt_URC_decode_Sms
+       8   prvATProt_URC_decode_Sms_Got
+         8   -> vATProt_sendAT_Command
+       8   prvATProt_URC_decode_Temp
+         8   -> printf
+       0   prvATProt_URC_decode_nop
+       8   prvATProt_Uart_Get_Char
+         8   -> Uart_Get_Char
+      24   prvATProt_Uart_Transmit
+        24   -> Uart_Put_Char
+       8   prvATProt_Wait_Resp
+         8   -> prvATProt_AT_Transmit_Reset
+         8   -> prvATProt_Get_TCP_Mode
+         8   -> rl_delay_without_schedule
+         8   -> vATProt_Com_Reset
+         8   -> vATProt_Power_Off
+         8   -> vATProt_Power_On
+         8   -> vATProt_Set_TCP_State
+         8   -> xTaskGetTickCountFromISR
+     120   prvATProt_parse_sms
+       120   -> StrtoHex
+       120   -> prvATProt_Decode_Ipdata
+       0   vATProt_Add_URC_Listener
+       8   vATProt_Check_Receive
+         8   -> prvATProt_Rx_Resp_Assemble
+         8   -> prvATProt_Uart_Get_Char
+       8   vATProt_Check_Transmit
+         8   -> Find_First_Set_Bit
+         8   -> prvATProt_AT_Transmit_Reset
+         8   -> prvATProt_Get_TCP_Mode
+         8   -> prvATProt_Retransmit
+         8   -> prvATProt_Transmit
+         8   -> prvATProt_Wait_Resp
+       8   vATProt_Com_Reset
+         8   -> prvATProt_AT_Var_Reset
+         8   -> vTelmApp_AT_Var_Reset
+       0   vATProt_Get_TCP_State
+       8   vATProt_GoSleep
+         8   -> GPIO_WriteBit
+         8   -> rl_delay_without_schedule
+       8   vATProt_Init
+         8   -> Uart_Initialize
+         8   -> prvATProt_AT_Var_Reset
+       8   vATProt_Power_Off
+         8   -> GPIO_WriteBit
+         8   -> rl_delay_without_schedule
+       8   vATProt_Power_On
+         8   -> GPIO_WriteBit
+         8   -> rl_delay_without_schedule
+       0   vATProt_Remove_URC_Listener
+       0   vATProt_Set_Rxtype
+       0   vATProt_Set_TCP_State
+       0   vATProt_Upgrade_Reset
+       8   vATProt_WakeUp
+         8   -> Uart_Initialize
+       8   vATProt_sendAT_Command
+         8   -> prvATProt_AT_Send_Set
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable24
+       4  ??DataTable25
+       4  ??DataTable26
+       4  ??DataTable26_1
+       4  ??DataTable27
+       4  ??DataTable27_1
+       4  ??DataTable28
+       4  ??DataTable29
+       4  ??DataTable31
+       4  ??DataTable31_1
+       4  ??DataTable31_2
+       4  ??DataTable31_3
+       4  ??DataTable31_4
+       4  ??DataTable31_5
+       4  ??DataTable31_6
+       4  ??DataTable31_7
+       4  ??DataTable31_8
+       4  ??DataTable32
+       4  ??DataTable32_1
+       4  ??DataTable33
+       4  ??DataTable34
+       4  ??DataTable34_1
+       4  ??DataTable34_2
+       4  ??DataTable35
+       4  ??DataTable35_1
+       4  ??DataTable35_2
+       4  ??DataTable35_3
+       4  ??DataTable35_4
+       4  ??DataTable35_5
+       4  ??DataTable35_6
+       4  ??DataTable37
+       4  ??DataTable37_1
+       4  ??DataTable38
+       4  ??DataTable38_1
+       4  ??DataTable38_2
+       4  ??DataTable38_3
+       4  ??DataTable38_4
+       4  ??DataTable38_5
+       4  ??DataTable39
+       4  ??DataTable40
+       4  ??DataTable42
+       4  ??DataTable43
+       4  ??DataTable43_1
+       4  ??DataTable44
+       4  ??DataTable44_1
+       4  ??DataTable44_2
+       4  ??DataTable44_3
+       4  ??DataTable44_4
+       4  ??DataTable44_5
+       4  ??DataTable46
+       4  ??DataTable46_1
+       4  ??DataTable47
+       4  ??DataTable48
+       4  ??DataTable48_1
+       4  ??DataTable49
+       4  ??DataTable50
+       4  ??DataTable50_1
+       4  ??DataTable53
+       4  ??DataTable56
+       4  ??DataTable58
+       4  ??DataTable58_1
+       4  ??DataTable58_2
+       4  ??DataTable60
+       4  ??DataTable61
+       4  ??DataTable61_1
+       4  ??DataTable62
+       4  ??DataTable62_1
+       4  ??DataTable63
+       4  ??DataTable63_1
+       4  ??DataTable64
+       4  ??DataTable64_1
+       4  ??DataTable65
+       4  ??DataTable66
+       4  ??DataTable69
+       4  ??DataTable71
+       4  ??DataTable72
+       4  ??DataTable72_1
+       4  ??DataTable72_10
+       4  ??DataTable72_11
+       4  ??DataTable72_12
+       4  ??DataTable72_13
+       4  ??DataTable72_14
+       4  ??DataTable72_15
+       4  ??DataTable72_16
+       4  ??DataTable72_17
+       4  ??DataTable72_18
+       4  ??DataTable72_19
+       4  ??DataTable72_2
+       4  ??DataTable72_20
+       4  ??DataTable72_21
+       4  ??DataTable72_22
+       4  ??DataTable72_23
+       4  ??DataTable72_24
+       4  ??DataTable72_25
+       4  ??DataTable72_26
+       4  ??DataTable72_27
+       4  ??DataTable72_28
+       4  ??DataTable72_29
+       4  ??DataTable72_3
+       4  ??DataTable72_30
+       4  ??DataTable72_4
+       4  ??DataTable72_5
+       4  ??DataTable72_6
+       4  ??DataTable72_7
+       4  ??DataTable72_8
+       4  ??DataTable72_9
+      12  ?_0
+      16  ?_1
+      12  ?_10
+      20  ?_11
+       8  ?_12
+       8  ?_13
+      12  ?_14
+      20  ?_15
+      16  ?_16
+      16  ?_17
+      24  ?_18
+      28  ?_19
+       4  ?_2
+      24  ?_20
+      24  ?_21
+      28  ?_22
+      12  ?_23
+      12  ?_24
+       8  ?_25
+      12  ?_26
+       8  ?_27
+       4  ?_28
+      36  ?_29
+      12  ?_3
+       4  ?_30
+      16  ?_4
+       8  ?_5
+       8  ?_6
+       8  ?_7
+       8  ?_8
+      12  ?_9
+       6  ATProt_ACK_Got
+       4  ATProt_GPRS_Connect
+       8  ATProt_GPRS_Ready
+      30  ATProt_Get_Clock
+      16  ATProt_Get_Imei
+      16  ATProt_Get_Imsi
+      28  ATProt_Get_Loc
+       8  ATProt_Get_Netreg
+      74  ATProt_Get_Rx_Buf
+       8  ATProt_Get_Temp
+       8  ATProt_Power_Status
+      78  ATProt_Push_Rx_Buf
+      68  ATProt_Rx_Buf_Clear
+      28  ATProt_Rx_Buf_Empty
+      28  ATProt_Rx_Buf_Full
+      18  ATProt_Sim_OK
+       8  ATProt_Sim_Ready
+      62  ATProt_decode_rx
+     216  ATProt_encode_table
+    1728  AT_Cmd_Info_table
+     132  AT_Cmd_Param
+       1  AT_Cmd_Tx_State
+       1  AT_Resp_Rx_State
+       4  AT_Resp_Timeout
+     104  AT_Resp_data
+      64  AT_Resp_decode_table
+       1  AT_Tx_ATTEMPS
+     340  AT_URC_decode_table
+       1  AT_pending_tx_cmd
+       4  CME_ERROR_String
+       4  CME_NW_OPENED_String
+       4  CONNECT_FAIL_String
+       4  CONNECT_OK_String
+       4  Callready_String
+       4  DEACT_String
+       4  ERROR_String
+    1500  IPDATA
+       2  IPDataLen
+    7500  Net_Rx_Data
+       1  Net_Rx_Data_Num
+      12  Net_Rx_Data_Size
+       1  Net_Rx_Read_Index
+       4  OK_String
+       4  POWERDOWN_String
+       4  READY_String
+       4  REMOTE_CLOSE_String
+       4  Response_Timeout_timer
+       4  SEND_OK_String
+       4  SHUT_OK_String
+     304  SMS_back_data
+    1008  TCP_backup_data
+      14  accept_call
+       1  ack_from_server
+       1  at_cmd_res
+       8  bATProt_isNetWorkActive
+      16  clock_ref
+       1  current_sms_index
+       1  error_count
+      18  module_alive
+       1  module_power_on
+      72  net_Info
+       6  pcATProt_getImeiData
+       6  pcATProt_getImsiData
+       8  pcATProt_getRSSI
+      14  pcATProt_getRecivedData
+      56  prvATProt_AT_Command_Common_encode
+      30  prvATProt_AT_Command_Deep_encode
+       2  prvATProt_AT_Command_Deep_encode_Cfun
+      84  prvATProt_AT_Command_Deep_encode_Delete_SMS
+      96  prvATProt_AT_Command_Deep_encode_Init
+      30  prvATProt_AT_Command_Deep_encode_Multiip
+     402  prvATProt_AT_Command_Deep_encode_Open
+     402  prvATProt_AT_Command_Deep_encode_QIOPEN
+       2  prvATProt_AT_Command_Deep_encode_QIRD
+     388  prvATProt_AT_Command_Deep_encode_QIREGAPP
+      56  prvATProt_AT_Command_Deep_encode_QISEND
+     124  prvATProt_AT_Command_Deep_encode_ReadSMS
+       2  prvATProt_AT_Command_Deep_encode_Rxget
+      56  prvATProt_AT_Command_Deep_encode_Send
+     268  prvATProt_AT_Command_Deep_encode_SendPostdata
+      72  prvATProt_AT_Command_Deep_encode_SendSMS
+       2  prvATProt_AT_Command_Deep_encode_Sendack
+      22  prvATProt_AT_Send_Set
+      50  prvATProt_AT_Transmit_Reset
+     164  prvATProt_AT_Var_Reset
+      18  prvATProt_Decode_Ipdata
+       6  prvATProt_Get_TCP_Mode
+     980  prvATProt_Resp_Common_Decode
+       2  prvATProt_Resp_Decode_Answer_Call
+      90  prvATProt_Resp_Decode_IMEI_Query
+      42  prvATProt_Resp_Decode_IMSI_Query
+      18  prvATProt_Resp_Decode_IP_INIT_Execute
+      30  prvATProt_Resp_Decode_IP_Query
+      10  prvATProt_Resp_Decode_IP_REG_Execute
+      18  prvATProt_Resp_Decode_SET_Echo
+      20  prvATProt_Resp_Decode_SW_Ver
+      66  prvATProt_Resp_Deep_Decode
+      66  prvATProt_Retransmit
+      56  prvATProt_Rx_Buffer_Filling
+     542  prvATProt_Rx_Resp_Assemble
+      26  prvATProt_Set_Recv_Len
+      30  prvATProt_Set_TCP_Mode
+     282  prvATProt_Transmit
+     172  prvATProt_URC_Decode
+      32  prvATProt_URC_decode_CGreg
+     120  prvATProt_URC_decode_Clock
+       2  prvATProt_URC_decode_Cme_Err
+       2  prvATProt_URC_decode_Cmt
+      56  prvATProt_URC_decode_Gprs
+       2  prvATProt_URC_decode_Net_Recv
+     164  prvATProt_URC_decode_Netreg
+       2  prvATProt_URC_decode_Pdp
+     160  prvATProt_URC_decode_Recv
+       2  prvATProt_URC_decode_SMS_List
+       2  prvATProt_URC_decode_SMS_Recv
+      66  prvATProt_URC_decode_Signal
+      62  prvATProt_URC_decode_Sim
+      10  prvATProt_URC_decode_Sms
+      72  prvATProt_URC_decode_Sms_Got
+      94  prvATProt_URC_decode_Temp
+       2  prvATProt_URC_decode_nop
+      28  prvATProt_Uart_Get_Char
+      42  prvATProt_Uart_Transmit
+     212  prvATProt_Wait_Resp
+      62  prvATProt_parse_sms
+       2  rx_char_count
+       1  rx_pending_status
+       1  sms_rx_mode
+       1  tcom_frame_tx_attempts
+       4  tcom_receiving_frame
+    1500  tcom_rx_buffer
+    1000  tcom_tx_buffer
+       2  tcom_tx_num_bytes
+       8  tcom_tx_queue
+       4  tcp_mode_Timeout_timer
+       1  tcp_rx_comma_pos
+       2  tcp_rx_len
+       1  tcp_tx_mode
+       1  total_sms_num
+      16  vATProt_Add_URC_Listener
+      26  vATProt_Check_Receive
+     150  vATProt_Check_Transmit
+      12  vATProt_Com_Reset
+       8  vATProt_Get_TCP_State
+      78  vATProt_GoSleep
+      42  vATProt_Init
+      66  vATProt_Power_Off
+      64  vATProt_Power_On
+      18  vATProt_Remove_URC_Listener
+       8  vATProt_Set_Rxtype
+      48  vATProt_Set_TCP_State
+       2  vATProt_Upgrade_Reset
+      10  vATProt_WakeUp
+      10  vATProt_sendAT_Command
+
+ 
+ 13 192 bytes in section .bss
+    397 bytes in section .data
+  2 448 bytes in section .rodata
+  7 528 bytes in section .text
+ 
+  7 528 bytes of CODE  memory
+  2 448 bytes of CONST memory
+ 13 589 bytes of DATA  memory
+
+Errors: none
+Warnings: 12
